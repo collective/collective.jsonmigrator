@@ -39,7 +39,7 @@ def walk(folder):
             for subitem in walk_all(item):
                 yield subitem
         
-def store(items):
+def write(items):
     global COUNTER
 
     for item in items:
@@ -49,7 +49,7 @@ def store(items):
         write_to_jsonfile(CLASSNAME_TO_WAPPER_MAP[item.__class__.__name__](item))
         COUNTER += 1
 
-def write(item):
+def write_to_jsonfile(item):
     global COUNTER
 
     SUB_TMPDIR = os.path.join(TMPDIR, str(COUNTER/1000)) # 1000 files per folder, so we dont reach some fs limit
