@@ -1,8 +1,35 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
-    xmlns:five="http://namespaces.zope.org/five"
     i18n_domain="collective.blueprint.jsonmigrator">
 
-  <five:registerPackage package="." initialize=".initialize" />
+  <utility
+     component=".blueprint.JSONSource"
+     name="collective.blueprint.jsonmigrator.source"
+     />
+
+  <utility
+     component=".blueprint.WorkflowHistory"
+     name="collective.blueprint.jsonmigrator.workflowhistory"
+     />
+
+  <utility
+     component=".blueprint.Mimetype"
+     name="collective.blueprint.jsonmigrator.mimetype"
+     />
+
+  <utility
+     component=".blueprint.Properties"
+     name="collective.blueprint.jsonmigrator.properties"
+     />
+
+  <utility
+     component=".blueprint.Owner"
+     name="collective.blueprint.jsonmigrator.owner"
+     />
+
+  <utility
+     component=".blueprint.DataFields"
+     name="collective.blueprint.jsonmigrator.datafields"
+     />
 
 </configure>

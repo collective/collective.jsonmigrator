@@ -10,7 +10,6 @@
 
 
 
-
 import os
 import simplejson
 from Acquisition import aq_base
@@ -61,10 +60,10 @@ def write(item):
     datafield_counter = 1
     if '__datafields__' in item.keys():
         for datafield in item['__datafields__']:
-            datafield_filepath = os.path.join(SUB_TMPDIR, str(COUNTER)+'.json-file-'+str(datafield_counterj))
+            datafield_filepath = os.path.join(SUB_TMPDIR, str(COUNTER)+'.json-file-'+str(datafield_counter))
             f = open(datafield_filepath, 'wb')
             f.write(item[datafield])
-            item[datafield] = datafield_filepath
+            item[datafield] = os.path.join(str(COUNTER/1000), str(COUNTER)+'.json-file-'+str(datafield_counter))
             f.close()
             datafield_counter += 1
         _empty = item.pop(u'__datafields__')
@@ -224,8 +223,21 @@ class FileWrapper(BaseWrapper):
 
     def __init__(self, obj):
         super(FileWrapper, self).__init__(obj)
-        self['__datafields__'].append('_data')
-        self['_data'] = {'data': str(obj.data), 'size': obj.getSize()}
+        self['__datafields__'].append('_datafield_file')
+        data = str(obj.data)
+        if len(data) != obj.getSize():
+            raise Exception, 'Problem while extracting data for File content type at '+obj.absolute_url()
+        self['_datafield_file'] = data
+    
+class ImageWrapper(BaseWrapper):
+
+    def __init__(self, obj):
+        super(FileWrapper, self).__init__(obj)
+        self['__datafields__'].append('_datafield_image')
+        data = str(obj.data)
+        if len(data) != obj.getSize():
+            raise Exception, 'Problem while extracting data for Image content type at '+obj.absolute_url()
+        self['_datafield_image'] = data
     
 class EventWrapper(BaseWrapper):
     
@@ -410,7 +422,7 @@ CLASSNAME_TO_WAPPER_MAP = {
     'PloneFolder':              BaseWrapper,
     'Document':                 DocumentWrapper,
     'File':                     FileWrapper,
-    'Image':                    FileWrapper,
+    'Image':                    ImageWrapper,
     'Link':                     LinkWrapper,
     'Event':                    EventWrapper,
     'NewsItem':                 NewsItemWrapper,

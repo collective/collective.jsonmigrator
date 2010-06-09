@@ -6,8 +6,7 @@ version = '0.1'
 setup(name='collective.blueprint.jsonmigrator',
       version=version,
       description="useful transmogrifier blueprints for large migrations for Plone, from 2.0 to 4.0",
-      long_description=open("README.txt").read() + "\n" +
-                       open(os.path.join("docs", "HISTORY.txt")).read(),
+      long_description=open("README.txt").read(),
       # Get more strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[
         "Framework :: Plone",
@@ -25,6 +24,7 @@ setup(name='collective.blueprint.jsonmigrator',
       install_requires=[
           'setuptools',
           # -*- Extra requirements: -*-
+          'simplejson',
       ],
       entry_points="""
       # -*- Entry points: -*-
