@@ -16,6 +16,7 @@ from collective.transmogrifier.utils import defaultKeys
 from collective.transmogrifier.utils import resolvePackageReferenceOrFile
 
 from Products.CMFCore.utils import getToolByName
+from Products.Archetypes.interfaces import IBaseObject
 
 
 
@@ -75,19 +76,19 @@ class Mimetype(object):
             pathkeys = defaultKeys(options['blueprint'], name, 'path')
         self.pathkey = Matcher(*pathkeys)
 
-        if 'format-key' in options:
-            formatkeys = options['format-key'].splitlines()
+        if 'mimetype-key' in options:
+            mimetypekeys = options['mimetype-key'].splitlines()
         else:
-            formatkeys = defaultKeys(options['blueprint'], name, 'format')
-        self.formatkey = Matcher(*formatkeys)
+            mimetypekeys = defaultKeys(options['blueprint'], name, 'content_type')
+        self.mimetypekey = Matcher(*mimetypekeys)
 
     def __iter__(self):
         for item in self.previous:
             pathkey = self.pathkey(*item.keys())[0]
-            formatkey = self.formatkey(*item.keys())[0]
+            mimetypekey = self.mimetypekey(*item.keys())[0]
 
-            if not pathkey or not formatkey or \
-               formatkey not in item:      # not enough info
+            if not pathkey or not mimetypekey or \
+               mimetypekey not in item:      # not enough info
                 yield item; continue
             
             obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)
@@ -95,7 +96,7 @@ class Mimetype(object):
                 yield item; continue
 
             if IBaseObject.providedBy(obj):
-                obj.setFormat(item[formatkey])
+                obj.setFormat(item[mimetypekey])
 
             yield item
 
@@ -122,7 +123,7 @@ class WorkflowHistory(object):
         if 'workflowhistory-key' in options:
             workflowhistorykeys = options['workflowhistory-key'].splitlines()
         else:
-            workflowhistorykeys = defaultKeys(options['blueprint'], name, 'workflowhistory')
+            workflowhistorykeys = defaultKeys(options['blueprint'], name, 'workflow_history')
         self.workflowhistorykey = Matcher(*workflowhistorykeys)
 
     def __iter__(self):
@@ -135,16 +136,16 @@ class WorkflowHistory(object):
                 yield item; continue
 
             obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)
-            if obj is None:                     # path doesn't exist
+            if obj is None or not getattr(obj, 'workflow_history', False):
                 yield item; continue
 
             if IBaseObject.providedBy(obj):
                 item_tmp = item
 
                 # get back datetime stamp
-                for workflow in item[workflowhistorykey]:
-                    for k, workflow2 in enumerate(item[workflowhistorykey][workflow]):
-                        item_tmp[workflowhistorykey][workflow][k]['time'] = DateTime(item[workflowhistorykey][workflow][k]['time'])
+                for workflow in item_tmp[workflowhistorykey]:
+                    for k, workflow2 in enumerate(item_tmp[workflowhistorykey][workflow]):
+                        item_tmp[workflowhistorykey][workflow][k]['time'] = DateTime(item_tmp[workflowhistorykey][workflow][k]['time'])
 
                 obj.workflow_history.data = item_tmp[workflowhistorykey]
 
@@ -258,7 +259,7 @@ class Owner(object):
 
                 if item[ownerkey][0] and item[ownerkey][1]:
                     try:
-                        obj.changeOwnership(pm.getMemberById(item[ownerkey][1]))
+                        obj.changeOwnership(self.memtool.getMemberById(item[ownerkey][1]))
                     except Exception, e:
                         raise Exception('ERROR: %s SETTING OWNERSHIP TO %s' % (str(e), item[pathkey]))
 
@@ -288,7 +289,10 @@ class DataFields(object):
         self.options = options
         self.previous = previous
         self.context = transmogrifier.context
-        self.basepath = options.get('basepath', '')
+        
+        self.basepath = resolvePackageReferenceOrFile(options['basepath'])
+        if self.basepath is None or not os.path.isdir(self.basepath):
+            raise Exception, 'Path ('+str(self.basepath)+') does not exists.'
 
         if 'path-key' in options:
             pathkeys = options['path-key'].splitlines()
@@ -296,18 +300,13 @@ class DataFields(object):
             pathkeys = defaultKeys(options['blueprint'], name, 'path')
         self.pathkey = Matcher(*pathkeys)
 
-        if 'datafield-key' in options:
-            datafieldkeys = options['datafield-key'].splitlines()
-        else:
-            datafieldkeys = defaultKeys(options['blueprint'], name, 'datafield')
-        self.datafieldkey = Matcher(*datafieldkeys)
+        self.datafield_prefix = options.get('datafield-prefix', '_datafield_')
 
     def __iter__(self):
         for item in self.previous:
             pathkey = self.pathkey(*item.keys())[0]
-            datafieldkey = self.datafieldkey(*item.keys())[0]
 
-            if not pathkey or not datafieldkey: # not enough info
+            if not pathkey:                     # not enough info
                 yield item; continue
 
             obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)
@@ -316,11 +315,12 @@ class DataFields(object):
 
             if IBaseObject.providedBy(obj):
                 for key in item.keys():
-                    if not key.startswith(datafieldkey):
+                    if not key.startswith(self.datafield_prefix):
                         continue
 
-                    fieldname = key[len(datafieldkey)+1:]
-                    f = open(os.join.path(self.basepath, item[datafieldkey]))
+                    fieldname = key[len(self.datafield_prefix):]
+                    field = obj.getField(fieldname)
+                    f = open(os.path.join(self.basepath, item[key]))
                     value = f.read()
                     f.close()
                     field.set(obj, value)
