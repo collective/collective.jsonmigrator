@@ -19,9 +19,12 @@ from AccessControl.Permission import Permission
 from Products.CMFCore.utils import getToolByName
 
 COUNTER = 1
-TMPDIR = '/Users/rok/Projects/yaco/unex_exported_data'
+HOMEDIR = '/Users/rok/Projects/yaco/unex_exported_data'
 CLASSNAME_TO_SKIP_LAUD = ['DTMLMethod', 'ZopePageTemplate', 'ControllerPythonScript',
-    'ControllerPageTemplate', 'ControllerValidator', 'PythonScript']
+    'ControllerPageTemplate', 'ControllerValidator', 'PythonScript', 'SQL', 'Connection',
+    'ZetadbScript', 'ExternalMethod', 'ZetadbSqlInsert', 'ZetadbMysqlda', 'SiteRoot',
+    'ZetadbApplication', 'ContentPanels', 'ContentPanelsTool', 'ZetadbZptInsert',
+    'I18NLayer']
 CLASSNAME_TO_SKIP = ['CatalogTool', 'MemberDataTool', 'SkinsTool', 'TypesTool',
     'UndoTool', 'URLTool', 'WorkflowTool', 'DiscussionTool', 'MembershipTool',
     'RegistrationTool', 'PropertiesTool', 'MetadataTool', 'SyndicationTool',
@@ -30,7 +33,8 @@ CLASSNAME_TO_SKIP = ['CatalogTool', 'MemberDataTool', 'SkinsTool', 'TypesTool',
     'CookieCrumbler', 'ContentTypeRegistry', 'GroupUserFolder', 'CachingPolicyManager',
     'InterfaceTool', 'PloneControlPanel', 'FormController', 'SiteErrorLog', 'SinTool',
     'ArchetypeTool', 'RAMCacheManager', 'PloneArticleTool', 'SyndicationInformation',
-    'ActionIconsTool', 'AcceleratedHTTPCacheManager', 'ActionsTool']
+    'ActionIconsTool', 'AcceleratedHTTPCacheManager', 'ActionsTool', 'UIDCatalog',
+    'ReferenceCatalog',]
 ID_TO_SKIP = ['Members', ]
 
 
@@ -42,9 +46,11 @@ def export_plone20(self):
 
     COUNTER = 1
     TODAY = datetime.today()
-    TMPDIR += '/content_'+self.getId()+'_'+TODAY.strftime('%Y-%m-%d-%H-%M-%S')
+    TMPDIR = HOMEDIR+'/content_'+self.getId()+'_'+TODAY.strftime('%Y-%m-%d-%H-%M-%S')
     
-    import pdb; pdb.set_trace()
+    id_to_skip = self.REQUEST.get('id_to_skip', None)
+    if id_to_skip is not None:
+        ID_TO_SKIP += id_to_skip.split(',')
 
     if os.path.isdir(TMPDIR):
         shutil.rmtree(TMPDIR)
@@ -54,7 +60,7 @@ def export_plone20(self):
     write(walk(self))
 
     # TODO: we should return something more useful
-    return 'SUCCESS'
+    return 'SUCCESS :: '+self.absolute_url()+'\n'
 
 
 
@@ -78,6 +84,7 @@ def write(items):
 
     for item in items:
         if item.__class__.__name__ not in CLASSNAME_TO_WAPPER_MAP.keys():
+            import pdb; pdb.set_trace()
             raise Exception, 'No wrapper defined for "'+item.__class__.__name__+ \
                                                   '" ('+item.absolute_url()+').'
         write_to_jsonfile(CLASSNAME_TO_WAPPER_MAP[item.__class__.__name__](item))
