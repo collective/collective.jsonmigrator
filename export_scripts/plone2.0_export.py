@@ -11,17 +11,45 @@
 
 
 import os
+import shutil
 import simplejson
+from datetime import datetime
 from Acquisition import aq_base
 from AccessControl.Permission import Permission
 from Products.CMFCore.utils import getToolByName
 
 COUNTER = 1
+TMPDIR = '/Users/rok/Projects/yaco/unex_exported_data'
+CLASSNAME_TO_SKIP_LAUD = ['DTMLMethod', 'ZopePageTemplate', 'ControllerPythonScript',
+    'ControllerPageTemplate', 'ControllerValidator', 'PythonScript']
+CLASSNAME_TO_SKIP = ['CatalogTool', 'MemberDataTool', 'SkinsTool', 'TypesTool',
+    'UndoTool', 'URLTool', 'WorkflowTool', 'DiscussionTool', 'MembershipTool',
+    'RegistrationTool', 'PropertiesTool', 'MetadataTool', 'SyndicationTool',
+    'PloneTool', 'NavigationTool', 'FactoryTool', 'FormTool', 'MigrationTool',
+    'CalendarTool', 'QuickInstallerTool', 'GroupsTool', 'GroupDataTool', 'MailHost',
+    'CookieCrumbler', 'ContentTypeRegistry', 'GroupUserFolder', 'CachingPolicyManager',
+    'InterfaceTool', 'PloneControlPanel', 'FormController', 'SiteErrorLog', 'SinTool',
+    'ArchetypeTool', 'RAMCacheManager', 'PloneArticleTool', 'SyndicationInformation',
+    'ActionIconsTool', 'AcceleratedHTTPCacheManager', 'ActionsTool']
+ID_TO_SKIP = ['Members', ]
 
 
 def export_plone20(self):
+
     global COUNTER
+    global TMPDIR
+    global ID_TO_SKIP
+
     COUNTER = 1
+    TODAY = datetime.today()
+    TMPDIR += '/content_'+self.getId()+'_'+TODAY.strftime('%Y-%m-%d-%H-%M-%S')
+    
+    import pdb; pdb.set_trace()
+
+    if os.path.isdir(TMPDIR):
+        shutil.rmtree(TMPDIR)
+    else:
+        os.mkdir(TMPDIR)
 
     write(walk(self))
 
@@ -33,10 +61,16 @@ def export_plone20(self):
 def walk(folder):
     for item_id in folder.objectIds():
         item = folder[item_id]
+        if item.__class__.__name__ in CLASSNAME_TO_SKIP or \
+           item.getId() in ID_TO_SKIP:
+            continue
+        if item.__class__.__name__ in CLASSNAME_TO_SKIP_LAUD:
+            print '>> SKIPPING :: ['+item.__class__.__name__+'] '+item.absolute_url()
+            continue
         yield item
         if getattr(item, 'objectIds', None) and \
            item.objectIds():
-            for subitem in walk_all(item):
+            for subitem in walk(item):
                 yield subitem
         
 def write(items):
@@ -44,7 +78,7 @@ def write(items):
 
     for item in items:
         if item.__class__.__name__ not in CLASSNAME_TO_WAPPER_MAP.keys():
-            raise Exception, 'No wrapper defined for "'+item.__class.__name__+ \
+            raise Exception, 'No wrapper defined for "'+item.__class__.__name__+ \
                                                   '" ('+item.absolute_url()+').'
         write_to_jsonfile(CLASSNAME_TO_WAPPER_MAP[item.__class__.__name__](item))
         COUNTER += 1
@@ -54,7 +88,7 @@ def write_to_jsonfile(item):
 
     SUB_TMPDIR = os.path.join(TMPDIR, str(COUNTER/1000)) # 1000 files per folder, so we dont reach some fs limit
     if not os.path.isdir(SUB_TMPDIR):
-        os.mkdir(SUB_TMPDIR))
+        os.mkdir(SUB_TMPDIR)
 
     # we store data fields in separate files
     datafield_counter = 1
@@ -114,13 +148,13 @@ class BaseWrapper(dict):
             self['_workflow_history'] = workflow_history
 
         # default view
-        _browser = '/'.join(self.portal_utils.browserDefault(obj)[1])
+        _browser = '/'.join(self.portal_utils.browserDefault(aq_base(obj))[1])
         if _browser not in ['folder_listing']:
             self['_layout'] = ''
             self['_defaultpage'] = _browser
-        else:
-            self['_layout'] = _browser
-            self['_defaultpage'] = ''
+        #elif obj.getId() != 'index_html':
+        #    self['_layout'] = _browser
+        #    self['_defaultpage'] = ''
 
         # format
         self['_content_type'] = obj.Format()
@@ -128,9 +162,10 @@ class BaseWrapper(dict):
         # properties        
         self['_properties'] = []
         if getattr(aq_base(obj), 'propertyIds', False):
-            for pid in obj.propertyIds():
-                val = obj.getProperty(pid)
-                typ = obj.getPropertyType(pid)
+            obj_base = aq_base(obj)
+            for pid in obj_base.propertyIds():
+                val = obj_base.getProperty(pid)
+                typ = obj_base.getPropertyType(pid)
                 if typ == 'string':
                     if getattr(val, 'decode', False):
                         try:
@@ -140,7 +175,7 @@ class BaseWrapper(dict):
                     else:
                         val = unicode(val)
                 self['_properties'].append((pid, val,
-                                       obj.getPropertyType(pid)))
+                                       obj_base.getPropertyType(pid)))
 
         # local roles
         self['_ac_local_roles'] = {}
@@ -232,7 +267,7 @@ class FileWrapper(BaseWrapper):
 class ImageWrapper(BaseWrapper):
 
     def __init__(self, obj):
-        super(FileWrapper, self).__init__(obj)
+        super(ImageWrapper, self).__init__(obj)
         self['__datafields__'].append('_datafield_image')
         data = str(obj.data)
         if len(data) != obj.getSize():
@@ -411,10 +446,14 @@ class ZPhotoSlidesWrapper(BaseWrapper):
         import pdb; pdb.set_trace()
 
 
+class LocalFSWrapper(BaseWrapper):
+
+    def __init__(self, obj):
+        super(LocalFSWrapper, self).__init__(obj)
+        self['basepath'] = obj.basepath
 
 
 # TODO: should be also possible to set it with through parameters
-TMPDIR = '/Users/rok/Projects/yaco/unex-pcaro/unex/export_'
 CLASSNAME_TO_WAPPER_MAP = {
     'LargePloneFolder':         BaseWrapper,
     'Folder':                   BaseWrapper,
@@ -439,7 +478,7 @@ CLASSNAME_TO_WAPPER_MAP = {
     'ZPhotoSlides':             ZPhotoSlidesWrapper,
     'ZPhoto':                   ZPhotoWrapper,
     'PloneLocalFolderNG':       ArchetypesWrapper,
+    'LocalFS':                  LocalFSWrapper,
 
 }
-
 

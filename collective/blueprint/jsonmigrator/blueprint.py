@@ -18,6 +18,7 @@ from collective.transmogrifier.utils import resolvePackageReferenceOrFile
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.interfaces import IBaseObject
 
+DATAFIELD = '_datafield_'
 
 
 class JSONSource(object):
@@ -37,6 +38,7 @@ class JSONSource(object):
         if self.path is None or not os.path.isdir(self.path):
             raise Exception, 'Path ('+str(self.path)+') does not exists.'
 
+        self.datafield_prefix = options.get('datafield-prefix', DATAFIELD)
 
     def __iter__(self):
         for item in self.previous:
@@ -53,6 +55,10 @@ class JSONSource(object):
                 f = open(os.path.join(self.path, str(item), str(item2)+'.json'))
                 item3 = simplejson.loads(f.read())
                 f.close()
+
+                for key in item3.keys():
+                    if key.startswith(self.datafield_prefix):
+                        item3[key] = os.path.join(self.path, item3[key])
 
                 yield item3
 
@@ -290,17 +296,13 @@ class DataFields(object):
         self.previous = previous
         self.context = transmogrifier.context
         
-        self.basepath = resolvePackageReferenceOrFile(options['basepath'])
-        if self.basepath is None or not os.path.isdir(self.basepath):
-            raise Exception, 'Path ('+str(self.basepath)+') does not exists.'
-
         if 'path-key' in options:
             pathkeys = options['path-key'].splitlines()
         else:
             pathkeys = defaultKeys(options['blueprint'], name, 'path')
         self.pathkey = Matcher(*pathkeys)
 
-        self.datafield_prefix = options.get('datafield-prefix', '_datafield_')
+        self.datafield_prefix = options.get('datafield-prefix', DATAFIELD)
 
     def __iter__(self):
         for item in self.previous:
@@ -317,10 +319,12 @@ class DataFields(object):
                 for key in item.keys():
                     if not key.startswith(self.datafield_prefix):
                         continue
+                    if not os.path.exists(item[key]):
+                        continue
 
                     fieldname = key[len(self.datafield_prefix):]
                     field = obj.getField(fieldname)
-                    f = open(os.path.join(self.basepath, item[key]))
+                    f = open(item[key])
                     value = f.read()
                     f.close()
                     field.set(obj, value)
