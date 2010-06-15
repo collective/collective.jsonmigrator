@@ -75,7 +75,7 @@ class Mimetype(object):
         self.options = options
         self.previous = previous
         self.context = transmogrifier.context
-        
+
         if 'path-key' in options:
             pathkeys = options['path-key'].splitlines()
         else:
@@ -96,7 +96,7 @@ class Mimetype(object):
             if not pathkey or not mimetypekey or \
                mimetypekey not in item:      # not enough info
                 yield item; continue
-            
+
             obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)
             if obj is None:                     # path doesn't exist
                 yield item; continue
@@ -119,7 +119,7 @@ class WorkflowHistory(object):
         self.options = options
         self.previous = previous
         self.context = transmogrifier.context
-        
+
         if 'path-key' in options:
             pathkeys = options['path-key'].splitlines()
         else:
@@ -158,6 +158,114 @@ class WorkflowHistory(object):
             yield item
 
 
+class WorkflowState(object):
+    """ Set the workflow state
+    * Sets the workflow state of a content to whatever state without executing any transition
+    * Sets its security martix as expected
+    * Reindexes content security
+
+    http://glenfant.wordpress.com/2010/04/02/changing-workflow-state-quickly-on-cmfplone-content/
+    """
+
+    classProvides(ISectionBlueprint)
+    implements(ISection)
+
+    def __init__(self, transmogrifier, name, options, previous):
+        self.transmogrifier = transmogrifier
+        self.name = name
+        self.options = options
+        self.previous = previous
+        self.context = transmogrifier.context
+        self.wftool = getToolByName(self.context, 'portal_workflow')
+
+        if 'path-key' in options:
+            pathkeys = options['path-key'].splitlines()
+        else:
+            pathkeys = defaultKeys(options['blueprint'], name, 'path')
+        self.pathkey = Matcher(*pathkeys)
+
+        if 'workflowstate-key' in options:
+            workflowstatekeys = options['workflowstate-key'].splitlines()
+        else:
+            workflowstatekeys = defaultKeys(options['blueprint'], name, 'workflow_state')
+        self.workflowstatekey = Matcher(*workflowstatekeys)
+
+
+    def __iter__(self):
+        for item in self.previous:
+            pathkey = self.pathkey(*item.keys())[0]
+            workflowstatekey = self.workflowstatekey(*item.keys())[0]
+
+            if not pathkey or not workflowstatekey or \
+               workflowstatekey not in item:  # not enough info
+                yield item; continue
+
+            obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)
+            if obj is None or not getattr(obj, 'workflow_history', False):
+                yield item; continue
+
+            if IBaseObject.providedBy(obj):
+                state = item[workflowstatekey]
+                self.changeWorkflowState(obj, state, portal_workflow = self.wftool)
+
+            yield item
+
+    def changeWorkflowState(self, content, state_id, acquire_permissions=False,
+                            portal_workflow=None, **kw):
+        """Change the workflow state of an object
+        @param content: Content obj which state will be changed
+        @param state_id: name of the state to put on content
+        @param acquire_permissions: True->All permissions unchecked and on riles and
+                                    acquired
+                                    False->Applies new state security map
+        @param portal_workflow: Provide workflow tool (optimisation) if known
+        @param kw: change the values of same name of the state mapping
+        @return: None
+        """
+
+        if portal_workflow is None:
+            portal_workflow = getToolByName(content, 'portal_workflow')
+
+        # Might raise IndexError if no workflow is associated to this type
+        wfs = portal_workflow.getWorkflowsFor(content)
+        if not wfs:
+            return
+
+        wf_def = wfs[0]
+        wf_id= wf_def.getId()
+
+        wf_state = {
+            'action': None,
+            'actor': None,
+            'comments': "Setting state to %s" % state_id,
+            'review_state': state_id,
+            'time': DateTime(),
+            }
+
+        # Updating wf_state from keyword args
+        for k in kw.keys():
+            # Remove unknown items
+            if not wf_state.has_key(k):
+                del kw[k]
+        if kw.has_key('review_state'):
+            del kw['review_state']
+        wf_state.update(kw)
+
+        portal_workflow.setStatusOf(wf_id, content, wf_state)
+
+        if acquire_permissions:
+            # Acquire all permissions
+            for permission in content.possible_permissions():
+                content.manage_permission(permission, acquire=1)
+        else:
+            # Setting new state permissions
+            wf_def.updateRoleMappingsFor(content)
+
+        # Map changes to the catalogs
+        content.reindexObject(idxs=['allowedRolesAndUsers', 'review_state'])
+        return
+
+
 class Properties(object):
     """ """
 
@@ -170,6 +278,7 @@ class Properties(object):
         self.options = options
         self.previous = previous
         self.context = transmogrifier.context
+
 
         if 'path-key' in options:
             pathkeys = options['path-key'].splitlines()
@@ -203,7 +312,7 @@ class Properties(object):
                         if obj.hasProperty(prop[0]):
                             try:
                                 obj._delProperty(prop[0])
-                            
+
                             # continue if the object already has this attribute
                             except AttributeError:
                                 pass
@@ -218,7 +327,7 @@ class Properties(object):
                         except Exception, e:
                             raise Exception('Failed to set property %s type %s to %s at object %s. ERROR: %s' % \
                                                         (prop[0], prop[1], prop[2], str(obj), str(e)))
-                
+
             yield item
 
 
@@ -295,7 +404,7 @@ class DataFields(object):
         self.options = options
         self.previous = previous
         self.context = transmogrifier.context
-        
+
         if 'path-key' in options:
             pathkeys = options['path-key'].splitlines()
         else:
@@ -330,5 +439,3 @@ class DataFields(object):
                     field.set(obj, value)
 
             yield item
-
-
