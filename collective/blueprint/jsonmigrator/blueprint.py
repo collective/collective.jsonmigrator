@@ -74,6 +74,7 @@ class JSONSource(object):
 
                 for key in item.keys():
                     if key.startswith(self.datafield_prefix):
+<<<<<<< HEAD
                         item[key] = os.path.join(self.path, item[key])
 
                 keys = item.keys()
@@ -108,6 +109,13 @@ class JSONSource(object):
                                                    self.stats['ADDED'],
                                                    self.stats['NOT-ADDED'])
                     logging.warning(stat)
+=======
+                        item3[key] = os.path.join(self.path, item3[key])
+
+                print '>> '+str(item2)+' - ['+item3['_type']+'] '+item3['_path']
+                yield item3
+
+>>>>>>> c3ea0a2da2c3c7192b561f3ed070cd328dd1dec7
 
 class Mimetype(object):
     """ """
@@ -179,7 +187,11 @@ class WorkflowHistory(object):
             workflowhistorykeys = defaultKeys(options['blueprint'], name, 'workflow_history')
         self.workflowhistorykey = Matcher(*workflowhistorykeys)
 
+<<<<<<< HEAD
         self.portal_workflow = getToolByName(self.context, 'portal_workflow')
+=======
+        self.wftool = getToolByName(self.context, 'portal_workflow')
+>>>>>>> c3ea0a2da2c3c7192b561f3ed070cd328dd1dec7
 
     def __iter__(self):
         for item in self.previous:
@@ -205,9 +217,8 @@ class WorkflowHistory(object):
 
                 # update security
                 workflows = self.wftool.getWorkflowsFor(obj)
-                if not workflows:
-                    return
-                workflows[0].updateRoleMappingsFor(obj)
+                if workflows:
+                    workflows[0].updateRoleMappingsFor(obj)
 
             yield item
 
