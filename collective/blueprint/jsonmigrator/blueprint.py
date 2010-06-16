@@ -121,7 +121,7 @@ class Mimetype(object):
         self.options = options
         self.previous = previous
         self.context = transmogrifier.context
-        
+
         if 'path-key' in options:
             pathkeys = options['path-key'].splitlines()
         else:
@@ -142,7 +142,7 @@ class Mimetype(object):
             if not pathkey or not mimetypekey or \
                mimetypekey not in item:      # not enough info
                 yield item; continue
-            
+
             obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)
             if obj is None:                     # path doesn't exist
                 yield item; continue
@@ -165,7 +165,7 @@ class WorkflowHistory(object):
         self.options = options
         self.previous = previous
         self.context = transmogrifier.context
-        
+
         if 'path-key' in options:
             pathkeys = options['path-key'].splitlines()
         else:
@@ -177,6 +177,8 @@ class WorkflowHistory(object):
         else:
             workflowhistorykeys = defaultKeys(options['blueprint'], name, 'workflow_history')
         self.workflowhistorykey = Matcher(*workflowhistorykeys)
+
+        self.portal_workflow = getToolByName(content, 'portal_workflow')
 
     def __iter__(self):
         for item in self.previous:
@@ -194,12 +196,17 @@ class WorkflowHistory(object):
             if IBaseObject.providedBy(obj):
                 item_tmp = item
 
-                # get back datetime stamp
+                # get back datetime stamp and set the workflow history
                 for workflow in item_tmp[workflowhistorykey]:
                     for k, workflow2 in enumerate(item_tmp[workflowhistorykey][workflow]):
                         item_tmp[workflowhistorykey][workflow][k]['time'] = DateTime(item_tmp[workflowhistorykey][workflow][k]['time'])
-
                 obj.workflow_history.data = item_tmp[workflowhistorykey]
+
+                # update security
+                workflows = self.wftool.getWorkflowsFor(obj)
+                if not workflows:
+                    return
+                workflows[0].updateRoleMappingsFor(obj)
 
             yield item
 
@@ -216,6 +223,7 @@ class Properties(object):
         self.options = options
         self.previous = previous
         self.context = transmogrifier.context
+
 
         if 'path-key' in options:
             pathkeys = options['path-key'].splitlines()
@@ -249,7 +257,7 @@ class Properties(object):
                         if obj.hasProperty(prop[0]):
                             try:
                                 obj._delProperty(prop[0])
-                            
+
                             # continue if the object already has this attribute
                             except AttributeError:
                                 pass
@@ -264,7 +272,7 @@ class Properties(object):
                         except Exception, e:
                             raise Exception('Failed to set property %s type %s to %s at object %s. ERROR: %s' % \
                                                         (prop[0], prop[1], prop[2], str(obj), str(e)))
-                
+
             yield item
 
 
@@ -341,7 +349,7 @@ class DataFields(object):
         self.options = options
         self.previous = previous
         self.context = transmogrifier.context
-        
+
         if 'path-key' in options:
             pathkeys = options['path-key'].splitlines()
         else:
@@ -376,5 +384,3 @@ class DataFields(object):
                     field.set(obj, value)
 
             yield item
-
-
