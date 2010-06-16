@@ -13,11 +13,6 @@
      />
 
   <utility
-     component=".blueprint.WorkflowState"
-     name="collective.blueprint.jsonmigrator.workflowstate"
-     />
-
-  <utility
      component=".blueprint.Mimetype"
      name="collective.blueprint.jsonmigrator.mimetype"
      />
