@@ -1,7 +1,7 @@
 import time
 import os
 import simplejson
-import pprint
+import logging
 
 from DateTime import DateTime
 from Acquisition import aq_base
@@ -30,12 +30,19 @@ class JSONSource(object):
     implements(ISection)
 
     def __init__(self, transmogrifier, name, options, previous):
+        if not getattr(transmogrifier, 'stats', False):
+            setattr(transmogrifier, 'stats', {'START_TIME':     int(time.time()),
+                                              'TIME_LAST_STEP': 0,
+                                              'STEP': options.get('log-step', 2),
+                                              'OBJ_COUNT':      0,
+                                              'EXISTED':        0,
+                                              'ADDED':          0,
+                                              'NOT-ADDED':      0,})
         self.transmogrifier = transmogrifier
         self.name = name
         self.options = options
         self.previous = previous
         self.context = transmogrifier.context
-        self.pprint = pprint.PrettyPrinter(indent=4)
 
         self.typekey = defaultMatcher(options, 'type-key', name, 'type',
                                       ('portal_type', 'Type'))
@@ -46,14 +53,7 @@ class JSONSource(object):
             raise Exception, 'Path ('+str(self.path)+') does not exists.'
 
         self.datafield_prefix = options.get('datafield-prefix', DATAFIELD)
-
-        self.stats = {'START_TIME':     time.time(),
-                      'TIME_LAST_STEP': 0,
-                      'STEP':           options.get('log-step', 100),
-                      'OBJ_COUNT':      0,
-                      'EXISTED':        0,
-                      'ADDED':          0,
-                      'NOT-ADDED':      0,}
+        self.stats = transmogrifier.stats
 
     def __iter__(self):
         for item in self.previous:
@@ -82,7 +82,7 @@ class JSONSource(object):
                 path = item[pathkey]
 
                 path = path.encode('ASCII')
-                context = self.context.unrestrictedTraverse(path, None)
+                context = self.context.unrestrictedTraverse(path[21:], None)
                 existed = False
                 if context is not None and path == context.absolute_url():
                     self.stats['EXISTED'] += 1
@@ -91,23 +91,23 @@ class JSONSource(object):
                 yield item
 
                 if not existed:
-                    context = self.context.unrestrictedTraverse(path, None)
+                    context = self.context.unrestrictedTraverse(path[21:], None)
                     if context is not None and path == context.absolute_url():
                         self.stats['ADDED'] += 1
                     else:
                         self.stats['NOT-ADDED'] += 1
 
                 if self.stats['OBJ_COUNT'] % self.stats['STEP'] == 0:
-                    now = time.time()
+                    now = int(time.time())
                     stat = 'COUNT: %d; ' % self.stats['OBJ_COUNT']
-                    stat += 'TOTAL TIME: %d; ' % now - self.stats['START_TIME']
-                    stat += 'STEP TIME: %d; ' % now - self.stats['TIME_LAST_STEP']
+                    stat += 'TOTAL TIME: %d; ' % (now - self.stats['START_TIME'])
+                    stat += 'STEP TIME: %d; ' % (now - self.stats['TIME_LAST_STEP'])
                     self.stats['TIME_LAST_STEP'] = now
                     stat += 'EXISTED: %d; ADDED: %d; NOT-ADDED: %d' % (
                                                    self.stats['EXISTED'],
                                                    self.stats['ADDED'],
                                                    self.stats['NOT-ADDED'])
-                    print stat
+                    logging.warning(stat)
 
 class Mimetype(object):
     """ """
@@ -165,6 +165,7 @@ class WorkflowHistory(object):
         self.options = options
         self.previous = previous
         self.context = transmogrifier.context
+        self.wftool = getToolByName(self.context, 'portal_workflow')
 
         if 'path-key' in options:
             pathkeys = options['path-key'].splitlines()
@@ -178,7 +179,7 @@ class WorkflowHistory(object):
             workflowhistorykeys = defaultKeys(options['blueprint'], name, 'workflow_history')
         self.workflowhistorykey = Matcher(*workflowhistorykeys)
 
-        self.portal_workflow = getToolByName(content, 'portal_workflow')
+        self.portal_workflow = getToolByName(self.context, 'portal_workflow')
 
     def __iter__(self):
         for item in self.previous:
