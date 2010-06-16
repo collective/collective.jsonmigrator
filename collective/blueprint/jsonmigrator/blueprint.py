@@ -1,6 +1,7 @@
-
+import time
 import os
 import simplejson
+import pprint
 
 from DateTime import DateTime
 from Acquisition import aq_base
@@ -12,6 +13,7 @@ from zope.interface import classProvides
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.utils import Matcher
+from collective.transmogrifier.utils import defaultMatcher
 from collective.transmogrifier.utils import defaultKeys
 from collective.transmogrifier.utils import resolvePackageReferenceOrFile
 
@@ -33,6 +35,11 @@ class JSONSource(object):
         self.options = options
         self.previous = previous
         self.context = transmogrifier.context
+        self.pprint = pprint.PrettyPrinter(indent=4)
+
+        self.typekey = defaultMatcher(options, 'type-key', name, 'type',
+                                      ('portal_type', 'Type'))
+        self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
 
         self.path = resolvePackageReferenceOrFile(options['path'])
         if self.path is None or not os.path.isdir(self.path):
@@ -40,28 +47,67 @@ class JSONSource(object):
 
         self.datafield_prefix = options.get('datafield-prefix', DATAFIELD)
 
+        self.stats = {'START_TIME':     time.time(),
+                      'TIME_LAST_STEP': 0,
+                      'STEP':           options.get('log-step', 100),
+                      'OBJ_COUNT':      0,
+                      'EXISTED':        0,
+                      'ADDED':          0,
+                      'NOT-ADDED':      0,}
+
     def __iter__(self):
         for item in self.previous:
             yield item
 
-        for item in sorted([int(i)
+        for item3 in sorted([int(i)
                                 for i in os.listdir(self.path)
                                     if not i.startswith('.')]):
 
             for item2 in sorted([int(j[:-5])
-                                    for j in os.listdir(os.path.join(self.path, str(item)))
+                                    for j in os.listdir(os.path.join(self.path, str(item3)))
                                         if j.endswith('.json')]):
 
-                f = open(os.path.join(self.path, str(item), str(item2)+'.json'))
-                item3 = simplejson.loads(f.read())
+                f = open(os.path.join(self.path, str(item3), str(item2)+'.json'))
+                item = simplejson.loads(f.read())
                 f.close()
+                self.stats['OBJ_COUNT'] += 1
 
-                for key in item3.keys():
+                for key in item.keys():
                     if key.startswith(self.datafield_prefix):
-                        item3[key] = os.path.join(self.path, item3[key])
+                        item[key] = os.path.join(self.path, item[key])
 
-                yield item3
+                keys = item.keys()
+                pathkey = self.pathkey(*keys)[0]
 
+                path = item[pathkey]
+
+                path = path.encode('ASCII')
+                context = self.context.unrestrictedTraverse(path, None)
+                existed = False
+                if context is not None and path == context.absolute_url():
+                    self.stats['EXISTED'] += 1
+                    existed = True
+
+                yield item
+
+                if not existed:
+                    context = self.context.unrestrictedTraverse(path, None)
+                    if context is not None and path == context.absolute_url():
+                        self.stats['ADDED'] += 1
+                    else:
+                        self.stats['NOT-ADDED'] += 1
+
+                if self.stats['OBJ_COUNT'] % self.stats['STEP'] == 0:
+                    now = time.time()
+                    stat = 'COUNT: %d; ' % self.stats['OBJ_COUNT']
+                    stat += 'TOTAL TIME: %d; ' % now - self.stats['START_TIME']
+                    stat += 'STEP TIME: %d; ' % now - self.stats['TIME_LAST_STEP']
+                    self.stats['TIME_LAST_STEP'] = now
+                    stat += 'EXISTED: %d; ADDED: %d; NOT-ADDED: %d' % (
+                                                   self.stats['EXISTED'],
+                                                   self.stats['ADDED'],
+                                                   self.stats['NOT-ADDED'])
+                    print stat
 
 class Mimetype(object):
     """ """
