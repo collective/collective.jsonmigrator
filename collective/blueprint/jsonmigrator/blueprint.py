@@ -132,6 +132,8 @@ class WorkflowHistory(object):
             workflowhistorykeys = defaultKeys(options['blueprint'], name, 'workflow_history')
         self.workflowhistorykey = Matcher(*workflowhistorykeys)
 
+        self.portal_workflow = getToolByName(content, 'portal_workflow')
+
     def __iter__(self):
         for item in self.previous:
             pathkey = self.pathkey(*item.keys())[0]
@@ -148,122 +150,19 @@ class WorkflowHistory(object):
             if IBaseObject.providedBy(obj):
                 item_tmp = item
 
-                # get back datetime stamp
+                # get back datetime stamp and set the workflow history
                 for workflow in item_tmp[workflowhistorykey]:
                     for k, workflow2 in enumerate(item_tmp[workflowhistorykey][workflow]):
                         item_tmp[workflowhistorykey][workflow][k]['time'] = DateTime(item_tmp[workflowhistorykey][workflow][k]['time'])
-
                 obj.workflow_history.data = item_tmp[workflowhistorykey]
 
-            yield item
-
-
-class WorkflowState(object):
-    """ Set the workflow state
-    * Sets the workflow state of a content to whatever state without executing any transition
-    * Sets its security martix as expected
-    * Reindexes content security
-
-    http://glenfant.wordpress.com/2010/04/02/changing-workflow-state-quickly-on-cmfplone-content/
-    """
-
-    classProvides(ISectionBlueprint)
-    implements(ISection)
-
-    def __init__(self, transmogrifier, name, options, previous):
-        self.transmogrifier = transmogrifier
-        self.name = name
-        self.options = options
-        self.previous = previous
-        self.context = transmogrifier.context
-        self.wftool = getToolByName(self.context, 'portal_workflow')
-
-        if 'path-key' in options:
-            pathkeys = options['path-key'].splitlines()
-        else:
-            pathkeys = defaultKeys(options['blueprint'], name, 'path')
-        self.pathkey = Matcher(*pathkeys)
-
-        if 'workflowstate-key' in options:
-            workflowstatekeys = options['workflowstate-key'].splitlines()
-        else:
-            workflowstatekeys = defaultKeys(options['blueprint'], name, 'workflow_state')
-        self.workflowstatekey = Matcher(*workflowstatekeys)
-
-
-    def __iter__(self):
-        for item in self.previous:
-            pathkey = self.pathkey(*item.keys())[0]
-            workflowstatekey = self.workflowstatekey(*item.keys())[0]
-
-            if not pathkey or not workflowstatekey or \
-               workflowstatekey not in item:  # not enough info
-                yield item; continue
-
-            obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)
-            if obj is None or not getattr(obj, 'workflow_history', False):
-                yield item; continue
-
-            if IBaseObject.providedBy(obj):
-                state = item[workflowstatekey]
-                self.changeWorkflowState(obj, state, portal_workflow = self.wftool)
+                # update security
+                workflows = self.wftool.getWorkflowsFor(obj)
+                if not workflows:
+                    return
+                workflows[0].updateRoleMappingsFor(obj)
 
             yield item
-
-    def changeWorkflowState(self, content, state_id, acquire_permissions=False,
-                            portal_workflow=None, **kw):
-        """Change the workflow state of an object
-        @param content: Content obj which state will be changed
-        @param state_id: name of the state to put on content
-        @param acquire_permissions: True->All permissions unchecked and on riles and
-                                    acquired
-                                    False->Applies new state security map
-        @param portal_workflow: Provide workflow tool (optimisation) if known
-        @param kw: change the values of same name of the state mapping
-        @return: None
-        """
-
-        if portal_workflow is None:
-            portal_workflow = getToolByName(content, 'portal_workflow')
-
-        # Might raise IndexError if no workflow is associated to this type
-        wfs = portal_workflow.getWorkflowsFor(content)
-        if not wfs:
-            return
-
-        wf_def = wfs[0]
-        wf_id= wf_def.getId()
-
-        wf_state = {
-            'action': None,
-            'actor': None,
-            'comments': "Setting state to %s" % state_id,
-            'review_state': state_id,
-            'time': DateTime(),
-            }
-
-        # Updating wf_state from keyword args
-        for k in kw.keys():
-            # Remove unknown items
-            if not wf_state.has_key(k):
-                del kw[k]
-        if kw.has_key('review_state'):
-            del kw['review_state']
-        wf_state.update(kw)
-
-        portal_workflow.setStatusOf(wf_id, content, wf_state)
-
-        if acquire_permissions:
-            # Acquire all permissions
-            for permission in content.possible_permissions():
-                content.manage_permission(permission, acquire=1)
-        else:
-            # Setting new state permissions
-            wf_def.updateRoleMappingsFor(content)
-
-        # Map changes to the catalogs
-        content.reindexObject(idxs=['allowedRolesAndUsers', 'review_state'])
-        return
 
 
 class Properties(object):
