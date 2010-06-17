@@ -8,16 +8,6 @@
      />
 
   <utility
-     component=".blueprint.Statistics"
-     name="collective.blueprint.jsonmigrator.statistics"
-     />
-
-  <utility
-     component=".blueprint.Mover"
-     name="collective.blueprint.jsonmigrator.mover"
-     />
-
-  <utility
      component=".blueprint.WorkflowHistory"
      name="collective.blueprint.jsonmigrator.workflowhistory"
      />
