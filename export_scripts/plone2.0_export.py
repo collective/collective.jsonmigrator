@@ -137,7 +137,7 @@ class BaseWrapper(dict):
             self.charset = 'utf-8'
 
         self['__datafields__'] = []
-        self['_path']      = self.obj.absolute_url()
+        self['_path'] = '/'.join(self.obj.getPhysicalPath())
 
         self['_type'] = self.obj.__class__.__name__
         
@@ -399,13 +399,6 @@ class ZPhotoWrapper(BaseWrapper):
         self['tmpdir'] = obj.tmpdir
         self['backup'] = obj.backup
         
-        abspath = os.path.abspath(obj.path)
-        if os.path.exists(abspath):
-            f = open(abspath)
-            self['__datafields__'].append('_data')
-            self['_data'] = {'data': str(f.read()), 'size': f.len}
-            f.close()
-
 class ZPhotoSlidesWrapper(BaseWrapper):
 
     def __init__(self, obj):

@@ -8,6 +8,11 @@
      />
 
   <utility
+     component=".blueprint.PartialCommit"
+     name="collective.blueprint.jsonmigrator.partialcommit"
+     />
+
+  <utility
      component=".blueprint.Statistics"
      name="collective.blueprint.jsonmigrator.statistics"
      />

@@ -3,6 +3,7 @@ import time
 import os
 import simplejson
 import logging
+import transaction
 
 from DateTime import DateTime
 from Acquisition import aq_base
@@ -65,6 +66,23 @@ class JSONSource(object):
                         item[key] = os.path.join(self.path, item[key])
 
                 yield item
+
+class PartialCommit(object):
+
+    classProvides(ISectionBlueprint)
+    implements(ISection)
+
+    def __init__(self, transmogrifier, name, options, previous):
+        self.previous = previous
+        self.step = int(options.get('every', 100))
+
+    def __iter__(self):
+        count = 1
+        for item in self.previous:
+            yield item
+            if count % self.step == 0:
+                transaction.commit()
+            count += 1
 
 class Statistics(object):
     """ This has to be placed in the pipeline just after all sources
@@ -393,6 +411,7 @@ class DataFields(object):
                     f = open(item[key])
                     value = f.read()
                     f.close()
-                    field.set(obj, value)
+                    if len(value) != len(field.get(obj)):
+                        field.set(obj, value)
 
             yield item
