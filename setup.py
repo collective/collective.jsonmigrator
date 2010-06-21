@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '0.1a1'
+version = '0.1a2'
 
 setup(name='collective.blueprint.jsonmigrator',
       version=version,
