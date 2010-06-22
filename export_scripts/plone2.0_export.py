@@ -24,7 +24,7 @@ CLASSNAME_TO_SKIP_LAUD = ['DTMLMethod', 'ZopePageTemplate', 'ControllerPythonScr
     'ControllerPageTemplate', 'ControllerValidator', 'PythonScript', 'SQL', 'Connection',
     'ZetadbScript', 'ExternalMethod', 'ZetadbSqlInsert', 'ZetadbMysqlda', 'SiteRoot',
     'ZetadbApplication', 'ContentPanels', 'ContentPanelsTool', 'ZetadbZptInsert',
-    'I18NLayer']
+    'ZetadbZptView', 'I18NLayer', 'BrowserIdManager',]
 CLASSNAME_TO_SKIP = ['CatalogTool', 'MemberDataTool', 'SkinsTool', 'TypesTool',
     'UndoTool', 'URLTool', 'WorkflowTool', 'DiscussionTool', 'MembershipTool',
     'RegistrationTool', 'PropertiesTool', 'MetadataTool', 'SyndicationTool',
@@ -34,7 +34,7 @@ CLASSNAME_TO_SKIP = ['CatalogTool', 'MemberDataTool', 'SkinsTool', 'TypesTool',
     'InterfaceTool', 'PloneControlPanel', 'FormController', 'SiteErrorLog', 'SinTool',
     'ArchetypeTool', 'RAMCacheManager', 'PloneArticleTool', 'SyndicationInformation',
     'ActionIconsTool', 'AcceleratedHTTPCacheManager', 'ActionsTool', 'UIDCatalog',
-    'ReferenceCatalog',]
+    'ReferenceCatalog']
 ID_TO_SKIP = ['Members', ]
 
 
