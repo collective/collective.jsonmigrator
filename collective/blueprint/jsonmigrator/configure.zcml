@@ -8,6 +8,11 @@
      />
 
   <utility
+     component=".blueprint.SkipItems"
+     name="collective.blueprint.jsonmigrator.skipitems"
+     />
+
+  <utility
      component=".blueprint.PartialCommit"
      name="collective.blueprint.jsonmigrator.partialcommit"
      />

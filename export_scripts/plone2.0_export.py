@@ -19,7 +19,7 @@ from AccessControl.Permission import Permission
 from Products.CMFCore.utils import getToolByName
 
 COUNTER = 1
-HOMEDIR = '/Users/rok/Projects/yaco/unex_exported_data'
+HOMEDIR = '/opt/plone/unex_exported_data'
 CLASSNAME_TO_SKIP_LAUD = ['DTMLMethod', 'ZopePageTemplate', 'ControllerPythonScript',
     'ControllerPageTemplate', 'ControllerValidator', 'PythonScript', 'SQL', 'Connection',
     'ZetadbScript', 'ExternalMethod', 'ZetadbSqlInsert', 'ZetadbMysqlda', 'SiteRoot',
