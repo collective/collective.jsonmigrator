@@ -130,7 +130,7 @@ class Statistics(object):
 
             yield item
 
-            if item[self.statistics_prefix + 'existed']:
+            if self.statistics_prefix + 'existed' in item and item[self.statistics_prefix + 'existed']:
                 self.stats['EXISTED'] += 1
             else:
                 keys = item.keys()
