@@ -19,11 +19,16 @@ from AccessControl.Permission import Permission
 from Products.CMFCore.utils import getToolByName
 
 COUNTER = 1
-HOMEDIR = '/Users/rok/Projects/yaco/unex_exported_data'
+HOMEDIR = '/opt/plone/unex_exported_data'
 CLASSNAME_TO_SKIP_LAUD = ['DTMLMethod', 'ZopePageTemplate', 'ControllerPythonScript',
     'ControllerPageTemplate', 'ControllerValidator', 'PythonScript', 'SQL', 'Connection',
     'ZetadbScript', 'ExternalMethod', 'ZetadbSqlInsert', 'ZetadbMysqlda', 'SiteRoot',
+<<<<<<< HEAD
     'ZetadbApplication', 'ZetadbZptInsert', 'I18NLayer', 'ZetadbZptView', 'BrowserIdManager']
+=======
+    'ZetadbApplication', 'ContentPanels', 'ContentPanelsTool', 'ZetadbZptInsert',
+    'ZetadbZptView', 'I18NLayer', 'BrowserIdManager',]
+>>>>>>> 58d5fcc65a1f85ca92699e3b5fa1430d552495f3
 CLASSNAME_TO_SKIP = ['CatalogTool', 'MemberDataTool', 'SkinsTool', 'TypesTool',
     'UndoTool', 'URLTool', 'WorkflowTool', 'DiscussionTool', 'MembershipTool',
     'RegistrationTool', 'PropertiesTool', 'MetadataTool', 'SyndicationTool',
@@ -33,7 +38,11 @@ CLASSNAME_TO_SKIP = ['CatalogTool', 'MemberDataTool', 'SkinsTool', 'TypesTool',
     'InterfaceTool', 'PloneControlPanel', 'FormController', 'SiteErrorLog', 'SinTool',
     'ArchetypeTool', 'RAMCacheManager', 'PloneArticleTool', 'SyndicationInformation',
     'ActionIconsTool', 'AcceleratedHTTPCacheManager', 'ActionsTool', 'UIDCatalog',
+<<<<<<< HEAD
     'ReferenceCatalog', 'ContentPanelsTool', ]
+=======
+    'ReferenceCatalog']
+>>>>>>> 58d5fcc65a1f85ca92699e3b5fa1430d552495f3
 ID_TO_SKIP = ['Members', ]
 
 
