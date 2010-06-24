@@ -23,8 +23,7 @@ HOMEDIR = '/Users/rok/Projects/yaco/unex_exported_data'
 CLASSNAME_TO_SKIP_LAUD = ['DTMLMethod', 'ZopePageTemplate', 'ControllerPythonScript',
     'ControllerPageTemplate', 'ControllerValidator', 'PythonScript', 'SQL', 'Connection',
     'ZetadbScript', 'ExternalMethod', 'ZetadbSqlInsert', 'ZetadbMysqlda', 'SiteRoot',
-    'ZetadbApplication', 'ContentPanels', 'ContentPanelsTool', 'ZetadbZptInsert',
-    'I18NLayer']
+    'ZetadbApplication', 'ZetadbZptInsert', 'I18NLayer', 'ZetadbZptView', 'BrowserIdManager']
 CLASSNAME_TO_SKIP = ['CatalogTool', 'MemberDataTool', 'SkinsTool', 'TypesTool',
     'UndoTool', 'URLTool', 'WorkflowTool', 'DiscussionTool', 'MembershipTool',
     'RegistrationTool', 'PropertiesTool', 'MetadataTool', 'SyndicationTool',
@@ -34,7 +33,7 @@ CLASSNAME_TO_SKIP = ['CatalogTool', 'MemberDataTool', 'SkinsTool', 'TypesTool',
     'InterfaceTool', 'PloneControlPanel', 'FormController', 'SiteErrorLog', 'SinTool',
     'ArchetypeTool', 'RAMCacheManager', 'PloneArticleTool', 'SyndicationInformation',
     'ActionIconsTool', 'AcceleratedHTTPCacheManager', 'ActionsTool', 'UIDCatalog',
-    'ReferenceCatalog',]
+    'ReferenceCatalog', 'ContentPanelsTool', ]
 ID_TO_SKIP = ['Members', ]
 
 
@@ -147,12 +146,15 @@ class BaseWrapper(dict):
 
         # workflow history
         if hasattr(obj, 'workflow_history'):
-            workflow_history = obj.workflow_history.data
+          workflow_history = obj.workflow_history.data
+          try:
             for w in workflow_history:
                 for i, w2 in enumerate(workflow_history[w]):
                     workflow_history[w][i]['time'] = str(workflow_history[w][i]['time'])
                     workflow_history[w][i]['comments'] = workflow_history[w][i]['comments'].decode(self.charset, 'ignore')
-            self['_workflow_history'] = workflow_history
+          except:
+            import pdb; pdb.set_trace()
+          self['_workflow_history'] = workflow_history
 
         # default view
         _browser = '/'.join(self.portal_utils.browserDefault(aq_base(obj))[1])
@@ -479,6 +481,7 @@ CLASSNAME_TO_WAPPER_MAP = {
     'ZPhoto':                   ZPhotoWrapper,
     'PloneLocalFolderNG':       ArchetypesWrapper,
     'LocalFS':                  LocalFSWrapper,
+    'ContentPanels':            BaseWrapper,
 
 }
 
