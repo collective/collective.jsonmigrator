@@ -23,7 +23,8 @@ HOMEDIR = '/opt/plone/unex_exported_data'
 CLASSNAME_TO_SKIP_LAUD = ['DTMLMethod', 'ZopePageTemplate', 'ControllerPythonScript',
     'ControllerPageTemplate', 'ControllerValidator', 'PythonScript', 'SQL', 'Connection',
     'ZetadbScript', 'ExternalMethod', 'ZetadbSqlInsert', 'ZetadbMysqlda', 'SiteRoot',
-    'ZetadbApplication', 'ZetadbZptInsert', 'I18NLayer', 'ZetadbZptView', 'BrowserIdManager']
+    'ZetadbApplication', 'ZetadbZptInsert', 'I18NLayer', 'ZetadbZptView', 'BrowserIdManager',
+    'ZetadbScriptSelectMaster', 'ZetadbSqlSelect', ]
 CLASSNAME_TO_SKIP = ['CatalogTool', 'MemberDataTool', 'SkinsTool', 'TypesTool',
     'UndoTool', 'URLTool', 'WorkflowTool', 'DiscussionTool', 'MembershipTool',
     'RegistrationTool', 'PropertiesTool', 'MetadataTool', 'SyndicationTool',
