@@ -299,6 +299,9 @@ class Properties(object):
             if IBaseObject.providedBy(obj):
                 if getattr(aq_base(obj), '_delProperty', False):
                     for prop in item[propertieskey]:
+                        if getattr(aq_base(obj), prop[0], None) is not None:
+                            # if object have a attribute equal to property, do nothing
+                            continue
                         try:
                             if obj.hasProperty(prop[0]):
                                 obj._updateProperty(prop[0], prop[1])
