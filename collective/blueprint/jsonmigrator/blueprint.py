@@ -299,20 +299,11 @@ class Properties(object):
             if IBaseObject.providedBy(obj):
                 if getattr(aq_base(obj), '_delProperty', False):
                     for prop in item[propertieskey]:
-
-                        if obj.hasProperty(prop[0]):
-                            try:
-                                obj._delProperty(prop[0])
-
-                            # continue if the object already has this attribute
-                            except AttributeError:
-                                pass
-
-                        if getattr(aq_base(obj), prop[0], None) is not None:
-                            continue
-
                         try:
-                            obj._setProperty(prop[0], prop[1], prop[2])
+                            if obj.hasProperty(prop[0]):
+                                obj._updateProperty(prop[0], prop[1])
+                            else:
+                                obj._setProperty(prop[0], prop[1], prop[2])
                         except ConflictError:
                             raise
                         except Exception, e:
