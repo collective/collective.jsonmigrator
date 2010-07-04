@@ -20,7 +20,7 @@ from Products.CMFCore.utils import getToolByName
 
 COUNTER = 1
 HOMEDIR = '/opt/plone/unex_exported_data'
-CLASSNAME_TO_SKIP_LAUD = ['DTMLMethod', 'ZopePageTemplate', 'ControllerPythonScript',
+CLASSNAME_TO_SKIP_LAUD = ['ControllerPythonScript',
     'ControllerPageTemplate', 'ControllerValidator', 'PythonScript', 'SQL', 'Connection',
     'ZetadbScript', 'ExternalMethod', 'ZetadbSqlInsert', 'ZetadbMysqlda', 'SiteRoot',
     'ZetadbApplication', 'ZetadbZptInsert', 'I18NLayer', 'ZetadbZptView', 'BrowserIdManager',
@@ -47,7 +47,7 @@ def export_plone20(self):
     COUNTER = 1
     TODAY = datetime.today()
     TMPDIR = HOMEDIR+'/content_'+self.getId()+'_'+TODAY.strftime('%Y-%m-%d-%H-%M-%S')
-    
+
     id_to_skip = self.REQUEST.get('id_to_skip', None)
     if id_to_skip is not None:
         ID_TO_SKIP += id_to_skip.split(',')
@@ -78,7 +78,7 @@ def walk(folder):
            item.objectIds():
             for subitem in walk(item):
                 yield subitem
-        
+
 def write(items):
     global COUNTER
 
@@ -125,10 +125,10 @@ def getPermissionMapping(acperm):
 class BaseWrapper(dict):
     """Wraps the dublin core metadata and pass it as tranmogrifier friendly style
     """
-    
+
     def __init__(self, obj):
         self.obj = obj
-        
+
         self.portal = getToolByName(obj, 'portal_url').getPortalObject()
         self.portal_utils = getToolByName(obj, 'plone_utils')
         self.charset = self.portal.portal_properties.site_properties.default_charset
@@ -140,7 +140,7 @@ class BaseWrapper(dict):
         self['_path'] = '/'.join(self.obj.getPhysicalPath())
 
         self['_type'] = self.obj.__class__.__name__
-        
+
         self['id'] = obj.getId()
         self['title'] = obj.title.decode(self.charset, 'ignore')
         self['description'] = obj.description.decode(self.charset, 'ignore')
@@ -168,8 +168,8 @@ class BaseWrapper(dict):
 
         # format
         self['_content_type'] = obj.Format()
-        
-        # properties        
+
+        # properties
         self['_properties'] = []
         if getattr(aq_base(obj), 'propertyIds', False):
             obj_base = aq_base(obj)
@@ -249,7 +249,7 @@ class StringCriteriaWrapper(BaseWrapper):
         self['value'] = obj.value
 
 class SortCriteriaWrapper(BaseWrapper):
-    
+
     def __init__(self, obj):
         super(SortCriteriaWrapper, self).__init__(obj)
         self['index'] = obj.index
@@ -273,7 +273,7 @@ class FileWrapper(BaseWrapper):
         if len(data) != obj.getSize():
             raise Exception, 'Problem while extracting data for File content type at '+obj.absolute_url()
         self['_datafield_file'] = data
-    
+
 class ImageWrapper(BaseWrapper):
 
     def __init__(self, obj):
@@ -283,9 +283,9 @@ class ImageWrapper(BaseWrapper):
         if len(data) != obj.getSize():
             raise Exception, 'Problem while extracting data for Image content type at '+obj.absolute_url()
         self['_datafield_image'] = data
-    
+
 class EventWrapper(BaseWrapper):
-    
+
     def __init__(self, obj):
         super(EventWrapper, self).__init__(obj)
         self['effective_date'] = str(obj.effective_date)
@@ -382,7 +382,7 @@ class ArticleWrapper(NewsItemWrapper):
             self['cooked_text'] = obj.cooked_text.decode(self.charset)
         except:
             self['cooked_text'] = obj.cooked_text.decode('latin-1')
-    
+
         self['attachments_ids'] = obj.attachments_ids
         self['images_ids'] = obj.images_ids
 
@@ -401,7 +401,7 @@ class ZPhotoWrapper(BaseWrapper):
         self['format'] = obj.format
         self['tmpdir'] = obj.tmpdir
         self['backup'] = obj.backup
-        
+
 class ZPhotoSlidesWrapper(BaseWrapper):
 
     def __init__(self, obj):
@@ -455,6 +455,12 @@ class LocalFSWrapper(BaseWrapper):
         super(LocalFSWrapper, self).__init__(obj)
         self['basepath'] = obj.basepath
 
+class ZopeObjectWrapper(BaseWrapper):
+
+    def __init__(self, obj):
+        super(ZopeObjectWrapper, self).__init__(obj)
+        self['document_src'] = obj.document_src()
+        # self['__datafields__'].append('document_src')
 
 # TODO: should be also possible to set it with through parameters
 CLASSNAME_TO_WAPPER_MAP = {
@@ -483,6 +489,7 @@ CLASSNAME_TO_WAPPER_MAP = {
     'PloneLocalFolderNG':       ArchetypesWrapper,
     'LocalFS':                  LocalFSWrapper,
     'ContentPanels':            BaseWrapper,
+    'DTMLMethod':               ZopeObjectWrapper,
+    'ZopePageTemplate':         ZopeObjectWrapper,
 
 }
-
