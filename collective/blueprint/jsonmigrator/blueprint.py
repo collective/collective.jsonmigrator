@@ -130,20 +130,26 @@ class Statistics(object):
 
             yield item
 
-            if self.statistics_prefix + 'existed' in item and item[self.statistics_prefix + 'existed']:
-                self.stats['EXISTED'] += 1
-            else:
-                keys = item.keys()
-                pathkey = self.pathkey(*keys)[0]
-                path = item[pathkey]
-                path = path.encode('ASCII')
-                context = self.context.unrestrictedTraverse(path, None)
-                if context is not None and path == '/'.join(context.getPhysicalPath()):
-                    self.stats['ADDED'] += 1
-                else:
-                    self.stats['NOT-ADDED'] += 1
+            #if self.statistics_prefix + 'existed' in item and item[self.statistics_prefix + 'existed']:
+            #    self.stats['EXISTED'] += 1
+            #else:
+            #    keys = item.keys()
+            #    pathkey = self.pathkey(*keys)[0]
+            #    path = item[pathkey]
+            #    path = path.encode('ASCII')
+            #    context = self.context.unrestrictedTraverse(path, None)
+            #    if context is not None and path == '/'.join(context.getPhysicalPath()):
+            #        self.stats['ADDED'] += 1
+            #    else:
+            #        self.stats['NOT-ADDED'] += 1
 
             if self.stats['OBJ_COUNT'] % self.stats['STEP'] == 0:
+
+                keys = item.keys()
+                pathkey = self.pathkey(*keys)[0]
+                path = item.get(pathkey, 'Unknown')
+                logging.warning('Migrating now: %s' % path)
+
                 now = int(time.time())
                 stat = 'COUNT: %d; ' % self.stats['OBJ_COUNT']
                 stat += 'TOTAL TIME: %d; ' % (now - self.stats['START_TIME'])
