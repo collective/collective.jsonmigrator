@@ -307,7 +307,7 @@ class ArchetypesWrapper(BaseWrapper):
         for field in fields:
             type_ = field.__class__.__name__
             if type_ in ['StringField', 'BooleanField', 'LinesField', 'IntegerField', 'TextField',
-                         'SimpleDataGridField', 'FloatField', 'FixedPointField']:
+                         'SimpleDataGridField', 'FloatField', 'FixedPointField', 'DateTimeField']:
                 try:
                     value = field.get(obj)
                 except:
