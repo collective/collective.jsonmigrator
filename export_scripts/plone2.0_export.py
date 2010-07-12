@@ -144,6 +144,25 @@ class BaseWrapper(dict):
         self['id'] = obj.getId()
         self['title'] = obj.title.decode(self.charset, 'ignore')
         self['description'] = obj.description.decode(self.charset, 'ignore')
+        self['language'] = obj.language
+        self['rights'] = obj.rights.decode(self.charset, 'ignore')
+        # for DC attrs that are tuples
+        for attr in ('subject', 'contributors'):
+            self[attr] = []
+            val_tuple = getattr(obj, attr, False)
+            if val_tuple:
+                for val in val_tuple:
+                    self[attr].append(val.decode(self.charset, 'ignore'))
+                self[attr] = tuple(self[attr])
+        # for DC attrs that are DateTimes
+        datetimes_dict = {'creation_date': 'creation_date',
+                          'modification_date': 'modification_date',
+                          'expiration_date': 'expirationDate',
+                          'effective_date': 'effectiveDate'}
+        for old_name, new_name in datetimes_dict.items():
+            val = getattr(obj, old_name, False)
+            if val:
+                self[new_name] = str(val)
 
         # workflow history
         if hasattr(obj, 'workflow_history'):
