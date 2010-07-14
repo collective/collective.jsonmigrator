@@ -222,9 +222,9 @@ class BaseWrapper(dict):
             roles = obj.validRoles()
             ps = obj.permission_settings()
             for perm in ps:
-                unchecked = False
+                unchecked = 0
                 if not perm['acquire']:
-                    unchecked = True
+                    unchecked = 1
                 new_roles = []
                 for role in perm['roles']:
                     if role['checked']:
