@@ -38,6 +38,11 @@
      />
 
   <utility
+     component=".blueprint.PermissionMapping"
+     name="collective.blueprint.jsonmigrator.permission_mapping"
+     />
+
+  <utility
      component=".blueprint.Owner"
      name="collective.blueprint.jsonmigrator.owner"
      />

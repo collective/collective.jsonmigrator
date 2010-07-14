@@ -21,6 +21,7 @@ from collective.transmogrifier.utils import resolvePackageReferenceOrFile
 
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.interfaces import IBaseObject
+from AccessControl.interfaces import IRoleManager
 
 DATAFIELD = '_datafield_'
 STATISTICSFIELD = '_statistics_field_prefix_'
@@ -379,6 +380,53 @@ class Owner(object):
                         obj._owner = item[ownerkey][1]
                     except Exception, e:
                         raise Exception('ERROR: %s SETTING __OWNERSHIP TO %s' % (str(e), item[pathkey]))
+
+            yield item
+
+
+class PermissionMapping(object):
+    """ """
+
+    classProvides(ISectionBlueprint)
+    implements(ISection)
+
+    def __init__(self, transmogrifier, name, options, previous):
+        self.transmogrifier = transmogrifier
+        self.name = name
+        self.options = options
+        self.previous = previous
+        self.context = transmogrifier.context
+
+        if 'path-key' in options:
+            pathkeys = options['path-key'].splitlines()
+        else:
+            pathkeys = defaultKeys(options['blueprint'], name, 'path')
+        self.pathkey = Matcher(*pathkeys)
+
+        if 'perms-key' in options:
+            permskeys = options['perms-key'].splitlines()
+        else:
+            permskeys = defaultKeys(options['blueprint'], name, 'permission_mapping')
+        self.permskey = Matcher(*permskeys)
+
+    def __iter__(self):
+        for item in self.previous:
+            pathkey = self.pathkey(*item.keys())[0]
+            permskey = self.permskey(*item.keys())[0]
+
+            if not pathkey or not permskey or \
+               permskey not in item:    # not enough info
+                yield item; continue
+
+            obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)
+            if obj is None:             # path doesn't exist
+                yield item; continue
+
+            if IRoleManager.providedBy(obj):
+                for perm, perm_dict in item[permskey].items():
+                    obj.manage_permission(perm,
+                            roles=perm_dict['roles'],
+                            acquire=perm_dict['acquire'])
 
             yield item
 
