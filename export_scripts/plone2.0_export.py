@@ -217,12 +217,31 @@ class BaseWrapper(dict):
         if getattr(aq_base(obj), 'userdefined_roles', False):
             self['_userdefined_roles'] = obj.userdefined_roles()
 
-        self['_ac_inherited_permissions'] = {}
-        if getattr(aq_base(obj), 'ac_inherited_permissions', False):
-            oldmap = getPermissionMapping(obj.ac_inherited_permissions(1))
-            for key, values in oldmap.items():
-                old_p = Permission(key, values, obj)
-                self['_ac_inherited_permissions'][key] = old_p.getRoles()
+        self['_permission_mapping'] = {}
+        if getattr(aq_base(obj), 'permission_settings', False):
+            roles = obj.validRoles()
+            ps = obj.permission_settings()
+            for perm in ps:
+                unchecked = False
+                if not perm['acquire']:
+                    unchecked = True
+                new_roles = []
+                for role in perm['roles']:
+                    if role['checked']:
+                        role_idx = role['name'].index('r')+1
+                        role_name = roles[int(role['name'][role_idx:])]
+                        new_roles.append(role_name)
+                if unchecked or new_roles:
+                    self['_permission_mapping'][perm['name']] = \
+                         {'acquire': not unchecked,
+                          'roles': new_roles}
+
+#        self['_ac_inherited_permissions'] = {}
+#        if getattr(aq_base(obj), 'ac_inherited_permissions', False):
+#            oldmap = getPermissionMapping(obj.ac_inherited_permissions(1))
+#            for key, values in oldmap.items():
+#                old_p = Permission(key, values, obj)
+#                self['_ac_inherited_permissions'][key] = old_p.getRoles()
 
 
         if getattr(aq_base(obj), 'getWrappedOwner', False):
