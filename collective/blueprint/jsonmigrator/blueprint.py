@@ -424,9 +424,12 @@ class PermissionMapping(object):
 
             if IRoleManager.providedBy(obj):
                 for perm, perm_dict in item[permskey].items():
-                    obj.manage_permission(perm,
+                    try:
+                        obj.manage_permission(perm,
                             roles=perm_dict['roles'],
                             acquire=perm_dict['acquire'])
+                    except ValueError:
+                        logging.error('Error setting the perm "%s"' % perm)
 
             yield item
 
