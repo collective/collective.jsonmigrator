@@ -469,7 +469,9 @@ class LocalRoles(object):
                 yield item; continue
 
             if IRoleManager.providedBy(obj):
-                obj.__ac_local_roles__ = item[roleskey]
+                for principal, roles in item[roleskey].items():
+                    if roles:
+                        obj.manage_addLocalRoles(principal, roles)
 
             yield item
 
