@@ -13,7 +13,6 @@ import shutil
 import simplejson
 from datetime import datetime
 from Acquisition import aq_base
-from AccessControl.Permission import Permission
 from Products.CMFCore.utils import getToolByName
 
 COUNTER = 1
@@ -106,7 +105,7 @@ def write_to_jsonfile(item):
             item[datafield] = os.path.join(str(COUNTER/1000), str(COUNTER)+'.json-file-'+str(datafield_counter))
             f.close()
             datafield_counter += 1
-        _empty = item.pop(u'__datafields__')
+        item.pop(u'__datafields__')
 
     f = open(os.path.join(SUB_TMPDIR, str(COUNTER)+'.json'), 'wb')
     simplejson.dump(item, f, indent=4)
@@ -449,6 +448,30 @@ class ArchetypesWrapper(BaseWrapper):
             fname = '%s.%s' % (fname, extension)
         return fname
 
+class I18NLayerWrapper(ArchetypesWrapper):
+
+    def __init__(self, obj):
+        super(I18NLayerWrapper, self).__init__(obj)
+        lang = obj.portal_properties.site_properties.default_language
+        if lang not in obj.objectIds():
+            print 'ERROR: Cannot get default data for I18NLayer "%s"' % self['_path']
+        else:
+            real = obj[lang]
+            self['title'] = real.title.decode(self.charset, 'ignore')
+            self['description'] = real.description.decode(self.charset, 'ignore')
+            self['text'] = real.text.decode(self.charset, 'ignore')
+
+        # Not lose information: generate properites es_title, en_title, etc.
+        # TODO: Export all archetypes, but I don't need now, only document important fields
+        for lang, content in obj.objectItems():
+            data = dict(title = content.title,
+                        description = content.description,
+                        text = content.text)
+            for field in data:
+                self['_properties'].append(['%s_%s' % (lang, field),
+                                            data[field].decode(self.charset, 'ignore'),
+                                            'text'])
+
 
 class ArticleWrapper(NewsItemWrapper):
 
@@ -523,7 +546,7 @@ class ZPhotoSlidesWrapper(BaseWrapper):
             self['lib'] = obj.lib
             self['convert'] = obj.convert
             self['use_http_cache'] = obj.use_http_cache
-        except Exception, e:
+        except Exception:
             import pdb; pdb.set_trace()
 
 
@@ -562,6 +585,7 @@ CLASSNAME_TO_WAPPER_MAP = {
 
     # custom ones
     'I18NFolder':               I18NFolderWrapper,
+    'I18NLayer':                I18NLayerWrapper,
     'PloneArticle':             ArticleWrapper,
     'ZPhotoSlides':             ZPhotoSlidesWrapper,
     'ZPhoto':                   ZPhotoWrapper,
