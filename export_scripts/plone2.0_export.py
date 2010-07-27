@@ -111,6 +111,25 @@ def write_to_jsonfile(item):
             f.close()
             datafield_counter += 1
         item.pop(u'__datafields__')
+    if '_plonearticle_attachments' in item:
+        for item2 in item['_plonearticle_attachments']:
+            datafield_filepath = os.path.join(SUB_TMPDIR, str(COUNTER)+'.json-file-'+str(datafield_counter))
+            f = open(datafield_filepath, 'wb')
+            f.write(item2['attachedFile'][0])
+            item2['attachedFile'][0] = os.path.join(str(COUNTER/1000), str(COUNTER)+'.json-file-'+str(datafield_counter))
+            f.close()
+            datafield_counter += 1
+    if '_plonearticle_images' in item:
+        for item2 in item['_plonearticle_images']:
+            datafield_filepath = os.path.join(SUB_TMPDIR, str(COUNTER)+'.json-file-'+str(datafield_counter))
+            f = open(datafield_filepath, 'wb')
+            try:
+                f.write(item2['attachedImage'][0])
+            except:
+                import pdb; pdb.set_trace()
+            item2['attachedImage'][0] = os.path.join(str(COUNTER/1000), str(COUNTER)+'.json-file-'+str(datafield_counter))
+            f.close()
+            datafield_counter += 1
 
     f = open(os.path.join(SUB_TMPDIR, str(COUNTER)+'.json'), 'wb')
     simplejson.dump(item, f, indent=4)
@@ -305,7 +324,7 @@ class LinkWrapper(BaseWrapper):
 
     def __init__(self, obj):
         super(LinkWrapper, self).__init__(obj)
-        self['remote_url'] = obj.remote_url
+        self['remoteUrl'] = obj.remote_url
 
 
 class NewsItemWrapper(DocumentWrapper):
@@ -498,8 +517,27 @@ class ArticleWrapper(NewsItemWrapper):
         except:
             self['cooked_text'] = obj.cooked_text.decode('latin-1')
 
-        self['attachments_ids'] = obj.attachments_ids
-        self['images_ids'] = obj.images_ids
+        plonearticle_attachments = []
+        for item_id in obj.attachments_ids:
+            item = obj[item_id]
+            plonearticle_attachments.append({
+                'id':            (item_id, {}),
+                'title':         (item.title.decode(self.charset, 'ignore'), {}),
+                'description':   (item.description.decode(self.charset, 'ignore'), {}),
+                'attachedFile':  [item.getFile(), {}],
+                })
+        self['_plonearticle_attachments'] = plonearticle_attachments
+
+        plonearticle_images = []
+        for item_id in obj.images_ids:
+            item = obj[item_id]
+            plonearticle_images.append({
+                'id':            (item_id, {}),
+                'title':         (item.title.decode(self.charset, 'ignore'), {}),
+                'description':   (item.description.decode(self.charset, 'ignore'), {}),
+                'attachedImage': [str(item.data), {}],
+                })
+        self['_plonearticle_images'] = plonearticle_images
 
 
 class ZPhotoWrapper(BaseWrapper):
