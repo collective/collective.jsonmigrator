@@ -31,7 +31,8 @@ CLASSNAME_TO_SKIP = ['CatalogTool', 'MemberDataTool', 'SkinsTool', 'TypesTool',
     'InterfaceTool', 'PloneControlPanel', 'FormController', 'SiteErrorLog', 'SinTool',
     'ArchetypeTool', 'RAMCacheManager', 'PloneArticleTool', 'SyndicationInformation',
     'ActionIconsTool', 'AcceleratedHTTPCacheManager', 'ActionsTool', 'UIDCatalog',
-    'ReferenceCatalog', 'ContentPanelsTool', ]
+    'ReferenceCatalog', 'ContentPanelsTool', 'MimeTypesRegistry', 'LanguageTool',
+    'TransformTool']
 ID_TO_SKIP = ['Members', ]
 
 
@@ -84,8 +85,12 @@ def write(items):
             import pdb; pdb.set_trace()
             raise Exception, 'No wrapper defined for "'+item.__class__.__name__+ \
                                                   '" ('+item.absolute_url()+').'
-        write_to_jsonfile(CLASSNAME_TO_WAPPER_MAP[item.__class__.__name__](item))
-        COUNTER += 1
+        try:
+            dictionary = CLASSNAME_TO_WAPPER_MAP[item.__class__.__name__](item)
+            write_to_jsonfile(dictionary)
+            COUNTER += 1
+        except:
+            import pdb; pdb.set_trace()
 
 
 def write_to_jsonfile(item):
@@ -248,6 +253,16 @@ class BaseWrapper(dict):
             # trying to get/set the owner via getOwner(), changeOwnership(...)
             # did not work, at least not with plone 1.x, at 1.0.1, zope 2.6.2
             self['_owner'] = (0, obj.getOwner(info = 1).getId())
+
+    def decode(self, s, encodings=('utf8', 'latin1', 'ascii')):
+        if self.charset:
+            test_encodings = (self.charset, ) + encodings
+        for encoding in test_encodings:
+            try:
+                return s.decode(encoding)
+            except UnicodeDecodeError:
+                pass
+        return s.decode(test_encodings[0], 'ignore')
 
 
 class DocumentWrapper(BaseWrapper):
@@ -448,6 +463,7 @@ class ArchetypesWrapper(BaseWrapper):
             fname = '%s.%s' % (fname, extension)
         return fname
 
+
 class I18NLayerWrapper(ArchetypesWrapper):
 
     def __init__(self, obj):
@@ -561,7 +577,7 @@ class ZopeObjectWrapper(BaseWrapper):
 
     def __init__(self, obj):
         super(ZopeObjectWrapper, self).__init__(obj)
-        self['document_src'] = obj.document_src()
+        self['document_src'] = self.decode(obj.document_src())
         # self['__datafields__'].append('document_src')
 
 # TODO: should be also possible to set it with through parameters
