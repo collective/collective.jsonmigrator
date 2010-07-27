@@ -16,7 +16,7 @@ from Acquisition import aq_base
 from Products.CMFCore.utils import getToolByName
 
 COUNTER = 1
-HOMEDIR = '/opt/plone/unex_exported_data'
+HOMEDIR = '/Users/rok/Projects/yaco/unex_exported_data'
 CLASSNAME_TO_SKIP_LAUD = ['ControllerPythonScript',
     'ControllerPageTemplate', 'ControllerValidator', 'PythonScript', 'SQL', 'Connection',
     'ZetadbScript', 'ExternalMethod', 'ZetadbSqlInsert', 'ZetadbMysqlda', 'SiteRoot',
