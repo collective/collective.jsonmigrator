@@ -8,18 +8,15 @@
 #####                                                                     #####
 ###############################################################################
 
-
-
 import os
 import shutil
 import simplejson
 from datetime import datetime
 from Acquisition import aq_base
-from AccessControl.Permission import Permission
 from Products.CMFCore.utils import getToolByName
 
 COUNTER = 1
-HOMEDIR = '/opt/plone/unex_exported_data'
+HOMEDIR = '/Users/rok/Projects/yaco/unex_exported_data'
 CLASSNAME_TO_SKIP_LAUD = ['ControllerPythonScript',
     'ControllerPageTemplate', 'ControllerValidator', 'PythonScript', 'SQL', 'Connection',
     'ZetadbScript', 'ExternalMethod', 'ZetadbSqlInsert', 'ZetadbMysqlda', 'SiteRoot',
@@ -34,7 +31,8 @@ CLASSNAME_TO_SKIP = ['CatalogTool', 'MemberDataTool', 'SkinsTool', 'TypesTool',
     'InterfaceTool', 'PloneControlPanel', 'FormController', 'SiteErrorLog', 'SinTool',
     'ArchetypeTool', 'RAMCacheManager', 'PloneArticleTool', 'SyndicationInformation',
     'ActionIconsTool', 'AcceleratedHTTPCacheManager', 'ActionsTool', 'UIDCatalog',
-    'ReferenceCatalog', 'ContentPanelsTool', ]
+    'ReferenceCatalog', 'ContentPanelsTool', 'MimeTypesRegistry', 'LanguageTool',
+    'TransformTool']
 ID_TO_SKIP = ['Members', ]
 
 
@@ -63,7 +61,6 @@ def export_plone20(self):
     return 'SUCCESS :: '+self.absolute_url()+'\n'
 
 
-
 def walk(folder):
     for item_id in folder.objectIds():
         item = folder[item_id]
@@ -79,6 +76,7 @@ def walk(folder):
             for subitem in walk(item):
                 yield subitem
 
+
 def write(items):
     global COUNTER
 
@@ -87,8 +85,13 @@ def write(items):
             import pdb; pdb.set_trace()
             raise Exception, 'No wrapper defined for "'+item.__class__.__name__+ \
                                                   '" ('+item.absolute_url()+').'
-        write_to_jsonfile(CLASSNAME_TO_WAPPER_MAP[item.__class__.__name__](item))
-        COUNTER += 1
+        try:
+            dictionary = CLASSNAME_TO_WAPPER_MAP[item.__class__.__name__](item)
+            write_to_jsonfile(dictionary)
+            COUNTER += 1
+        except:
+            import pdb; pdb.set_trace()
+
 
 def write_to_jsonfile(item):
     global COUNTER
@@ -107,19 +110,37 @@ def write_to_jsonfile(item):
             item[datafield] = os.path.join(str(COUNTER/1000), str(COUNTER)+'.json-file-'+str(datafield_counter))
             f.close()
             datafield_counter += 1
-        _empty = item.pop(u'__datafields__')
+        item.pop(u'__datafields__')
+    if '_plonearticle_attachments' in item:
+        for item2 in item['_plonearticle_attachments']:
+            datafield_filepath = os.path.join(SUB_TMPDIR, str(COUNTER)+'.json-file-'+str(datafield_counter))
+            f = open(datafield_filepath, 'wb')
+            f.write(item2['attachedFile'][0])
+            item2['attachedFile'][0] = os.path.join(str(COUNTER/1000), str(COUNTER)+'.json-file-'+str(datafield_counter))
+            f.close()
+            datafield_counter += 1
+    if '_plonearticle_images' in item:
+        for item2 in item['_plonearticle_images']:
+            datafield_filepath = os.path.join(SUB_TMPDIR, str(COUNTER)+'.json-file-'+str(datafield_counter))
+            f = open(datafield_filepath, 'wb')
+            try:
+                f.write(item2['attachedImage'][0])
+            except:
+                import pdb; pdb.set_trace()
+            item2['attachedImage'][0] = os.path.join(str(COUNTER/1000), str(COUNTER)+'.json-file-'+str(datafield_counter))
+            f.close()
+            datafield_counter += 1
 
     f = open(os.path.join(SUB_TMPDIR, str(COUNTER)+'.json'), 'wb')
     simplejson.dump(item, f, indent=4)
     f.close()
+
 
 def getPermissionMapping(acperm):
     result = {}
     for entry in acperm:
         result[entry[0]] = entry[1]
     return result
-
-
 
 
 class BaseWrapper(dict):
@@ -166,15 +187,15 @@ class BaseWrapper(dict):
 
         # workflow history
         if hasattr(obj, 'workflow_history'):
-          workflow_history = obj.workflow_history.data
-          try:
-            for w in workflow_history:
-                for i, w2 in enumerate(workflow_history[w]):
-                    workflow_history[w][i]['time'] = str(workflow_history[w][i]['time'])
-                    workflow_history[w][i]['comments'] = workflow_history[w][i]['comments'].decode(self.charset, 'ignore')
-          except:
-            import pdb; pdb.set_trace()
-          self['_workflow_history'] = workflow_history
+            workflow_history = obj.workflow_history.data
+            try:
+                for w in workflow_history:
+                    for i, w2 in enumerate(workflow_history[w]):
+                        workflow_history[w][i]['time'] = str(workflow_history[w][i]['time'])
+                        workflow_history[w][i]['comments'] = workflow_history[w][i]['comments'].decode(self.charset, 'ignore')
+            except:
+                import pdb; pdb.set_trace()
+            self['_workflow_history'] = workflow_history
 
         # default view
         _browser = '/'.join(self.portal_utils.browserDefault(aq_base(obj))[1])
@@ -243,7 +264,6 @@ class BaseWrapper(dict):
 #                old_p = Permission(key, values, obj)
 #                self['_ac_inherited_permissions'][key] = old_p.getRoles()
 
-
         if getattr(aq_base(obj), 'getWrappedOwner', False):
             self['_owner'] = (1, obj.getWrappedOwner().getId())
         else:
@@ -253,23 +273,66 @@ class BaseWrapper(dict):
             # did not work, at least not with plone 1.x, at 1.0.1, zope 2.6.2
             self['_owner'] = (0, obj.getOwner(info = 1).getId())
 
+    def decode(self, s, encodings=('utf8', 'latin1', 'ascii')):
+        if self.charset:
+            test_encodings = (self.charset, ) + encodings
+        for encoding in test_encodings:
+            try:
+                return s.decode(encoding)
+            except UnicodeDecodeError:
+                pass
+        return s.decode(test_encodings[0], 'ignore')
+
+
 class DocumentWrapper(BaseWrapper):
 
     def __init__(self, obj):
         super(DocumentWrapper, self).__init__(obj)
         self['text'] = obj.text.decode(self.charset, 'ignore')
 
+
+class I18NFolderWrapper(BaseWrapper):
+
+    def __init__(self, obj):
+        super(I18NFolderWrapper, self).__init__(obj)
+        # We are ignoring another languages
+        lang = obj.getDefaultLanguage()
+        data = obj.folder_languages.get(lang, None)
+        if data is not None:
+            self['title'] = data['title'].decode(self.charset, 'ignore')
+            self['description'] = data['description'].decode(self.charset, 'ignore')
+        else:
+            print 'ERROR: Cannot get default data for I18NFolder "%s"' % self['_path']
+
+        # delete empty title in properties
+        for prop in self['_properties']:
+            propname, propvalue, proptitle = prop
+            if propname == "title":
+                self['_properties'].remove(prop)
+
+
+        # Not lose information: generate properites es_title, en_title, etc.
+        for lang in obj.folder_languages:
+            data = obj.folder_languages[lang]
+            for field in data:
+                self['_properties'].append(['%s_%s' % (lang, field),
+                                            data[field].decode(self.charset, 'ignore'),
+                                            'text'])
+
+
 class LinkWrapper(BaseWrapper):
 
     def __init__(self, obj):
         super(LinkWrapper, self).__init__(obj)
-        self['remote_url'] = obj.remote_url
+        self['remoteUrl'] = obj.remote_url
+
 
 class NewsItemWrapper(DocumentWrapper):
 
     def __init__(self, obj):
         super(NewsItemWrapper, self).__init__(obj)
         self['text_format'] = obj.text_format
+
 
 class ListCriteriaWrapper(BaseWrapper):
 
@@ -279,6 +342,7 @@ class ListCriteriaWrapper(BaseWrapper):
         self['value'] = obj.value
         self['operator'] = obj.operator
 
+
 class StringCriteriaWrapper(BaseWrapper):
 
     def __init__(self, obj):
@@ -286,12 +350,14 @@ class StringCriteriaWrapper(BaseWrapper):
         self['field'] = obj.field
         self['value'] = obj.value
 
+
 class SortCriteriaWrapper(BaseWrapper):
 
     def __init__(self, obj):
         super(SortCriteriaWrapper, self).__init__(obj)
         self['index'] = obj.index
         self['reversed'] = obj.reversed
+
 
 class DateCriteriaWrapper(BaseWrapper):
 
@@ -301,6 +367,7 @@ class DateCriteriaWrapper(BaseWrapper):
         self['value'] = obj.value
         self['operation'] = obj.operation
         self['daterange'] = obj.daterange
+
 
 class FileWrapper(BaseWrapper):
 
@@ -312,6 +379,7 @@ class FileWrapper(BaseWrapper):
             raise Exception, 'Problem while extracting data for File content type at '+obj.absolute_url()
         self['_datafield_file'] = data
 
+
 class ImageWrapper(BaseWrapper):
 
     def __init__(self, obj):
@@ -321,6 +389,7 @@ class ImageWrapper(BaseWrapper):
         if len(data) != obj.getSize():
             raise Exception, 'Problem while extracting data for Image content type at '+obj.absolute_url()
         self['_datafield_image'] = data
+
 
 class EventWrapper(BaseWrapper):
 
@@ -333,6 +402,7 @@ class EventWrapper(BaseWrapper):
         self['contactEmail'] = obj.contact_email
         self['contactPhone'] = obj.contact_phone
         self['eventUrl'] = obj.event_url
+
 
 class ArchetypesWrapper(BaseWrapper):
 
@@ -384,7 +454,7 @@ class ArchetypesWrapper(BaseWrapper):
                     self['__datafields__'].append(fieldname)
                     self[fieldname] = {
                         'data': value,
-                        'size': size,}
+                        'size': size, }
             elif type_ in ['ComputedField']:
                 pass
             else:
@@ -410,6 +480,32 @@ class ArchetypesWrapper(BaseWrapper):
             fname = '%s.%s' % (fname, extension)
         return fname
 
+
+class I18NLayerWrapper(ArchetypesWrapper):
+
+    def __init__(self, obj):
+        super(I18NLayerWrapper, self).__init__(obj)
+        lang = obj.portal_properties.site_properties.default_language
+        if lang not in obj.objectIds():
+            print 'ERROR: Cannot get default data for I18NLayer "%s"' % self['_path']
+        else:
+            real = obj[lang]
+            self['title'] = real.title.decode(self.charset, 'ignore')
+            self['description'] = real.description.decode(self.charset, 'ignore')
+            self['text'] = real.text.decode(self.charset, 'ignore')
+
+        # Not lose information: generate properites es_title, en_title, etc.
+        # TODO: Export all archetypes, but I don't need now, only document important fields
+        for lang, content in obj.objectItems():
+            data = dict(title = content.title,
+                        description = content.description,
+                        text = content.text)
+            for field in data:
+                self['_properties'].append(['%s_%s' % (lang, field),
+                                            data[field].decode(self.charset, 'ignore'),
+                                            'text'])
+
+
 class ArticleWrapper(NewsItemWrapper):
 
     def __init__(self, obj):
@@ -419,8 +515,28 @@ class ArticleWrapper(NewsItemWrapper):
         except:
             self['cooked_text'] = obj.cooked_text.decode('latin-1')
 
-        self['attachments_ids'] = obj.attachments_ids
-        self['images_ids'] = obj.images_ids
+        plonearticle_attachments = []
+        for item_id in obj.attachments_ids:
+            item = obj[item_id]
+            plonearticle_attachments.append({
+                'id':            (item_id, {}),
+                'title':         (item.title.decode(self.charset, 'ignore'), {}),
+                'description':   (item.description.decode(self.charset, 'ignore'), {}),
+                'attachedFile':  [item.getFile(), {}],
+                })
+        self['_plonearticle_attachments'] = plonearticle_attachments
+
+        plonearticle_images = []
+        for item_id in obj.images_ids:
+            item = obj[item_id]
+            plonearticle_images.append({
+                'id':            (item_id, {}),
+                'title':         (item.title.decode(self.charset, 'ignore'), {}),
+                'description':   (item.description.decode(self.charset, 'ignore'), {}),
+                'attachedImage': [str(item.data), {}],
+                })
+        self['_plonearticle_images'] = plonearticle_images
+
 
 class ZPhotoWrapper(BaseWrapper):
 
@@ -438,51 +554,52 @@ class ZPhotoWrapper(BaseWrapper):
         self['tmpdir'] = obj.tmpdir
         self['backup'] = obj.backup
 
+
 class ZPhotoSlidesWrapper(BaseWrapper):
 
     def __init__(self, obj):
-      super(ZPhotoSlidesWrapper, self).__init__(obj)
-      try:
-        self['update_date'] = str(obj.update_date)
-        self['show_postcard'] = obj.show_postcard
-        self['show_ARpostcard'] = obj.show_ARpostcard
-        self['show_rating'] = obj.show_rating
-        self['size'] = obj.size
-        self['max_size'] = obj.max_size
-        self['sort_field'] = obj.sort_field
-        self['allow_export'] = obj.allow_export
-        self['show_export'] = obj.show_export
-        #self['visits_log'] = obj.visits_log
-        self['non_hidden_pic'] = obj.non_hidden_pic
-        self['list_non_hidden_pic'] = obj.list_non_hidden_pic
-        self['rows'] = obj.rows
-        self['column'] = obj.column
-        self['zphoto_header'] = obj.zphoto_header
-        self['list_photo'] = obj.list_photo
-        self['zphoto_footer'] = obj.zphoto_footer
-        self['symbolic_photo'] = obj.symbolic_photo
-        self['keywords'] = obj.keywords
-        self['first_big'] = obj.first_big
-        self['show_automatic_slide_show'] = obj.show_automatic_slide_show
-        self['show_viewed'] = obj.show_viewed
-        self['show_exif'] = obj.show_exif
-        self['photo_space'] = obj.photo_space
-        self['last_modif'] = str(obj.last_modif)
-        self['show_iptc'] = obj.show_iptc
-        self['formats_available'] = obj.formats_available
-        self['default_photo_size'] = obj.default_photo_size
-        self['formats'] = obj.formats
-        self['actual_css'] = obj.actual_css
-        self['thumb_width'] = obj.thumb_width
-        self['thumb_height'] = obj.thumb_height
-        #self['list_rating'] = obj.list_rating
-        self['photo_folder'] = obj.photo_folder
-        self['tmpdir'] = obj.tmpdir
-        self['lib'] = obj.lib
-        self['convert'] = obj.convert
-        self['use_http_cache'] = obj.use_http_cache
-      except Exception, e:
-        import pdb; pdb.set_trace()
+        super(ZPhotoSlidesWrapper, self).__init__(obj)
+        try:
+            self['update_date'] = str(obj.update_date)
+            self['show_postcard'] = obj.show_postcard
+            self['show_ARpostcard'] = obj.show_ARpostcard
+            self['show_rating'] = obj.show_rating
+            self['size'] = obj.size
+            self['max_size'] = obj.max_size
+            self['sort_field'] = obj.sort_field
+            self['allow_export'] = obj.allow_export
+            self['show_export'] = obj.show_export
+            #self['visits_log'] = obj.visits_log
+            self['non_hidden_pic'] = obj.non_hidden_pic
+            self['list_non_hidden_pic'] = obj.list_non_hidden_pic
+            self['rows'] = obj.rows
+            self['column'] = obj.column
+            self['zphoto_header'] = obj.zphoto_header
+            self['list_photo'] = obj.list_photo
+            self['zphoto_footer'] = obj.zphoto_footer
+            self['symbolic_photo'] = obj.symbolic_photo
+            self['keywords'] = obj.keywords
+            self['first_big'] = obj.first_big
+            self['show_automatic_slide_show'] = obj.show_automatic_slide_show
+            self['show_viewed'] = obj.show_viewed
+            self['show_exif'] = obj.show_exif
+            self['photo_space'] = obj.photo_space
+            self['last_modif'] = str(obj.last_modif)
+            self['show_iptc'] = obj.show_iptc
+            self['formats_available'] = obj.formats_available
+            self['default_photo_size'] = obj.default_photo_size
+            self['formats'] = obj.formats
+            self['actual_css'] = obj.actual_css
+            self['thumb_width'] = obj.thumb_width
+            self['thumb_height'] = obj.thumb_height
+            #self['list_rating'] = obj.list_rating
+            self['photo_folder'] = obj.photo_folder
+            self['tmpdir'] = obj.tmpdir
+            self['lib'] = obj.lib
+            self['convert'] = obj.convert
+            self['use_http_cache'] = obj.use_http_cache
+        except Exception:
+            import pdb; pdb.set_trace()
 
 
 class LocalFSWrapper(BaseWrapper):
@@ -491,11 +608,12 @@ class LocalFSWrapper(BaseWrapper):
         super(LocalFSWrapper, self).__init__(obj)
         self['basepath'] = obj.basepath
 
+
 class ZopeObjectWrapper(BaseWrapper):
 
     def __init__(self, obj):
         super(ZopeObjectWrapper, self).__init__(obj)
-        self['document_src'] = obj.document_src()
+        self['document_src'] = self.decode(obj.document_src())
         # self['__datafields__'].append('document_src')
 
 # TODO: should be also possible to set it with through parameters
@@ -518,7 +636,8 @@ CLASSNAME_TO_WAPPER_MAP = {
     'FriendlyDateCriterion':    DateCriteriaWrapper,
 
     # custom ones
-    'I18NFolder':               BaseWrapper,
+    'I18NFolder':               I18NFolderWrapper,
+    'I18NLayer':                I18NLayerWrapper,
     'PloneArticle':             ArticleWrapper,
     'ZPhotoSlides':             ZPhotoSlidesWrapper,
     'ZPhoto':                   ZPhotoWrapper,
