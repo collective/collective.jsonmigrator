@@ -326,15 +326,13 @@ class EventWrapper(BaseWrapper):
 
     def __init__(self, obj):
         super(EventWrapper, self).__init__(obj)
-        self['effective_date'] = str(obj.effective_date)
-        self['expiration_date'] = str(obj.expiration_date)
-        self['start_date'] = str(obj.start_date)
-        self['end_date'] = str(obj.end_date)
+        self['startDate'] = str(obj.start_date)
+        self['endDate'] = str(obj.end_date)
         self['location'] = obj.location.decode(self.charset, 'ignore')
-        self['contact_name'] = obj.contact_name.decode(self.charset, 'ignore')
-        self['contact_email'] = obj.contact_email
-        self['contact_phone'] = obj.contact_phone
-        self['event_url'] = obj.event_url
+        self['contactName'] = obj.contact_name.decode(self.charset, 'ignore')
+        self['contactEmail'] = obj.contact_email
+        self['contactPhone'] = obj.contact_phone
+        self['eventUrl'] = obj.event_url
 
 class ArchetypesWrapper(BaseWrapper):
 
