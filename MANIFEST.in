@@ -1,0 +1,4 @@
+include *.txt
+recursive-include collective/blueprint/jsonmigrator *
+global-exclude *pyc
+
