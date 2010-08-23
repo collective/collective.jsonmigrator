@@ -602,6 +602,13 @@ class ZPhotoSlidesWrapper(BaseWrapper):
             import pdb; pdb.set_trace()
 
 
+class ContentPanels(BaseWrapper):
+
+    def __init__(self, obj):
+        super(ContentPanels, self).__init__(obj)
+        self['_content_panels'] = obj.panelsConfig
+
+
 class LocalFSWrapper(BaseWrapper):
 
     def __init__(self, obj):
@@ -643,7 +650,7 @@ CLASSNAME_TO_WAPPER_MAP = {
     'ZPhoto':                   ZPhotoWrapper,
     'PloneLocalFolderNG':       ArchetypesWrapper,
     'LocalFS':                  LocalFSWrapper,
-    'ContentPanels':            BaseWrapper,
+    'ContentPanels':            ContentPanels,
     'DTMLMethod':               ZopeObjectWrapper,
     'ZopePageTemplate':         ZopeObjectWrapper,
 
