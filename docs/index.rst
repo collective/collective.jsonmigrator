@@ -10,6 +10,8 @@ export script ``plone2.0_export.py`` which provides a external method
 higher versions of plone 2.1, 2.5, but was not tested) in format that is
 suitable for ``collective.blueprints.jsonmigrator.source`` blueprint.
 
+And if you might forgot, migration is a bitch ... so have fun :P
+
 Avaliable blueprints
 ====================
 
