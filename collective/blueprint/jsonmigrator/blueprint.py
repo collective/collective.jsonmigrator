@@ -75,7 +75,7 @@ class SkipItems(object):
 
     def __init__(self, transmogrifier, name, options, previous):
         self.previous = previous
-	self.first = int(options.get('first', 0))
+        self.first = int(options.get('first', 0))
 
     def __iter__(self):
         count = 1
