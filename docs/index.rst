@@ -2,11 +2,12 @@ collective.blueprint.jsonmigrator's documentation!
 ==================================================
 
 :TODO: need introduction
+:TODO: point to export script
 
-Blueprints:
+Avaliable blueprints:
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
 
     jsonsource
     skipitems
@@ -20,7 +21,8 @@ Blueprints:
     ac_local_roles
     datafields
 
-    fullexample
+Full example
+============
 
 Indices and tables
 ==================
