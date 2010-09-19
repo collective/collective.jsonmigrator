@@ -1,10 +1,17 @@
 collective.blueprint.jsonmigrator's documentation!
 ==================================================
 
-:TODO: need introduction
-:TODO: point to export script
+List of blueprints built around ``collective.blueprints.jsonmigrator.source``
+with purpose of providing flexible infrastructure to do migrations in Plone.
 
-Avaliable blueprints:
+In source of this package in ``exports_scripts`` directory is also a helping
+export script ``plone2.0_export.py`` which provides a external method
+``export_plone20`` to export data from Plone 2.0 (script might also work with
+higher versions of plone 2.1, 2.5, but was not tested) in format that is
+suitable for ``collective.blueprints.jsonmigrator.source`` blueprint.
+
+Avaliable blueprints
+====================
 
 .. toctree::
     :maxdepth: 1
@@ -20,9 +27,6 @@ Avaliable blueprints:
     owner
     ac_local_roles
     datafields
-
-Full example
-============
 
 Indices and tables
 ==================
