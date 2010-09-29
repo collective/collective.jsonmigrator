@@ -1,6 +1,10 @@
 collective.blueprint.jsonmigrator's documentation!
 ==================================================
 
+Purpose of ``collective.blueprint.jsonmigrator`` package is to provide set of
+blueprints that help you migrate content into `Plone`_. ``blueprint`` is
+extension to `collective.transmogrifier`_.
+
 List of blueprints built around ``collective.blueprints.jsonmigrator.source``
 with purpose of providing flexible infrastructure to do migrations in Plone.
 
@@ -37,3 +41,5 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+_`collective.transmogrifier`: http://pypi.python.org/pypi/collective.transmogrifier
+_`Plone`
