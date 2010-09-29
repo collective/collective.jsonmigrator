@@ -16,11 +16,9 @@ suitable for ``collective.blueprints.jsonmigrator.source`` blueprint.
 
 And if you might forgot, migration is a bitch ... so have fun :P
 
-Avaliable blueprints
-====================
-
 .. toctree::
-    :maxdepth: 1
+    :titlesonly:
+    :hidden:
 
     jsonsource <jsonsource>
     skipitems <skipitems>
@@ -34,5 +32,5 @@ Avaliable blueprints
     ac_local_roles <ac_local_roles>
     datafields <datafields>
 
-_`collective.transmogrifier`: http://pypi.python.org/pypi/collective.transmogrifier
-_`Plone`
+.. _`collective.transmogrifier`: http://pypi.python.org/pypi/collective.transmogrifier
+.. _`Plone`: http://plone.org
