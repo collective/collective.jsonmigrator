@@ -1,21 +1,26 @@
 ``collective.blueprint.jsonmigrator.datafields``
 ================================================
 
-Update datefiels roles of an object.
+Update data/blob fields of an object.
 
 :TODO: missing base path (maybe even passed somehow from source blueprint)
 :TODO: only update if needed
 
-Parameters
-----------
+Configuration options
+---------------------
 
-No parameters.
+No specific blueprint parameters.
+
+Expected data structure in pipeline:
 
     * **_path**: path to object on which we want to change local roles.
     * **_datafield_<field>**: field which needs to store data
 
 Example
 -------
+
+This example will try to store content of ``0/1.json-file-1`` into
+``attachment`` field of ``/Plone/index_html`` object.
 
 Configuration::
 
@@ -35,5 +40,3 @@ Data in pipeline::
         "_path": "/Plone/index_html", 
         "_datafield_attachment": "0/1.json-file-1",
     }
-    
-
