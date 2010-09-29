@@ -22,24 +22,17 @@ Avaliable blueprints
 .. toctree::
     :maxdepth: 1
 
-    jsonsource
-    skipitems
-    partialcommit
-    statistics
-    workflowhistory
-    mimetype
-    properties
-    permission_mapping
-    owner
-    ac_local_roles
-    datafields
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+    jsonsource <jsonsource>
+    skipitems <skipitems>
+    partialcommit <partialcommit>
+    statistics <statistics>
+    workflowhistory <workflowhistory>
+    mimetype <mimetype>
+    properties <properties>
+    permission_mapping <permission_mapping>
+    owner <owner>
+    ac_local_roles <ac_local_roles>
+    datafields <datafields>
 
 _`collective.transmogrifier`: http://pypi.python.org/pypi/collective.transmogrifier
 _`Plone`
