@@ -3,15 +3,35 @@
 
 Update properties of an object.
 
-Parameters
-----------
+Configuration options
+---------------------
 
-No parameters.
+No specific blueprint parameters.
 
-Expected data in pipeline:
+Expected data structure in pipeline:
 
     * **_path**: path to object on which we want to change properties.
     * **_properties**: properties to be applied to object resolved above.
+
+        properties passed in this data field (as shown in example) is a list of
+        3 item lists.::
+
+            [
+                [
+                    <property-name>,
+                    <property-value>,
+                    <property-type>
+                ],
+                [
+                    <property2-name>,
+                    <property2-value>,
+                    <property2-type>
+                ],
+                ...
+            ]
+
+        ``<property-type>`` is set of types which you can select through ZMI
+        when you edit/add property.
 
 Example
 -------
