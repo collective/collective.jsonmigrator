@@ -10,30 +10,134 @@
 
 import os
 import shutil
+import ConfigParser
+### DEPENDENCY 2.0.0 for python2.3
 import simplejson
+
 from datetime import datetime
 from Acquisition import aq_base
 from Products.CMFCore.utils import getToolByName
+from App.config import getConfiguration
+CONFIG = ConfigParser.SafeConfigParser()
+CONFIG.optionxform = str
+import logging
+logger = logging.getLogger('plone20_export')
+
+try:
+    #import pdb;pdb.set_trace();
+    CONFIG.readfp(open(os.path.join(getConfiguration().instancehome,
+                                    'jsonmigrator.ini')))
+except:
+    logger.exception()
+    logger.warning('Please specify ini file jsonmigrator.ini in your %s' \
+          % getConfiguration().instancehome)
 
 COUNTER = 1
-HOMEDIR = '/Users/rok/Projects/yaco/unex_exported_data'
-CLASSNAME_TO_SKIP_LAUD = ['ControllerPythonScript',
-    'ControllerPageTemplate', 'ControllerValidator', 'PythonScript', 'SQL', 'Connection',
-    'ZetadbScript', 'ExternalMethod', 'ZetadbSqlInsert', 'ZetadbMysqlda', 'SiteRoot',
-    'ZetadbApplication', 'ZetadbZptInsert', 'I18NLayer', 'ZetadbZptView', 'BrowserIdManager',
-    'ZetadbScriptSelectMaster', 'ZetadbSqlSelect', ]
-CLASSNAME_TO_SKIP = ['CatalogTool', 'MemberDataTool', 'SkinsTool', 'TypesTool',
-    'UndoTool', 'URLTool', 'WorkflowTool', 'DiscussionTool', 'MembershipTool',
-    'RegistrationTool', 'PropertiesTool', 'MetadataTool', 'SyndicationTool',
-    'PloneTool', 'NavigationTool', 'FactoryTool', 'FormTool', 'MigrationTool',
-    'CalendarTool', 'QuickInstallerTool', 'GroupsTool', 'GroupDataTool', 'MailHost',
-    'CookieCrumbler', 'ContentTypeRegistry', 'GroupUserFolder', 'CachingPolicyManager',
-    'InterfaceTool', 'PloneControlPanel', 'FormController', 'SiteErrorLog', 'SinTool',
-    'ArchetypeTool', 'RAMCacheManager', 'PloneArticleTool', 'SyndicationInformation',
-    'ActionIconsTool', 'AcceleratedHTTPCacheManager', 'ActionsTool', 'UIDCatalog',
-    'ReferenceCatalog', 'ContentPanelsTool', 'MimeTypesRegistry', 'LanguageTool',
-    'TransformTool']
-ID_TO_SKIP = ['Members', ]
+
+############## Move configuration to jsonmigrator.ini 
+############## in DEFAULT section specify
+##############     - CLASSNAME_TO_SKIP_LAUD (list separated by CARRIAGE_RETURN)
+##############     -  CLASSNAME_TO_SKIP  (list separated by CARRIAGE_RETURN)
+
+def getconf(option, default):
+    global CONFIG
+    if not CONFIG.has_option('DEFAULT', option):
+        return default
+    else:
+        return CONFIG.get('DEFAULT', option)
+        
+    
+
+HOMEDIR = getconf('HOMEDIR',
+                  '/Users/rok/Projects/yaco/unex_exported_data')
+logger.info("HOMEDIR : %s" % HOMEDIR)
+
+CLASSNAME_TO_SKIP_LAUD = [x.strip() for x \
+                          in getconf('CLASSNAME_TO_SKIP_LAUD',
+                                    """ControllerPythonScript
+                                    ControllerPageTemplate
+                                    ControllerValidator
+                                    PythonScript
+                                    SQL
+                                    Connection
+                                    ZetadbScript
+                                    ExternalMethod
+                                    ZetadbSqlInsert
+                                    ZetadbMysqlda
+                                    SiteRoot
+                                    ZetadbApplication
+                                    ZetadbZptInsert
+                                    I18NLayer
+                                    ZetadbZptView
+                                    BrowserIdManager
+                                    ZetadbScriptSelectMaster
+                                    ZetadbSqlSelect""").splitlines()]
+
+CLASSNAME_TO_SKIP = [x.strip() for x \
+                          in getconf('CLASSNAME_TO_SKIP',
+                                        """CatalogTool
+                                        MemberDataTool
+                                        SkinsTool
+                                        TypesTool
+                                        UndoTool
+                                        URLTool
+                                        WorkflowTool
+                                        DiscussionTool
+                                        MembershipTool
+                                        RegistrationTool
+                                        PropertiesTool
+                                        MetadataTool
+                                        SyndicationTool
+                                        PloneTool
+                                        NavigationTool
+                                        FactoryTool
+                                        FormTool
+                                        MigrationTool
+                                        CalendarTool
+                                        QuickInstallerTool
+                                        GroupsTool
+                                        GroupDataTool
+                                        MailHost
+                                        CookieCrumbler
+                                        ContentTypeRegistry
+                                        GroupUserFolder
+                                        CachingPolicyManager
+                                        InterfaceTool
+                                        PloneControlPanel
+                                        FormController
+                                        SiteErrorLog
+                                        SinTool
+                                        ArchetypeTool
+                                        RAMCacheManager
+                                        PloneArticleTool
+                                        SyndicationInformation
+                                        ActionIconsTool
+                                        AcceleratedHTTPCacheManager
+                                        ActionsTool
+                                        UIDCatalog
+                                        ReferenceCatalog
+                                        ContentPanelsTool
+                                        MimeTypesRegistry
+                                        LanguageTool
+                                        TransformTool""").splitlines()]
+
+ID_TO_SKIP = [x.strip() for x \
+                          in getconf('ID_TO_SKIP',
+                                        """Members""").splitlines()]
+NON_FOLDERISH_CLASSNAME = [x.strip() for x \
+                          in getconf('NON_FOLDERISH_CLASSNAME',
+                                        """PloneArticle""").splitlines()]
+JUST_TREAT_WAPPER = False
+try:
+    JUST_TREAT_WAPPER = eval(getconf('JUST_TREAT_WAPPER',False))
+except:
+    JUST_TREAT_WAPPER = False
+print 'ID_TO_SKIP %s ' % str(ID_TO_SKIP)
+
+try:
+    MAX_CACHE_DB = int(getconf('MAX_CACHE_DB', 500))
+except:
+    MAX_CACHE_DB = 500
 
 
 def export_plone20(self):
@@ -44,7 +148,9 @@ def export_plone20(self):
 
     COUNTER = 1
     TODAY = datetime.today()
-    TMPDIR = HOMEDIR+'/content_'+self.getId()+'_'+TODAY.strftime('%Y-%m-%d-%H-%M-%S')
+    TMPDIR = os.path.join(HOMEDIR,'content_%s_%s' % \
+                          (self.getId(),
+                           TODAY.strftime('%Y-%m-%d-%H-%M-%S')))
 
     id_to_skip = self.REQUEST.get('id_to_skip', None)
     if id_to_skip is not None:
@@ -54,7 +160,7 @@ def export_plone20(self):
         shutil.rmtree(TMPDIR)
     else:
         os.mkdir(TMPDIR)
-
+    
     write(walk(self))
 
     # TODO: we should return something more useful
@@ -62,39 +168,55 @@ def export_plone20(self):
 
 
 def walk(folder):
+    global COUNTER
     for item_id in folder.objectIds():
         item = folder[item_id]
         if item.__class__.__name__ in CLASSNAME_TO_SKIP or \
-           item.getId() in ID_TO_SKIP:
+           item.getId() in ID_TO_SKIP or (JUST_TREAT_WAPPER and \
+                item.__class__.__name__\
+                                          not in CLASSNAME_TO_WAPPER_MAP) or \
+                (item.__class__.__name__ in CLASSNAME_TO_SKIP_LAUD):
+            logger.info('>> SKIPPING :: ['+item.__class__.__name__+'] '\
+                                          + item.absolute_url())
             continue
-        if item.__class__.__name__ in CLASSNAME_TO_SKIP_LAUD:
-            print '>> SKIPPING :: ['+item.__class__.__name__+'] '+item.absolute_url()
-            continue
+        logger.info('>> TREAT :: ('+ str(COUNTER) +')['+item.__class__.__name__+'] '\
+                                          + item.absolute_url())
         yield item
         if getattr(item, 'objectIds', None) and \
-           item.objectIds():
+           item.objectIds() and \
+           item.__class__.__name__  not in NON_FOLDERISH_CLASSNAME:
             for subitem in walk(item):
                 yield subitem
 
 
 def write(items):
+
     global COUNTER
 
     for item in items:
-        if item.__class__.__name__ not in CLASSNAME_TO_WAPPER_MAP.keys():
+        if item.__class__.__name__\
+               not in CLASSNAME_TO_WAPPER_MAP.keys():
             import pdb; pdb.set_trace()
             raise Exception, 'No wrapper defined for "'+item.__class__.__name__+ \
                                                   '" ('+item.absolute_url()+').'
         try:
+            
             dictionary = CLASSNAME_TO_WAPPER_MAP[item.__class__.__name__](item)
             write_to_jsonfile(dictionary)
             COUNTER += 1
+            if (COUNTER % MAX_CACHE_DB)==0:
+                logger.info('Purge ZODB cache')
+                [item.Control_Panel.Database[x]._getDB().cacheMinimize() \
+                 for x in item.Control_Panel.Database.getDatabaseNames()]
         except:
-            import pdb; pdb.set_trace()
+            print "there is an error on %s" % item.absolute_url()
+            import pdb;pdb.set_trace();
+            raise
 
 
 def write_to_jsonfile(item):
     global COUNTER
+    
 
     SUB_TMPDIR = os.path.join(TMPDIR, str(COUNTER/1000)) # 1000 files per folder, so we dont reach some fs limit
     if not os.path.isdir(SUB_TMPDIR):
@@ -130,9 +252,12 @@ def write_to_jsonfile(item):
             item2['attachedImage'][0] = os.path.join(str(COUNTER/1000), str(COUNTER)+'.json-file-'+str(datafield_counter))
             f.close()
             datafield_counter += 1
-
+    
     f = open(os.path.join(SUB_TMPDIR, str(COUNTER)+'.json'), 'wb')
-    simplejson.dump(item, f, indent=4)
+    try:
+        simplejson.dump(item, f, indent=4)
+    except:
+        import pdb;pdb.set_trace();
     f.close()
 
 
@@ -142,6 +267,16 @@ def getPermissionMapping(acperm):
         result[entry[0]] = entry[1]
     return result
 
+def safe_decode(s, charset, errors):
+    if type(s) is type(u''):
+        return s
+    if hasattr(s, 'decode'):
+        return s.decode(charset, errors)
+
+    if s.__class__.__name__ == 'BaseUnit':
+        return str(s).decode(charset, errors)
+    else:
+        return s
 
 class BaseWrapper(dict):
     """Wraps the dublin core metadata and pass it as tranmogrifier friendly style
@@ -163,17 +298,17 @@ class BaseWrapper(dict):
         self['_type'] = self.obj.__class__.__name__
 
         self['id'] = obj.getId()
-        self['title'] = obj.title.decode(self.charset, 'ignore')
-        self['description'] = obj.description.decode(self.charset, 'ignore')
+        self['title'] = safe_decode(obj.title,self.charset, 'ignore')
+        self['description'] = safe_decode(obj.description,self.charset, 'ignore')
         self['language'] = obj.language
-        self['rights'] = obj.rights.decode(self.charset, 'ignore')
+        self['rights'] = safe_decode(obj.rights,self.charset, 'ignore')
         # for DC attrs that are tuples
         for attr in ('subject', 'contributors'):
             self[attr] = []
             val_tuple = getattr(obj, attr, False)
             if val_tuple:
                 for val in val_tuple:
-                    self[attr].append(val.decode(self.charset, 'ignore'))
+                    self[attr].append(safe_decode(val,self.charset, 'ignore'))
                 self[attr] = tuple(self[attr])
         # for DC attrs that are DateTimes
         datetimes_dict = {'creation_date': 'creation_date',
@@ -192,16 +327,27 @@ class BaseWrapper(dict):
                 for w in workflow_history:
                     for i, w2 in enumerate(workflow_history[w]):
                         workflow_history[w][i]['time'] = str(workflow_history[w][i]['time'])
-                        workflow_history[w][i]['comments'] = workflow_history[w][i]['comments'].decode(self.charset, 'ignore')
+                        workflow_history[w][i]['comments'] = safe_decode(workflow_history[w][i]['comments'],self.charset, 'ignore')
             except:
                 import pdb; pdb.set_trace()
             self['_workflow_history'] = workflow_history
 
         # default view
-        _browser = '/'.join(self.portal_utils.browserDefault(aq_base(obj))[1])
-        if _browser not in ['folder_listing']:
-            self['_layout'] = ''
-            self['_defaultpage'] = _browser
+        if 'layout' in obj.__dict__:
+            self['_layout'] = obj.__dict__['layout']
+        try:
+            _browser = self.portal_utils.browserDefault(aq_base(obj))[1]
+        except:
+            _browser = None
+        if _browser:
+            ## _browser can be value [None]
+            try:
+                _browser = '/'.join(_browser)
+            except:
+                _browser = ''
+            if _browser not in ['folder_listing']:
+                self['_layout'] = ''
+                self['_defaultpage'] = _browser
         #elif obj.getId() != 'index_html':
         #    self['_layout'] = _browser
         #    self['_defaultpage'] = ''
@@ -219,7 +365,7 @@ class BaseWrapper(dict):
                 if typ == 'string':
                     if getattr(val, 'decode', False):
                         try:
-                            val = val.decode(self.charset, 'ignore')
+                            val = safe_decode(val,self.charset, 'ignore')
                         except UnicodeEncodeError:
                             val = unicode(val)
                     else:
@@ -281,14 +427,15 @@ class BaseWrapper(dict):
                 return s.decode(encoding)
             except UnicodeDecodeError:
                 pass
-        return s.decode(test_encodings[0], 'ignore')
+        return safe_decode(s,test_encodings[0], 'ignore')
 
 
 class DocumentWrapper(BaseWrapper):
 
     def __init__(self, obj):
         super(DocumentWrapper, self).__init__(obj)
-        self['text'] = obj.text.decode(self.charset, 'ignore')
+        if hasattr(obj, 'text'):
+            self['text'] = safe_decode(obj.text,self.charset, 'ignore')
 
 
 class I18NFolderWrapper(BaseWrapper):
@@ -299,10 +446,10 @@ class I18NFolderWrapper(BaseWrapper):
         lang = obj.getDefaultLanguage()
         data = obj.folder_languages.get(lang, None)
         if data is not None:
-            self['title'] = data['title'].decode(self.charset, 'ignore')
-            self['description'] = data['description'].decode(self.charset, 'ignore')
+            self['title'] = safe_decode(data['title'],self.charset, 'ignore')
+            self['description'] = safe_decode(data['description'],self.charset, 'ignore')
         else:
-            print 'ERROR: Cannot get default data for I18NFolder "%s"' % self['_path']
+            logger.error('ERROR: Cannot get default data for I18NFolder "%s"' % self['_path'])
 
         # delete empty title in properties
         for prop in self['_properties']:
@@ -316,7 +463,7 @@ class I18NFolderWrapper(BaseWrapper):
             data = obj.folder_languages[lang]
             for field in data:
                 self['_properties'].append(['%s_%s' % (lang, field),
-                                            data[field].decode(self.charset, 'ignore'),
+                                            safe_decode(data[field],self.charset, 'ignore'),
                                             'text'])
 
 
@@ -324,7 +471,7 @@ class LinkWrapper(BaseWrapper):
 
     def __init__(self, obj):
         super(LinkWrapper, self).__init__(obj)
-        self['remoteUrl'] = obj.remote_url
+        self['remoteUrl'] = obj.remote_url()
 
 
 class NewsItemWrapper(DocumentWrapper):
@@ -380,6 +527,7 @@ class FileWrapper(BaseWrapper):
         self['_datafield_file'] = data
 
 
+
 class ImageWrapper(BaseWrapper):
 
     def __init__(self, obj):
@@ -397,18 +545,19 @@ class EventWrapper(BaseWrapper):
         super(EventWrapper, self).__init__(obj)
         self['startDate'] = str(obj.start_date)
         self['endDate'] = str(obj.end_date)
-        self['location'] = obj.location.decode(self.charset, 'ignore')
-        self['contactName'] = obj.contact_name.decode(self.charset, 'ignore')
-        self['contactEmail'] = obj.contact_email
-        self['contactPhone'] = obj.contact_phone
-        self['eventUrl'] = obj.event_url
+        self['location'] = safe_decode(obj.location,self.charset, 'ignore')
+        self['contactName'] = safe_decode(obj.contact_name(),self.charset, 'ignore')
+        self['contactEmail'] = obj.contact_email()
+        self['contactPhone'] = obj.contact_phone()
+        self['eventUrl'] = obj.event_url()
 
 
 class ArchetypesWrapper(BaseWrapper):
 
     def __init__(self, obj):
+        
         super(ArchetypesWrapper, self).__init__(obj)
-
+        
         fields = obj.schema.fields()
         for field in fields:
             type_ = field.__class__.__name__
@@ -443,22 +592,23 @@ class ArchetypesWrapper(BaseWrapper):
                         self[unicode(field.__name__)] = ['/'+i.absolute_url() for i in value]
                     else:
                         self[unicode(field.__name__)] = value.absolute_url()
-            elif type_ in ['ImageField', 'FileField']:
+            elif type_ in ['ImageField', 'FileField', 'AttachmentField']:
                 fieldname = unicode('_data_'+field.__name__)
                 value = field.get(obj)
                 value2 = value
                 if type(value) is not str:
                     value = str(value.data)
                 if value:
-                    size = value2.getSize()
+                    
                     self['__datafields__'].append(fieldname)
-                    self[fieldname] = {
-                        'data': value,
-                        'size': size, }
+                    self[fieldname] = value
+
             elif type_ in ['ComputedField']:
                 pass
+            
             else:
-                raise 'Unknown field type for ArchetypesWrapper.'
+                
+                raise 'Unknown field type for ArchetypesWrapper : %s' % type_
 
     def _guessFilename(self, data, fname='', mimetype='', default=''):
         """
@@ -487,12 +637,12 @@ class I18NLayerWrapper(ArchetypesWrapper):
         super(I18NLayerWrapper, self).__init__(obj)
         lang = obj.portal_properties.site_properties.default_language
         if lang not in obj.objectIds():
-            print 'ERROR: Cannot get default data for I18NLayer "%s"' % self['_path']
+            logger.error('ERROR: Cannot get default data for I18NLayer "%s"' % self['_path'])
         else:
             real = obj[lang]
-            self['title'] = real.title.decode(self.charset, 'ignore')
-            self['description'] = real.description.decode(self.charset, 'ignore')
-            self['text'] = real.text.decode(self.charset, 'ignore')
+            self['title'] = safe_decode(real.title,self.charset, 'ignore')
+            self['description'] = safe_decode(real.description,self.charset, 'ignore')
+            self['text'] = safe_decode(real.text,self.charset, 'ignore')
 
         # Not lose information: generate properites es_title, en_title, etc.
         # TODO: Export all archetypes, but I don't need now, only document important fields
@@ -502,13 +652,90 @@ class I18NLayerWrapper(ArchetypesWrapper):
                         text = content.text)
             for field in data:
                 self['_properties'].append(['%s_%s' % (lang, field),
-                                            data[field].decode(self.charset, 'ignore'),
+                                            safe_decode(data[field],self.charset, 'ignore'),
                                             'text'])
 
+def generateUniqueId(type_name=None):
+    """
+        Generate an id for the content
+        This is not the archetype's uid.
+    """
+    from DateTime import DateTime
+    from random import random
+
+    now = DateTime()
+    time = '%s.%s' % (now.strftime('%Y-%m-%d'), str(now.millis())[7:])
+    rand = str(random())[2:6]
+    prefix = ''
+    suffix = ''
+
+    if type_name is not None:
+        prefix = type_name.replace(' ', '_') + '.'
+    prefix = prefix.lower()
+
+    return prefix + time + rand + suffix
+
+class Article322Wrapper(NewsItemWrapper):
+
+    def __init__(self, obj):
+        super(Article322Wrapper, self).__init__(obj)
+        #(Pdb) self.__ordered_attachment_refs__.getItems()
+        #['4e952a8c3af4b1bcedf38d475ac6049d']
+        d = {'__ordered_attachment_refs__' : ('_plonearticle_attachments',
+                                              'FileProxy',
+                                              'attachedFile',
+                                              'getFile'),
+             '__ordered_image_refs__' : ('_plonearticle_images',
+                                         'ImageProxy',
+                                         'attachedImage',
+                                         'getImage'),
+                                         
+             '__ordered_link_refs__' : ('_plonearticle_refs',
+                                        'LinkProxy',
+                                        'attachedLink',
+                                        'getRemoteUrl')}
+                                        
+        ids =  obj.objectIds()
+        for x in d:
+            slot_name = d[x][0]
+            id_name =  d[x][1]
+            field_name = d[x][2]
+            accessor = d[x][3]
+            setattr(self, slot_name, [])
+            for refid in getattr(obj,x).getItems():
+                ref = None
+                try:
+                    ref = getattr(obj.at_references, refid).getTargetObject()
+                except:
+                    ## ghost ref
+                    logger.exception("Attribut rror during migration on %s"\
+                                     % str(obj))
+                    continue ## just ignore it...
+                inner = {
+                    'id': (generateUniqueId(id_name), {}),
+                    'title': (safe_decode(ref.Title(),
+                                          self.charset, 'ignore'), {}),
+                    'description': (safe_decode(ref.Description(),
+                                                self.charset,
+                                                'ignore'), {}),}
+                if ref.id in ids:
+                    ### internal
+                    inner[field_name] = (getattr(ref, accessor)(), {})
+                else:
+                    #### external
+                    inner['referencedContent'] =  (ref.UID(), {})
+                getattr(self, slot_name).append(inner)
+            
+                    
+                    
+                    
+                
+                
 
 class ArticleWrapper(NewsItemWrapper):
 
     def __init__(self, obj):
+
         super(ArticleWrapper, self).__init__(obj)
         try:
             self['cooked_text'] = obj.cooked_text.decode(self.charset)
@@ -520,8 +747,8 @@ class ArticleWrapper(NewsItemWrapper):
             item = obj[item_id]
             plonearticle_attachments.append({
                 'id':            (item_id, {}),
-                'title':         (item.title.decode(self.charset, 'ignore'), {}),
-                'description':   (item.description.decode(self.charset, 'ignore'), {}),
+                'title':         (safe_decode(item.title, self.charset, 'ignore'), {}),
+                'description':   (safe_decode(item.description, self.charset, 'ignore'), {}),
                 'attachedFile':  [item.getFile(), {}],
                 })
         self['_plonearticle_attachments'] = plonearticle_attachments
@@ -531,8 +758,8 @@ class ArticleWrapper(NewsItemWrapper):
             item = obj[item_id]
             plonearticle_images.append({
                 'id':            (item_id, {}),
-                'title':         (item.title.decode(self.charset, 'ignore'), {}),
-                'description':   (item.description.decode(self.charset, 'ignore'), {}),
+                'title':         (safe_decode(item.title, self.charset, 'ignore'), {}),
+                'description':   (safe_decode(self.charset, 'ignore'), {}),
                 'attachedImage': [str(item.data), {}],
                 })
         self['_plonearticle_images'] = plonearticle_images
@@ -624,34 +851,48 @@ class ZopeObjectWrapper(BaseWrapper):
         # self['__datafields__'].append('document_src')
 
 # TODO: should be also possible to set it with through parameters
-CLASSNAME_TO_WAPPER_MAP = {
-    'LargePloneFolder':         BaseWrapper,
-    'Folder':                   BaseWrapper,
-    'PloneSite':                BaseWrapper,
-    'PloneFolder':              BaseWrapper,
-    'Document':                 DocumentWrapper,
-    'File':                     FileWrapper,
-    'Image':                    ImageWrapper,
-    'Link':                     LinkWrapper,
-    'Event':                    EventWrapper,
-    'NewsItem':                 NewsItemWrapper,
-    'Favorite':                 LinkWrapper,
-    'Topic':                    BaseWrapper,
-    'ListCriterion':            ListCriteriaWrapper,
-    'SimpleStringCriterion':    StringCriteriaWrapper,
-    'SortCriterion':            SortCriteriaWrapper,
-    'FriendlyDateCriterion':    DateCriteriaWrapper,
+CLASSNAME_TO_WAPPER_MAP = {}
+if CONFIG.has_section('CLASSNAME_TO_WAPPER_MAP'):
+    for x in CONFIG.items('CLASSNAME_TO_WAPPER_MAP'):
+        
+        try:
+            CLASSNAME_TO_WAPPER_MAP[x[0]] = eval(x[1].strip())
+            logger.debug("map %s to %s" % (x[0], x[1]) )
+        except:
+            logger.info("cant add class for mapping %s" %  x[0])
+            pass
+else:
+    print "load default CLASSNAME_TO_WAPPER_MAP"
+    CLASSNAME_TO_WAPPER_MAP = {
+        'LargePloneFolder':         BaseWrapper,
+        'Folder':                   BaseWrapper,
+        'PloneSite':                BaseWrapper,
+        'PloneFolder':              BaseWrapper,
+        'Document':                 DocumentWrapper,
+        'File':                     FileWrapper,
+        'Image':                    ImageWrapper,
+        'Link':                     LinkWrapper,
+        'Event':                    EventWrapper,
+        'NewsItem':                 NewsItemWrapper,
+        'Favorite':                 LinkWrapper,
+        'Topic':                    BaseWrapper,
+        'ListCriterion':            ListCriteriaWrapper,
+        'SimpleStringCriterion':    StringCriteriaWrapper,
+        'SortCriterion':            SortCriteriaWrapper,
+        'FriendlyDateCriterion':    DateCriteriaWrapper,
+        
+        # custom ones
+        'I18NFolder':               I18NFolderWrapper,
+        'I18NLayer':                I18NLayerWrapper,
+        'PloneArticle':             ArticleWrapper,
+        'ZPhotoSlides':             ZPhotoSlidesWrapper,
+        'ZPhoto':                   ZPhotoWrapper,
+        'PloneLocalFolderNG':       ArchetypesWrapper,
+        'LocalFS':                  LocalFSWrapper,
+        'ContentPanels':            ContentPanels,
+        'DTMLMethod':               ZopeObjectWrapper,
+        'ZopePageTemplate':         ZopeObjectWrapper,
+        
+        }
 
-    # custom ones
-    'I18NFolder':               I18NFolderWrapper,
-    'I18NLayer':                I18NLayerWrapper,
-    'PloneArticle':             ArticleWrapper,
-    'ZPhotoSlides':             ZPhotoSlidesWrapper,
-    'ZPhoto':                   ZPhotoWrapper,
-    'PloneLocalFolderNG':       ArchetypesWrapper,
-    'LocalFS':                  LocalFSWrapper,
-    'ContentPanels':            ContentPanels,
-    'DTMLMethod':               ZopeObjectWrapper,
-    'ZopePageTemplate':         ZopeObjectWrapper,
 
-}
