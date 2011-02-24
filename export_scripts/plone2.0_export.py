@@ -431,6 +431,7 @@ class BaseWrapper(dict):
 
 
 class DocumentWrapper(BaseWrapper):
+    """ An wrapper to an Document. Object must have an text attribute  """
 
     def __init__(self, obj):
         super(DocumentWrapper, self).__init__(obj)
@@ -439,7 +440,8 @@ class DocumentWrapper(BaseWrapper):
 
 
 class I18NFolderWrapper(BaseWrapper):
-
+    """ An wrapper to an I18NFolder """
+    
     def __init__(self, obj):
         super(I18NFolderWrapper, self).__init__(obj)
         # We are ignoring another languages
@@ -468,6 +470,7 @@ class I18NFolderWrapper(BaseWrapper):
 
 
 class LinkWrapper(BaseWrapper):
+    """ An wrapper to ATLink """
 
     def __init__(self, obj):
         super(LinkWrapper, self).__init__(obj)
@@ -475,6 +478,8 @@ class LinkWrapper(BaseWrapper):
 
 
 class NewsItemWrapper(DocumentWrapper):
+    """ An wrapper to NewsItem """
+
 
     def __init__(self, obj):
         super(NewsItemWrapper, self).__init__(obj)
@@ -482,6 +487,7 @@ class NewsItemWrapper(DocumentWrapper):
 
 
 class ListCriteriaWrapper(BaseWrapper):
+    """ An wrapper to ListCriteria """
 
     def __init__(self, obj):
         super(ListCriteriaWrapper, self).__init__(obj)
@@ -491,6 +497,7 @@ class ListCriteriaWrapper(BaseWrapper):
 
 
 class StringCriteriaWrapper(BaseWrapper):
+    """ An wrapper to StringCriteria """
 
     def __init__(self, obj):
         super(StringCriteriaWrapper, self).__init__(obj)
@@ -499,6 +506,7 @@ class StringCriteriaWrapper(BaseWrapper):
 
 
 class SortCriteriaWrapper(BaseWrapper):
+    """ An wrapper to SortStringCriteria """
 
     def __init__(self, obj):
         super(SortCriteriaWrapper, self).__init__(obj)
@@ -507,6 +515,7 @@ class SortCriteriaWrapper(BaseWrapper):
 
 
 class DateCriteriaWrapper(BaseWrapper):
+    """ An wrapper to DateCriteria """
 
     def __init__(self, obj):
         super(DateCriteriaWrapper, self).__init__(obj)
@@ -517,8 +526,11 @@ class DateCriteriaWrapper(BaseWrapper):
 
 
 class FileWrapper(BaseWrapper):
+    """ An wrapper to OFSFile """
+    
 
     def __init__(self, obj):
+        
         super(FileWrapper, self).__init__(obj)
         self['__datafields__'].append('_datafield_file')
         data = str(obj.data)
@@ -529,8 +541,10 @@ class FileWrapper(BaseWrapper):
 
 
 class ImageWrapper(BaseWrapper):
+    """ An wrapper to OFSImage """
 
     def __init__(self, obj):
+        
         super(ImageWrapper, self).__init__(obj)
         self['__datafields__'].append('_datafield_image')
         data = str(obj.data)
@@ -540,6 +554,7 @@ class ImageWrapper(BaseWrapper):
 
 
 class EventWrapper(BaseWrapper):
+    """ An wrapper to ATEvent """
 
     def __init__(self, obj):
         super(EventWrapper, self).__init__(obj)
@@ -553,6 +568,7 @@ class EventWrapper(BaseWrapper):
 
 
 class ArchetypesWrapper(BaseWrapper):
+    """ An wrapper to Archetype Object """
 
     def __init__(self, obj):
         
@@ -632,6 +648,7 @@ class ArchetypesWrapper(BaseWrapper):
 
 
 class I18NLayerWrapper(ArchetypesWrapper):
+    """ An wrapper to I18N Archetype Object """
 
     def __init__(self, obj):
         super(I18NLayerWrapper, self).__init__(obj)
@@ -676,6 +693,7 @@ def generateUniqueId(type_name=None):
     return prefix + time + rand + suffix
 
 class Article322Wrapper(NewsItemWrapper):
+    """ An wrapper to Old Plone Article Object (version<4)"""
 
     def __init__(self, obj):
         super(Article322Wrapper, self).__init__(obj)
@@ -733,6 +751,7 @@ class Article322Wrapper(NewsItemWrapper):
                 
 
 class ArticleWrapper(NewsItemWrapper):
+    """ An wrapper to Plone Article Object (version>=4)"""
 
     def __init__(self, obj):
 
@@ -766,6 +785,7 @@ class ArticleWrapper(NewsItemWrapper):
 
 
 class ZPhotoWrapper(BaseWrapper):
+    """ An wrapper to ZPhoto  """
 
     def __init__(self, obj):
         super(ZPhotoWrapper, self).__init__(obj)
@@ -783,6 +803,7 @@ class ZPhotoWrapper(BaseWrapper):
 
 
 class ZPhotoSlidesWrapper(BaseWrapper):
+    """ An wrapper to ZPhotoSlide  """
 
     def __init__(self, obj):
         super(ZPhotoSlidesWrapper, self).__init__(obj)
@@ -830,6 +851,7 @@ class ZPhotoSlidesWrapper(BaseWrapper):
 
 
 class ContentPanels(BaseWrapper):
+    """ An wrapper to ControlPanel  """
 
     def __init__(self, obj):
         super(ContentPanels, self).__init__(obj)
@@ -837,6 +859,7 @@ class ContentPanels(BaseWrapper):
 
 
 class LocalFSWrapper(BaseWrapper):
+    """ An wrapper to FS object  """
 
     def __init__(self, obj):
         super(LocalFSWrapper, self).__init__(obj)
@@ -844,6 +867,7 @@ class LocalFSWrapper(BaseWrapper):
 
 
 class ZopeObjectWrapper(BaseWrapper):
+    """ An wrapper to Zope object  """
 
     def __init__(self, obj):
         super(ZopeObjectWrapper, self).__init__(obj)
