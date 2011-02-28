@@ -28,7 +28,6 @@ try:
     CONFIG.readfp(open(os.path.join(getConfiguration().instancehome,
                                     'jsonmigrator.ini')))
 except:
-    logger.exception()
     logger.warning('Please specify ini file jsonmigrator.ini in your %s' \
           % getConfiguration().instancehome)
 
