@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<registry>
+
+    <records
+        interface="collective.sync_migrator.controlpanel.IControlPanel"
+        prefix="collective.sync_migrator">
+        <value key="remoteurl"></value>
+        <value key="username"></value>
+        <value key="password"></value>
+    </records>
+
+</registry>

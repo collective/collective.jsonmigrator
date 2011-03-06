@@ -1,0 +1,106 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:transmogrifier="http://namespaces.plone.org/transmogrifier"
+    i18n_domain="collective.blueprint.jsonmigrator">
+
+
+    <include package="collective.transmogrifier" file="meta.zcml" />
+    <include package="collective.transmogrifier" />
+    <include package="plone.app.transmogrifier" />
+    
+    <include package="plone.app.z3cform" />
+    <include package="plone.app.registry" />
+
+    <browser:page
+        name="sync-migrator-controlpanel"
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        permission="cmf.ManagePortal"
+        class=".controlpanel.ControlPanelView"
+        />
+
+    <utility
+        component=".remotesource.RemoteSource"
+        name="collective.blueprint.jsonmigrator.remotesource"
+        />
+
+    <!--utility
+       component=".blueprint.ATDataFields"
+       name="collective.blueprint.jsonmigrator.atdatafields"
+       /-->
+
+    <transmogrifier:registerConfig
+        name="collective.sync_migrator.plone25"
+        title="Migration configuration for Plone 2.5 content types"
+        configuration="config_plone25.cfg"
+        />
+
+    <genericsetup:registerProfile
+        name="default"
+        title="collective.blueprint.jsonmigrator"
+        directory="profiles/default"
+        description="Plone profile to enable synchronization and migration"
+        provides="Products.GenericSetup.interfaces.EXTENSION"
+        />
+    
+    <transmogrifier:registerConfig
+        name="collective.blueprint.jsonmigrator.plone25"
+        configuration="config_plone25.cfg"
+        />
+
+
+  <!--utility
+     component=".blueprint.JSONSource"
+     name="collective.blueprint.jsonmigrator.source"
+     />
+
+  <utility
+     component=".blueprint.SkipItems"
+     name="collective.blueprint.jsonmigrator.skipitems"
+     />
+
+  <utility
+     component=".blueprint.PartialCommit"
+     name="collective.blueprint.jsonmigrator.partialcommit"
+     />
+
+  <utility
+     component=".blueprint.Statistics"
+     name="collective.blueprint.jsonmigrator.statistics"
+     />
+
+  <utility
+     component=".blueprint.WorkflowHistory"
+     name="collective.blueprint.jsonmigrator.workflowhistory"
+     />
+
+  <utility
+     component=".blueprint.Mimetype"
+     name="collective.blueprint.jsonmigrator.mimetype"
+     />
+
+  <utility
+     component=".blueprint.Properties"
+     name="collective.blueprint.jsonmigrator.properties"
+     />
+
+  <utility
+     component=".blueprint.PermissionMapping"
+     name="collective.blueprint.jsonmigrator.permission_mapping"
+     />
+
+  <utility
+     component=".blueprint.Owner"
+     name="collective.blueprint.jsonmigrator.owner"
+     />
+
+  <utility
+     component=".blueprint.LocalRoles"
+     name="collective.blueprint.jsonmigrator.ac_local_roles"
+     />
+
+  <utility
+     component=".blueprint.DataFields"
+     name="collective.blueprint.jsonmigrator.datafields"
+     /-->
+
+</configure>
