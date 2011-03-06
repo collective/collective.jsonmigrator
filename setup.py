@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '0.1.1'
+version = '0.2'
 
 setup(name='collective.blueprint.jsonmigrator',
       version=version,
@@ -26,8 +26,6 @@ setup(name='collective.blueprint.jsonmigrator',
           'simplejson',
       ],
       entry_points="""
-      # -*- Entry points: -*-
-
       [z3c.autoinclude.plugin]
       target = plone
       """,
