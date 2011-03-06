@@ -7,7 +7,7 @@ setup(
     name='collective.jsonmigrator',
     version=version,
     description="Migrations from legacy Plone sites (2.0, 2.1, 2.5) to Plone 4.0",
-    long_description=open("README.txt").read(),
+    long_description=open("README.rst").read(),
     # Get more strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
         "Framework :: Plone",
