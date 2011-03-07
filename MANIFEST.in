@@ -1,5 +1,4 @@
-include *.txt
-recursive-include collective/blueprint/jsonmigrator *
-recursive-include export_scripts *
+include README.rst
+recursive-include docs *
+recursive-include collective/jsonmigrator *
 global-exclude *pyc
-

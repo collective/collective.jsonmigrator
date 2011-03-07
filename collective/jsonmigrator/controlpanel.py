@@ -7,11 +7,11 @@ from plone.z3cform.layout import wrap_form
 from plone.app.registry.browser.controlpanel import RegistryEditForm
 from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 
-from collective.sync_migrator import SyncMigratorMessageFactory as _
+from collective.jsonmigrator import JSONMigratorMessageFactory as _
 
 
 class IControlPanel(Interface):
-    """ sync_migrator settings """
+    """ jsonmigrator settings """
 
     remoteurl = URI(
         title=_(u"Remote site"),
@@ -34,10 +34,10 @@ class IControlPanel(Interface):
 
 
 class ControlPanel(RegistryEditForm):
-    """ sync_migrator control panel """
+    """ jsonmigrator control panel """
 
     schema = IControlPanel
-    schema_prefix = 'collective.sync_migrator'
+    schema_prefix = 'collective.jsonmigrator'
 
     label = _(u"Synchronize and migrate")
     description = _(u"Please enter the appropriate settings"
@@ -45,4 +45,4 @@ class ControlPanel(RegistryEditForm):
 
 
 ControlPanelView = wrap_form(ControlPanel, ControlPanelFormWrapper)
-ControlPanelView.label = u"SyncMigrator Settings"
+ControlPanelView.label = u"JSONMigrator Settings"

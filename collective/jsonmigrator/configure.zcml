@@ -1,7 +1,9 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
     xmlns:transmogrifier="http://namespaces.plone.org/transmogrifier"
-    i18n_domain="collective.blueprint.jsonmigrator">
+    i18n_domain="collective.jsonmigrator">
 
 
     <include package="collective.transmogrifier" file="meta.zcml" />
@@ -10,7 +12,7 @@
     <include package="plone.app.registry" />
 
     <browser:page
-        name="sync-migrator-controlpanel"
+        name="jsonmigrator-controlpanel"
         for="Products.CMFPlone.interfaces.IPloneSiteRoot"
         permission="cmf.ManagePortal"
         class=".controlpanel.ControlPanelView"
@@ -18,7 +20,7 @@
 
     <utility
         component=".remotesource.RemoteSource"
-        name="collective.blueprint.jsonmigrator.remotesource"
+        name="collective.jsonmigrator.remotesource"
         />
 
     <!--utility
@@ -26,22 +28,17 @@
        name="collective.blueprint.jsonmigrator.atdatafields"
        /-->
 
-    <transmogrifier:registerConfig
-        name="collective.sync_migrator.plone25"
-        title="Migration configuration for Plone 2.5 content types"
-        configuration="config_plone25.cfg"
-        />
-
     <genericsetup:registerProfile
         name="default"
-        title="collective.blueprint.jsonmigrator"
+        title="collective.jsonmigrator"
         directory="profiles/default"
         description="Plone profile to enable synchronization and migration"
         provides="Products.GenericSetup.interfaces.EXTENSION"
         />
-    
+
     <transmogrifier:registerConfig
-        name="collective.blueprint.jsonmigrator.plone25"
+        name="collective.jsonmigrator.plone25"
+        title="Migration configuration for Plone 2.5 content types"
         configuration="config_plone25.cfg"
         />
 

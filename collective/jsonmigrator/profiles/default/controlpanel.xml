@@ -2,15 +2,15 @@
 <object
     name="portal_controlpanel"
     xmlns:i18n="http://xml.zope.org/namespaces/i18n"
-    i18n:domain="collective.sync_migrator">
+    i18n:domain="collective.jsonmigrator">
 
     <configlet
-        title="Sync Migrator Settings"
-        action_id="SyncMigratorSettings"
-        appId="SyncMigratorSettings"
+        title="JSON Migrator Settings"
+        action_id="JSONMigratorSettings"
+        appId="JSONMigratorSettings"
         category="Products"
         condition_expr=""
-        url_expr="string:${portal_url}/@@sync-migrator-controlpanel"
+        url_expr="string:${portal_url}/@@jsonmigrator-controlpanel"
         visible="True"
         i18n:attributes="title">
             <permission>Manage portal</permission>

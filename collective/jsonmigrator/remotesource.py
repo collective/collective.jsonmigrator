@@ -1,29 +1,29 @@
 import time
-import logging
-
+import string
+import httplib
+import urllib2
+import xmlrpclib
+import simplejson
+from base64 import encodestring
 from zope.interface import implements
 from zope.interface import classProvides
 from zope.component import getUtility
-
 from plone.registry.interfaces import IRegistry
-
+from Products.CMFCore.interfaces import ISiteRoot
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
-
-import string
-import httplib
-import xmlrpclib
-from base64 import encodestring
+from collective.jsonmigrator import logger
 
 
 class BasicAuth(xmlrpclib.Transport):
 
-    def __init__(self, username=None, password=None):
-        self.username=username
-        self.password=password
+    def __init__(self, username=None, password=None, verbose=False):
+        self.username = username
+        self.password = password
+        self.verbose = verbose
         self._use_datetime = True
 
-    def request(self, host, handler, request_body):
+    def request(self, host, handler, request_body, verbose):
         h = httplib.HTTP(host)
 
         h.putrequest("POST", handler)
@@ -53,11 +53,13 @@ class BasicAuth(xmlrpclib.Transport):
         return self.parse_response(h.getfile())
 
 
-def RemoteServer(remoteurl, username, password):
-    return xmlrpclib.Server(
-            remoteurl,
-            BasicAuth(username, password),
-            )
+class DefaultPathConverter(object):
+
+    def to_local(self, path):
+        return path
+
+    def to_remote(self, path):
+        return path
 
 
 class RemoteSource(object):
@@ -70,25 +72,125 @@ class RemoteSource(object):
         self.name, self.options = name, options
         self.transmogrifier, self.previous = transmogrifier, previous
         self.context = transmogrifier.context
-        registry = getUtility(IRegistry)
 
         self.start_time = time.time()
-        self.logger = logging.getLogger('collective.blueprint.jsonmigrator')
-        self.server = RemoteServer(
-                registry.get('collective.blueprint.jsonmigrator.remoteurl'),
-                registry.get('collective.blueprint.jsonmigrator.username'),
-                registry.get('collective.blueprint.jsonmigrator.password'),
-                )
+        self.logger = logger
+        registry = getUtility(IRegistry)
+        self.remote_url = 'http://192.168.1.55:8080/Plone'
+#                registry.get('collective.jsonmigrator.remoteurl')
+        self.remote_username ='admin'
+#                registry.get('collective.jsonmigrator.username')
+        self.remote_password = 'admin'
+#                registry.get('collective.jsonmigrator.password')
+        self.portal = getUtility(ISiteRoot)
+        self.portal_path = '/'.join(self.portal.getPhysicalPath())
+        self.max_depth = int(self.options.get('depth', -1))
 
-        self.max_depth = int(self.options['depth'])
+        start_path = self.options.get('start_path', None)
+        if start_path is not None:
+            self.start_path = start_path
+        elif self.context.getId() == 'portal_setup':
+            self.start_path = '/'.join(self.portal.getPhysicalPath())
+        else:
+            self.start_path = '/'.join(self.context.getPhysicalPath())
+
+        # TODO: need to implement "path-converter" resolving
+        self.path_converter = DefaultPathConverter()
+
+        # SKIP OPTIONS
+        self.skip = {}
+        for option in self.options.keys():
+            if option.startswith('skip_'):
+                self.skip[option[5:]] = self.options[option].split()
 
     def __iter__(self):
-
         for item in self.previous:
             yield item
 
+        remote_path = self.path_converter.to_remote(self.start_path)
+        i = 1
+        for item in self.get_items(remote_path):
+            self.logger.info('%s - %s' % (i, item['_remote_path']))
+            i += 1
+            #yield item
 
-        import ipdb; ipdb.set_trace()
+    def get_items(self, path, depth=0):
+        if self.max_depth == -1 or depth <= self.max_depth:
+            remote_item = self.remote_item(path)
+
+            try:
+                item = remote_item.get_item()
+            except xmlrpclib.ProtocolError, e:
+                self.logger.error('XML-RPC protocol error:\n'
+                                  '    URL: %s\n'
+                                  '    HTTP headers: %s\n'
+                                  '    %s: %s' %
+                                  (e.url, e.headers, e.errcode, e.errmsg))
+                import ipdb; ipdb.set_trace()
+                return
+            except:
+                import ipdb; ipdb.set_trace()
+                return
+            try:
+                if item.startswith('ERROR'):
+                    self.logger.error('%s :: EXPORT %s' % (path, item))
+                    import ipdb; ipdb.set_trace()
+                    return
+            except:
+                import ipdb; ipdb.set_trace()
+                return
+
+            item = simplejson.loads(item)
+            item['_remote_path'] = item['_path']
+            item['_path'] = self.path_converter.to_local(item['_remote_path'])
+
+            # TODO: SKIP / INCLUDE rules
+
+            yield item
+            # TODO: we should check if item is created if not then add it to waiting list
+            # and continue only if item successfully created
+
+            try:
+                subitems = remote_item.get_children()
+            except xmlrpclib.ProtocolError, e:
+                self.logger.error('XML-RPC protocol error:\n'
+                                  '    URL: %s\n'
+                                  '    HTTP headers: %s\n'
+                                  '    %s: %s' %
+                                  (e.url, e.headers, e.errcode, e.errmsg))
+                import ipdb; ipdb.set_trace()
+                return
+            except:
+                import ipdb; ipdb.set_trace()
+                return
+
+            if subitems.startswith('ERROR'):
+                self.logger.error('%s :: \n%s' % (path, item))
+                import ipdb; ipdb.set_trace()
+                return
+
+            for subitem_id in simplejson.loads(subitems):
+                subitem_path = path+'/'+subitem_id
+                if subitem_path in self.skip.get('_remote_path', []):
+                    logger.info('SKIPPING -> ' + subitem_path)
+                    continue
+                for subitem in self.get_items(subitem_path, depth+1):
+                    yield subitem
+
+    def remote_item(self, path):
+        remote_url = self.remote_url
+        if not remote_url.endswith('/'):
+            remote_url += '/'
+        if path.startswith('/'):
+            path = path[1:]
+        return xmlrpclib.Server(
+                urllib2.urlparse.urljoin(remote_url, path),
+                BasicAuth(self.remote_username, self.remote_password),
+                )
+
+
+        '''
+        tmp = self.server.get_children()
         paths = self.options['remote_paths']
         base_depth = len(paths[0].split('/'))
         plname = self.options['plname']
@@ -202,5 +304,4 @@ class RemoteSource(object):
             obj = self.context.unrestrictedTraverse(local_path)
         except Exception, e:
             raise AttributeError("Object not found in %s" % local_path)
-        return obj, local_path
-
+        return obj, local_path'''

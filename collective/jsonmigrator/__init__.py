@@ -1,3 +1,6 @@
 
-def initialize(context):
-    """Initializer called when used as a Zope 2 product."""
+import logging
+from zope.i18nmessageid import MessageFactory
+
+logger = logging.getLogger("collective.jsonmigrator")
+JSONMigratorMessageFactory = MessageFactory('collective.jsonmigrator')

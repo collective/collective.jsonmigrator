@@ -2,8 +2,8 @@
 <registry>
 
     <records
-        interface="collective.sync_migrator.controlpanel.IControlPanel"
-        prefix="collective.sync_migrator">
+        interface="collective.jsonmigrator.controlpanel.IControlPanel"
+        prefix="collective.jsonmigrator">
         <value key="remoteurl"></value>
         <value key="username"></value>
         <value key="password"></value>
