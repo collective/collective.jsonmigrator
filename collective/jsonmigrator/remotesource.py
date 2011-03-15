@@ -113,7 +113,7 @@ class RemoteSource(object):
                 item = simplejson.loads(item)
             except:
                 import ipdb; ipdb.set_trace()
-            self.logger.info(' :: Crawling %s' % item['_path'])
+            self.logger.info(':: Crawling %s' % item['_path'])
             yield item
 
             try:
@@ -135,7 +135,7 @@ class RemoteSource(object):
                 subitem_path = path + '/' + subitem_id
 
                 if subitem_path[len(self.remote_path):] in self.skip_remote_path:
-                    logger.info(' :: Skipping -> ' + subitem_path)
+                    logger.info(':: Skipping -> ' + subitem_path)
                     continue
 
                 for subitem in self.get_items(subitem_path, depth+1):
