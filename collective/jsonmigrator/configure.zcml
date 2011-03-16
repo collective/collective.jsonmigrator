@@ -1,7 +1,6 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
     xmlns:browser="http://namespaces.zope.org/browser"
-    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
     xmlns:transmogrifier="http://namespaces.plone.org/transmogrifier"
     i18n_domain="collective.jsonmigrator">
 
@@ -9,13 +8,24 @@
     <include package="collective.transmogrifier" file="meta.zcml" />
     <include package="collective.transmogrifier" />
     <include package="plone.app.transmogrifier" />
-    <include package="plone.app.registry" />
+
+    <utility
+        provides="zope.schema.interfaces.IVocabularyFactory"
+        component=".helper.JSONMigratorConfigurationsFactory"
+        name="collective-jsonmigrator-configurations"
+        />
 
     <browser:page
-        name="jsonmigrator-controlpanel"
+        name="jsonmigrator"
         for="Products.CMFPlone.interfaces.IPloneSiteRoot"
         permission="cmf.ManagePortal"
-        class=".controlpanel.ControlPanelView"
+        class=".helper.JSONMigratorView"
+        />
+    <browser:page
+        name="jsonmigrator-run"
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        permission="cmf.ManagePortal"
+        class=".helper.JSONMigratorRunView"
         />
 
     <utility
@@ -27,14 +37,6 @@
        component=".blueprint.ATDataFields"
        name="collective.blueprint.jsonmigrator.atdatafields"
        /-->
-
-    <genericsetup:registerProfile
-        name="default"
-        title="collective.jsonmigrator"
-        directory="profiles/default"
-        description="Plone profile to enable synchronization and migration"
-        provides="Products.GenericSetup.interfaces.EXTENSION"
-        />
 
     <transmogrifier:registerConfig
         name="collective.jsonmigrator.plone25"
