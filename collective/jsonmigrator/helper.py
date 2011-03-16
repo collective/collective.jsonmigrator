@@ -13,10 +13,12 @@ from z3c.form import field
 from z3c.form import button
 from z3c.form import interfaces
 from plone.z3cform.layout import wrap_form
+from collective.transmogrifier.transmogrifier import Transmogrifier
 from collective.transmogrifier.transmogrifier import configuration_registry
 from collective.transmogrifier.transmogrifier import _load_config
 from collective.jsonmigrator.remotesource import RemoteSource
 from collective.jsonmigrator import JSONMigratorMessageFactory as _
+from collective.jsonmigrator import logger
 
 
 
@@ -101,7 +103,10 @@ class JSONMigratorRun(form.Form):
         data, errors = self.extractData()
         if errors:
             return False
-        import ipdb; ipdb.set_trace()
+
+        logger.info("Start importing profile: " + data['config'])
+        Transmogrifier(self.context)(data['config'])
+        logger.info("Stop importing profile: " + data['config'])
 
 
 class JSONMigratorConfigurations(object):
