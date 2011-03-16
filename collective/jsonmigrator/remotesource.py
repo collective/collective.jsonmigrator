@@ -3,6 +3,7 @@ import string
 import httplib
 import urllib
 import urllib2
+import urlparse
 import xmlrpclib
 import simplejson
 from base64 import encodestring
@@ -52,6 +53,27 @@ class BasicAuth(xmlrpclib.Transport):
 
         return self.parse_response(h.getfile())
 
+class Urllibrpc(object):
+    def __init__(self, url, username, password):
+        self.url = url
+        self.username = username
+        self.password = password
+
+    def __getattr__(self, item):
+        def callable():
+            scheme,netloc,path,params,query,fragment = urlparse.urlparse(self.url)
+            if '@' not in netloc:
+                netloc = '%s:%s@%s'%(self.username, self.password, netloc)
+            path = path + '/' + item
+            url = urlparse.urlunparse( (scheme,netloc,path,params,query,fragment) )
+            f = urllib.urlopen(url)
+            content = f.read()
+            if f.getcode() != 200:
+                raise Exception(content)
+            f.close()
+            return content
+        return callable
+        
 
 class RemoteSource(object):
     """ """
@@ -68,11 +90,14 @@ class RemoteSource(object):
         self.start_time = time.time()
         self.logger = logger
 
-        self.remote_url = 'http://192.168.1.55:8080/Plone'
+        #self.remote_url = 'http://192.168.1.55:8080/Plone'
+        self.remote_url = options.get('remote-url')
 #                self.registry.get('collective.jsonmigrator.remoteurl')
-        self.remote_username ='admin'
+        #self.remote_username ='admin'
+        self.remote_username = options.get('remote-username')
 #                self.registry.get('collective.jsonmigrator.username')
-        self.remote_password = 'admin'
+        #self.remote_password = 'admin'
+        self.remote_password = options.get('remote-password')
 #                self.registry.get('collective.jsonmigrator.password')
 
         self.remote_path = self.options.get('remote-path', '/Plone')
@@ -92,7 +117,9 @@ class RemoteSource(object):
 
     def get_items(self, path, depth=0):
         if self.remote_crawl_depth == -1 or depth <= self.remote_crawl_depth:
+            self.logger.info(':: Crawling %s' % path)
             remote = self.get_remote_item(path)
+            item = None
 
             try:
                 item = remote.get_item()
@@ -104,17 +131,20 @@ class RemoteSource(object):
                         '    %s: %s' %
                             (e.url, e.headers, e.errcode, e.errmsg))
                 raise Exception('error1')
+            except Exception, e:
+                import ipdb; ipdb.set_trace()
 
             if item.startswith('ERROR'):
                 self.logger.error('%s :: EXPORT %s' % (path, item))
-                raise Exception('error2')
-
-            try:
-                item = simplejson.loads(item)
-            except:
-                import ipdb; ipdb.set_trace()
-            self.logger.info(':: Crawling %s' % item['_path'])
-            yield item
+                # Item could be portal object that has children but we can't import
+                # Keep going and assume we have container already to put this content in
+                #raise Exception('error2')
+            elif item is not None:
+                try:
+                    item = simplejson.loads(item)
+                except:
+                    import ipdb; ipdb.set_trace()
+                yield item
 
             try:
                 subitems = remote.get_children()
@@ -147,7 +177,16 @@ class RemoteSource(object):
             remote_url += '/'
         if path.startswith('/'):
             path = path[1:]
-        return xmlrpclib.Server(
-                urllib2.urlparse.urljoin(remote_url, urllib.quote(path)),
+        url = urllib2.urlparse.urljoin(remote_url, urllib.quote(path))
+        return xmlrpclib.Server(url,
                 BasicAuth(self.remote_username, self.remote_password),
                 )
+
+    def get_remote_item(self, path):
+        remote_url = self.remote_url
+        if not remote_url.endswith('/'):
+            remote_url += '/'
+        if path.startswith('/'):
+            path = path[1:]
+        url = urllib2.urlparse.urljoin(remote_url, urllib.quote(path))
+        return Urllibrpc(url, self.remote_username, self.remote_password)
