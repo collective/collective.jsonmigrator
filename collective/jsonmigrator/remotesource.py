@@ -9,8 +9,6 @@ import simplejson
 from base64 import encodestring
 from zope.interface import implements
 from zope.interface import classProvides
-from zope.component import getUtility
-from plone.registry.interfaces import IRegistry
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.jsonmigrator import logger
@@ -78,42 +76,41 @@ class Urllibrpc(object):
 class RemoteSource(object):
     """ """
 
+    name = 'collective.jsonmigrator.remotesource'
+    _options = [
+            ('remote-url', 'http://127.0.0.1:8080/Plone'),
+            ('remote-username', 'admin'),
+            ('remote-password', 'admin'),
+            ('remote-path', '/Plone'),
+            ('remote-crawl-depth', -1),
+            ('remote-skip-path', ''),
+            ]
+
     classProvides(ISectionBlueprint)
     implements(ISection)
 
     def __init__(self, transmogrifier, name, options, previous):
-        self.name, self.options = name, options
-        self.transmogrifier, self.previous = transmogrifier, previous
+        self.name, self.options, self.previous = name, options, previous
+        self.transmogrifier = transmogrifier
         self.context = transmogrifier.context
+        for option, default in self._options:
+            setattr(self, option.replace('-', '_'),
+                    self.get_option(option, default))
 
-        self.registry = getUtility(IRegistry)
-        self.start_time = time.time()
-        self.logger = logger
+    def get_option(self, name, default):
+        request = self.context.get('REQUEST', {})
+        return request.get(name, self.options.get(name, default))
 
-        #self.remote_url = 'http://192.168.1.55:8080/Plone'
-        self.remote_url = options.get('remote-url')
-#                self.registry.get('collective.jsonmigrator.remoteurl')
-        #self.remote_username ='admin'
-        self.remote_username = options.get('remote-username')
-#                self.registry.get('collective.jsonmigrator.username')
-        #self.remote_password = 'admin'
-        self.remote_password = options.get('remote-password')
-#                self.registry.get('collective.jsonmigrator.password')
-
-        self.remote_path = self.options.get('remote-path', '/Plone')
-        self.remote_crawl_depth = int(self.options.get('remote-crawl-depth', -1))
-        self.skip_remote_path = self.options.get('skip-remote-path', '').split()
-
-    def __iter__(self):
-        for item in self.previous:
-            yield item
-
-        try:
-            for item in self.get_items(self.remote_path):
-                if item:
-                    yield item
-        except Exception, e:
-            import ipdb; ipdb.set_trace()
+    def get_remote_item(self, path):
+        remote_url = self.remote_url
+        if not remote_url.endswith('/'):
+            remote_url += '/'
+        if path.startswith('/'):
+            path = path[1:]
+        return xmlrpclib.Server(
+                urllib2.urlparse.urljoin(remote_url, urllib.quote(path)),
+                BasicAuth(self.remote_username, self.remote_password),
+                )
 
     def get_items(self, path, depth=0):
         if self.remote_crawl_depth == -1 or depth <= self.remote_crawl_depth:
@@ -182,7 +179,7 @@ class RemoteSource(object):
                 BasicAuth(self.remote_username, self.remote_password),
                 )
 
-    def get_remote_item(self, path):
+    def _get_remote_item(self, path):
         remote_url = self.remote_url
         if not remote_url.endswith('/'):
             remote_url += '/'
