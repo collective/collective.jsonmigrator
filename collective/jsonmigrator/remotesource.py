@@ -100,10 +100,12 @@ class RemoteSource(object):
 
     def get_option(self, name, default):
         request = self.context.get('REQUEST', {})
-        return request.get(name, self.options.get(name, default))
+        return request.get(
+                    'form.widgets.'+name.replace('-', '_'),
+                    self.options.get(name, default))
 
     def get_remote_item(self, path):
-        remote_url = self.remote_url
+        remote_url = self.remote_url+self.remote_path
         if not remote_url.endswith('/'):
             remote_url += '/'
         if path.startswith('/'):
@@ -125,7 +127,7 @@ class RemoteSource(object):
             try:
                 item = remote.get_item()
             except xmlrpclib.ProtocolError, e:
-                self.logger.error(
+                logger.error(
                         'XML-RPC protocol error:\n'
                         '    URL: %s\n'
                         '    HTTP headers: %s\n'
@@ -136,7 +138,7 @@ class RemoteSource(object):
                 import ipdb; ipdb.set_trace()
 
             if item.startswith('ERROR'):
-                self.logger.error('%s :: EXPORT %s' % (path, item))
+                logger.error('%s :: EXPORT %s' % (path, item))
                 # Item could be portal object that has children but we can't import
                 # Keep going and assume we have container already to put this content in
                 #raise Exception('error2')
@@ -150,7 +152,7 @@ class RemoteSource(object):
             try:
                 subitems = remote.get_children()
             except xmlrpclib.ProtocolError, e:
-                self.logger.error(
+                logger.error(
                         'XML-RPC protocol error:\n'
                         '    URL: %s\n'
                         '    HTTP headers: %s\n'
@@ -159,7 +161,7 @@ class RemoteSource(object):
                 raise Exception('error3')
 
             if subitems.startswith('ERROR'):
-                self.logger.error('%s :: \n%s' % (path, item))
+                logger.error('%s :: \n%s' % (path, item))
                 raise Exception('error4')
 
             for subitem_id in simplejson.loads(subitems):
