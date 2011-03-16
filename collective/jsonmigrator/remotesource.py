@@ -93,6 +93,7 @@ class RemoteSource(object):
         self.name, self.options, self.previous = name, options, previous
         self.transmogrifier = transmogrifier
         self.context = transmogrifier.context
+        self.logger = logger
         for option, default in self._options:
             setattr(self, option.replace('-', '_'),
                     self.get_option(option, default))
@@ -107,18 +108,11 @@ class RemoteSource(object):
             remote_url += '/'
         if path.startswith('/'):
             path = path[1:]
-        return xmlrpclib.Server(
-                urllib2.urlparse.urljoin(remote_url, urllib.quote(path)),
-                BasicAuth(self.remote_username, self.remote_password),
-                )
-
-    def _get_remote_item(self, path):
-        remote_url = self.remote_url
-        if not remote_url.endswith('/'):
-            remote_url += '/'
-        if path.startswith('/'):
-            path = path[1:]
         url = urllib2.urlparse.urljoin(remote_url, urllib.quote(path))
+        #return xmlrpclib.Server(
+        #        url,
+        #        BasicAuth(self.remote_username, self.remote_password),
+        #        )
         return Urllibrpc(url, self.remote_username, self.remote_password)
 
 
@@ -171,7 +165,7 @@ class RemoteSource(object):
             for subitem_id in simplejson.loads(subitems):
                 subitem_path = path + '/' + subitem_id
 
-                if subitem_path[len(self.remote_path):] in self.skip_remote_path:
+                if subitem_path[len(self.remote_path):] in self.remote_skip_path:
                     logger.info(':: Skipping -> ' + subitem_path)
                     continue
 
