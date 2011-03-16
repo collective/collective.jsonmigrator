@@ -112,6 +112,16 @@ class RemoteSource(object):
                 BasicAuth(self.remote_username, self.remote_password),
                 )
 
+    def _get_remote_item(self, path):
+        remote_url = self.remote_url
+        if not remote_url.endswith('/'):
+            remote_url += '/'
+        if path.startswith('/'):
+            path = path[1:]
+        url = urllib2.urlparse.urljoin(remote_url, urllib.quote(path))
+        return Urllibrpc(url, self.remote_username, self.remote_password)
+
+
     def get_items(self, path, depth=0):
         if self.remote_crawl_depth == -1 or depth <= self.remote_crawl_depth:
             self.logger.info(':: Crawling %s' % path)
@@ -168,22 +178,10 @@ class RemoteSource(object):
                 for subitem in self.get_items(subitem_path, depth+1):
                     yield subitem
 
-    def get_remote_item(self, path):
-        remote_url = self.remote_url
-        if not remote_url.endswith('/'):
-            remote_url += '/'
-        if path.startswith('/'):
-            path = path[1:]
-        url = urllib2.urlparse.urljoin(remote_url, urllib.quote(path))
-        return xmlrpclib.Server(url,
-                BasicAuth(self.remote_username, self.remote_password),
-                )
+    def __iter__(self):
+        for item in self.previous:
+            yield item
 
-    def _get_remote_item(self, path):
-        remote_url = self.remote_url
-        if not remote_url.endswith('/'):
-            remote_url += '/'
-        if path.startswith('/'):
-            path = path[1:]
-        url = urllib2.urlparse.urljoin(remote_url, urllib.quote(path))
-        return Urllibrpc(url, self.remote_username, self.remote_password)
+        for item in self.get_items(self.remote_path):
+            if item:
+                yield item
