@@ -11,6 +11,7 @@ from zope.schema.vocabulary import SimpleVocabulary
 from z3c.form import form
 from z3c.form import field
 from z3c.form import button
+from z3c.form import group
 from z3c.form import interfaces
 from plone.z3cform.layout import wrap_form
 from collective.transmogrifier.transmogrifier import Transmogrifier
@@ -68,33 +69,62 @@ class IJSONMigratorRun(Interface):
             )
 
 
-class JSONMigratorRun(form.Form):
+class JSONMigratorRun(group.GroupForm, form.Form):
 
     label = _(u"Synchronize and migrate")
     fields = field.Fields(IJSONMigratorRun)
     ignoreContext = True
 
-    def updateWidgets(self):
+    @property
+    def groups(self):
+        groups = []
         config = _load_config(self.request.get('form.widgets.config'))
-        section = None
         for section_id in config.keys():
-            tmp = config[section_id]
-            if tmp.get('blueprint', '') == RemoteSource.name:
-                section = tmp
-                break
-        if not section:
-            raise Exception("Section with blueptint '%s' not found!" %
-                    RemoteSource.__name__)
-        for option, default in RemoteSource._options:
-            field = self.fields.get(option.replace('-', '_'))
-            default = section.get(option, default)
-            if field.__name__ in ['remote_password', 'remote_path']:
-                default = unicode(default)
-            elif field.__name__ == 'remote_skip_path':
-                default = [unicode(i) for i in default.split()]
-            elif field.__name__ == 'remote_crawl_depth':
-                default = int(default)
-            field.field.default = default
+            if section_id == 'transmogrifier':
+                continue
+            cparser = config[section_id]
+            g = type(section_id, (group.Group,))
+            g.label=section_id
+            fields = []
+            doc = cparser.get('@doc','')
+            for key,value in cparser.items():
+                if not key.startswith('@'):
+                    continue
+                if key == '@doc':
+                    continue
+                metavar,_,help = value.partition(': ')
+                if metavar.upper() == metavar:
+                    action = "store"
+                else:
+                    action = "store_true"
+                    help = value
+                title = "%s:%s"%(section_id,key[1:])
+#                name = "%s:%s"%(section_id,key[1:])
+                default = unicode(cparser.get(key[1:],''))
+                if '\n' in default:
+                    ftype = List(
+                        value_type=TextLine(),)
+                    default = default.splitlines()
+                else:
+                    ftype = TextLine()
+                ftype.__name__=title
+                ftype.title=unicode(title)
+                ftype.description=unicode(help)
+                ftype.required=False
+                ftype.default = default
+                fields.append(ftype)
+            g.fields = field.Fields(*fields)
+            groups.append(g)
+
+        return groups
+
+    @property
+    def fields(self):
+        fields = [TextLine(__name__='config')]
+        return field.Fields(*fields)
+
+
+    def updateWidgets(self):
         super(JSONMigratorRun, self).updateWidgets()
         self.widgets['config'].mode = interfaces.HIDDEN_MODE
 
@@ -117,7 +147,7 @@ class JSONMigratorConfigurations(object):
             conf_file = _load_config(conf_id)
             for section_id in conf_file.keys():
                 section = conf_file[section_id]
-                if section.get('blueprint', '') == RemoteSource.name:
+                if section.get('blueprint', '') == 'plone.app.transmogrifier.atschemaupdater':
                     conf = configuration_registry.getConfiguration(conf_id)
                     terms.append(SimpleVocabulary.createTerm(
                             conf_id, conf_id, conf['title']))

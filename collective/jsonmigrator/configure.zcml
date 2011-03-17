@@ -43,6 +43,11 @@
         title="Migration configuration for Plone 2.5 content types"
         configuration="config_plone25.cfg"
         />
+    <transmogrifier:registerConfig
+        name="collective.jsonmigrator.funnelweb"
+        title="Crawl and migrate static website"
+        configuration="funnelweb.cfg"
+        />
 
 
   <!--utility
