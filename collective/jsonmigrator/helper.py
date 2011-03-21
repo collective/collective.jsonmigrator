@@ -8,12 +8,15 @@ from zope.schema import Choice
 from zope.schema import TextLine
 from zope.schema import ASCIILine
 from zope.schema import Bool
+from zope.schema import Text
+from zope.schema import URI
 from zope.schema.vocabulary import SimpleVocabulary
 from z3c.form import form
 from z3c.form import field
 from z3c.form import button
 from z3c.form import group
 from z3c.form import interfaces
+from z3c.form.browser import multi
 from plone.app.z3cform.layout import wrap_form
 from collective.transmogrifier.transmogrifier import Transmogrifier
 from collective.transmogrifier.transmogrifier import configuration_registry
@@ -69,6 +72,77 @@ class IJSONMigratorRun(Interface):
             required=True,
             )
 
+groupforms = {}
+
+def formfactory(configname):
+    if configname in groupforms:
+        return groupforms[configname]
+    groups = []
+    config = _load_config(configname)
+    sections = config['transmogrifier']['pipeline'].splitlines()
+    print sections
+    for section_id in sections:
+        if not section_id:
+            continue
+        if section_id == 'transmogrifier':
+            continue
+        cparser = config[section_id]
+        g = type(section_id, (group.Group,),dict(label=section_id.capitalize()))
+        fields = []
+        doc = cparser.get('@doc','')
+        for key,value in cparser.items():
+            if key in ['@doc','blueprint']:
+                continue
+            if key.startswith('@'):
+                key = key[1:]
+                metavar,_,help = value.partition(':')
+                default = unicode(cparser.get(key,''))
+                help = value
+            else:
+                if '@'+key in cparser:
+                    # let the @option line be used instead
+                    continue
+                else:
+                    metavar = 'LINE'
+                    default = unicode(value)
+                    help = ''
+            title = key.capitalize().replace('-',' ').replace('_',' ')
+#                name = "%s:%s"%(section_id,key[1:])
+            if metavar == 'HIDDEN':
+                continue
+            elif metavar == 'INT':
+                ftype = Int()
+                if default:
+                    default = int(default)
+                else:
+                    default = 0
+            #elif metavar == 'URL':
+            #    ftype = URI()
+            elif metavar == 'LIST' or '\n' in default:
+                ftype = List(
+                    value_type=TextLine(),)
+                #ftype = Text()
+                #if type(default) == type(""):
+                default = default.splitlines()
+                ftype.widgetFactory = multi.multiFieldWidgetFactory
+            elif metavar.upper() != metavar:
+                ftype = Bool()
+                default = len(default)
+            else:
+                ftype = TextLine()
+            ftype.__name__=title
+            ftype.title=unicode(title)
+            ftype.description=unicode(help)
+            ftype.required=False
+            ftype.default = default
+            print (key,value,ftype,default)
+            fields.append(ftype)
+        if fields:
+            g.fields = field.Fields(*fields)
+            groups.append(g)
+    groupforms[configname]=groups
+    return groups
+
 
 class JSONMigratorRun(group.GroupForm, form.Form):
 
@@ -76,68 +150,10 @@ class JSONMigratorRun(group.GroupForm, form.Form):
     fields = field.Fields(IJSONMigratorRun)
     ignoreContext = True
 
-    def __init__(self, *args, **vargs):
-        super(JSONMigratorRun, self).__init__(*args, **vargs)
-        groups = []
-        config = _load_config(self.request.get('form.widgets.config'))
-        sections = config['transmogrifier']['pipeline'].splitlines()
-        print sections
-        for section_id in sections:
-            if not section_id:
-                continue
-            if section_id == 'transmogrifier':
-                continue
-            cparser = config[section_id]
-            g = type(section_id, (group.Group,),dict(label=section_id))
-            fields = []
-            doc = cparser.get('@doc','')
-            for key,value in cparser.items():
-                if key in ['@doc','blueprint']:
-                    continue
-                print key,value
-                if not key.startswith('@'):
-                    if '@'+key in cparser:
-                        continue
-                    else:
-                        metavar = 'LINE'
-                        default = unicode(value)
-                        help = ''
-                else:
-                    key = key[1:]
-                    metavar,_,help = value.partition(': ')
-                    default = unicode(cparser.get(key,''))
-                    help = value
-                title = key
-#                name = "%s:%s"%(section_id,key[1:])
-                if '\n' in default or metavar == 'LIST':
-                    ftype = List(
-                        value_type=TextLine(),)
-                    #if type(default) == type(""):
-                    default = default.splitlines()
-                elif metavar == 'HIDDEN':
-                    continue
-                elif metavar == 'INT':
-                    ftype = Int()
-                    if default:
-                        default = int(default)
-                    else:
-                        default = 0
-                elif metavar.upper() != metavar:
-                    ftype = Bool()
-                    default = len(default)
-                else:
-                    ftype = TextLine()
-                ftype.__name__=title
-                ftype.title=unicode(title)
-                ftype.description=unicode(help)
-                ftype.required=False
-                ftype.default = default
-                fields.append(ftype)
-            if fields:
-                g.fields = field.Fields(*fields)
-                groups.append(g)
-
-        self.groups = groups
+    def update(self):
+        configname = self.request.get('form.widgets.config')
+        self.groups = formfactory(configname)
+        return super(JSONMigratorRun, self).update()
 
     @property
     def fields(self):
@@ -151,6 +167,7 @@ class JSONMigratorRun(group.GroupForm, form.Form):
 
     @button.buttonAndHandler(u'Run')
     def handleRun(self, action):
+        import ipdb; ipdb.set_trace()
         data, errors = self.extractData()
         if errors:
             return False
