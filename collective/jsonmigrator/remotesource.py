@@ -62,6 +62,8 @@ class Urllibrpc(object):
             scheme,netloc,path,params,query,fragment = urlparse.urlparse(self.url)
             if '@' not in netloc:
                 netloc = '%s:%s@%s'%(self.username, self.password, netloc)
+            if path.endswith("/"):
+                path = path[:-1]
             path = path + '/' + item
             url = urlparse.urlunparse( (scheme,netloc,path,params,query,fragment) )
             f = urllib.urlopen(url)
@@ -177,6 +179,8 @@ class RemoteSource(object):
     def __iter__(self):
         for item in self.previous:
             yield item
+        if self.remote_path.startswith("/"):
+            self.remote_path = self.remote_path[1:]
 
         for item in self.get_items(self.remote_path):
             if item:
