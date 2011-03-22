@@ -149,6 +149,7 @@ class RemoteSource(object):
                     item = simplejson.loads(item)
                 except:
                     import ipdb; ipdb.set_trace()
+                import ipdb; ipdb.set_trace()
                 yield item
 
             try:
