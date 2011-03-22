@@ -149,6 +149,12 @@ class RemoteSource(object):
                     item = simplejson.loads(item)
                 except:
                     import ipdb; ipdb.set_trace()
+                # item['_path'] will be relative to domain of remote_url
+                # make it relative to current context
+                item['_path'] = path
+                if item['_path'].startswith('/'):
+                    item['_path'] = item['_path'][1:]
+                print item['_path'],item.keys()
                 yield item
 
             try:

@@ -45,59 +45,59 @@
         />
 
 
-  <!--utility
+  <utility
      component=".blueprint.JSONSource"
-     name="collective.blueprint.jsonmigrator.source"
+     name="collective.jsonmigrator.source"
      />
 
   <utility
      component=".blueprint.SkipItems"
-     name="collective.blueprint.jsonmigrator.skipitems"
+     name="collective.jsonmigrator.skipitems"
      />
 
   <utility
      component=".blueprint.PartialCommit"
-     name="collective.blueprint.jsonmigrator.partialcommit"
+     name="collective.jsonmigrator.partialcommit"
      />
 
   <utility
      component=".blueprint.Statistics"
-     name="collective.blueprint.jsonmigrator.statistics"
+     name="collective.jsonmigrator.statistics"
      />
 
   <utility
      component=".blueprint.WorkflowHistory"
-     name="collective.blueprint.jsonmigrator.workflowhistory"
+     name="collective.jsonmigrator.workflowhistory"
      />
 
   <utility
      component=".blueprint.Mimetype"
-     name="collective.blueprint.jsonmigrator.mimetype"
+     name="collective.jsonmigrator.mimetype"
      />
 
   <utility
      component=".blueprint.Properties"
-     name="collective.blueprint.jsonmigrator.properties"
+     name="collective.jsonmigrator.properties"
      />
 
   <utility
      component=".blueprint.PermissionMapping"
-     name="collective.blueprint.jsonmigrator.permission_mapping"
+     name="collective.jsonmigrator.permission_mapping"
      />
 
   <utility
      component=".blueprint.Owner"
-     name="collective.blueprint.jsonmigrator.owner"
+     name="collective.jsonmigrator.owner"
      />
 
   <utility
      component=".blueprint.LocalRoles"
-     name="collective.blueprint.jsonmigrator.ac_local_roles"
+     name="collective.jsonmigrator.ac_local_roles"
      />
 
   <utility
      component=".blueprint.DataFields"
-     name="collective.blueprint.jsonmigrator.datafields"
-     /-->
+     name="collective.jsonmigrator.datafields"
+     />
 
 </configure>

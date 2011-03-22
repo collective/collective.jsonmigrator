@@ -508,7 +508,8 @@ class DataFields(object):
             if not pathkey:                     # not enough info
                 yield item; continue
 
-            obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)
+            path = str(item[pathkey].lstrip('/'))
+            obj = self.context.unrestrictedTraverse(path, None)
             if obj is None:                     # path doesn't exist
                 yield item; continue
 
