@@ -56,7 +56,7 @@ class RemoteSource(object):
 
     name = 'collective.jsonmigrator.remotesource'
     _options = [
-            ('remote-url', 'http://127.0.0.1:8080/Plone'),
+            ('remote-url', 'http://127.0.0.1:8080'),
             ('remote-username', 'admin'),
             ('remote-password', 'admin'),
             ('remote-path', '/Plone'),
@@ -74,6 +74,10 @@ class RemoteSource(object):
         for option, default in self._options:
             setattr(self, option.replace('-', '_'),
                     self.get_option(option, default))
+        if type(self.remote_crawl_depth) in [str, unicode]:
+            self.remote_crawl_depth = int(self.remote_crawl_depth)
+        if type(self.remote_skip_path) in [str, unicode]:
+            self.remote_skip_path = self.remote_skip_path.split()
 
     def get_option(self, name, default):
         request = self.context.get('REQUEST', {})
