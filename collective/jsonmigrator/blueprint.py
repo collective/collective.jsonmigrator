@@ -529,3 +529,58 @@ class DataFields(object):
                         field.set(obj, value)
 
             yield item
+
+class ATDataFields(object):
+    """ """
+
+    classProvides(ISectionBlueprint)
+    implements(ISection)
+
+    def __init__(self, transmogrifier, name, options, previous):
+        self.transmogrifier = transmogrifier
+        self.name = name
+        self.options = options
+        self.previous = previous
+        self.context = transmogrifier.context
+
+        if 'path-key' in options:
+            pathkeys = options['path-key'].splitlines()
+        else:
+            pathkeys = defaultKeys(options['blueprint'], name, 'path')
+        self.pathkey = Matcher(*pathkeys)
+
+        self.datafield_prefix = options.get('datafield-prefix', '_datafield_')
+
+    def __iter__(self):
+        for item in self.previous:
+            pathkey = self.pathkey(*item.keys())[0]
+
+            if not pathkey:                     # not enough info
+                yield item
+                continue
+
+            obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'),
+                                                    None)
+            if obj is None:                     # path doesn't exist
+                yield item
+                continue
+
+            if IBaseObject.providedBy(obj):
+                for key in item.keys():
+                    if not key.startswith(self.datafield_prefix):
+                        continue
+
+                    fieldname = key[len(self.datafield_prefix):]
+                    field = obj.getField(fieldname)
+                    if type(item[key]) is str:
+                        value = base64.b64decode(item[key])
+                    else:
+                        value = base64.b64decode(item[key]['data'])
+                    if len(value) != len(field.get(obj)):
+                        field.set(obj, value)
+                        if type(item[key]) is not str:
+                            obj.setFilename(item[key]['filename'])
+                            obj.setContentType(item[key]['content_type'])
+
+            yield item
+

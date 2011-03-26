@@ -8,6 +8,7 @@
     <include package="collective.transmogrifier" file="meta.zcml" />
     <include package="collective.transmogrifier" />
     <include package="plone.app.transmogrifier" />
+     <include package="plone.app.z3cform" />
 
     <utility
         provides="zope.schema.interfaces.IVocabularyFactory"
@@ -33,10 +34,10 @@
         name="collective.jsonmigrator.remotesource"
         />
 
-    <!--utility
+    <utility
        component=".blueprint.ATDataFields"
        name="collective.blueprint.jsonmigrator.atdatafields"
-       /-->
+       />
 
     <transmogrifier:registerConfig
         name="collective.jsonmigrator.plone25"
@@ -45,59 +46,59 @@
         />
 
 
-  <utility
+  <!--utility
      component=".blueprint.JSONSource"
-     name="collective.jsonmigrator.source"
+     name="collective.blueprint.jsonmigrator.source"
      />
 
   <utility
      component=".blueprint.SkipItems"
-     name="collective.jsonmigrator.skipitems"
+     name="collective.blueprint.jsonmigrator.skipitems"
      />
 
   <utility
      component=".blueprint.PartialCommit"
-     name="collective.jsonmigrator.partialcommit"
+     name="collective.blueprint.jsonmigrator.partialcommit"
      />
 
   <utility
      component=".blueprint.Statistics"
-     name="collective.jsonmigrator.statistics"
+     name="collective.blueprint.jsonmigrator.statistics"
      />
 
   <utility
      component=".blueprint.WorkflowHistory"
-     name="collective.jsonmigrator.workflowhistory"
+     name="collective.blueprint.jsonmigrator.workflowhistory"
      />
 
   <utility
      component=".blueprint.Mimetype"
-     name="collective.jsonmigrator.mimetype"
+     name="collective.blueprint.jsonmigrator.mimetype"
      />
 
   <utility
      component=".blueprint.Properties"
-     name="collective.jsonmigrator.properties"
+     name="collective.blueprint.jsonmigrator.properties"
      />
 
   <utility
      component=".blueprint.PermissionMapping"
-     name="collective.jsonmigrator.permission_mapping"
+     name="collective.blueprint.jsonmigrator.permission_mapping"
      />
 
   <utility
      component=".blueprint.Owner"
-     name="collective.jsonmigrator.owner"
+     name="collective.blueprint.jsonmigrator.owner"
      />
 
   <utility
      component=".blueprint.LocalRoles"
-     name="collective.jsonmigrator.ac_local_roles"
+     name="collective.blueprint.jsonmigrator.ac_local_roles"
      />
 
   <utility
      component=".blueprint.DataFields"
-     name="collective.jsonmigrator.datafields"
-     />
+     name="collective.blueprint.jsonmigrator.datafields"
+     /-->
 
 </configure>
