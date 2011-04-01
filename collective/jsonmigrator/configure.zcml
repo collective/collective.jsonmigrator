@@ -38,6 +38,11 @@
        name="collective.jsonmigrator.datafields"
        />
 
+    <utility
+        component=".workflowhistory.WorkflowHistory"
+        name="collective.jsonmigrator.workflowhistory"
+        />
+
     <transmogrifier:registerConfig
         name="collective.jsonmigrator.plone25"
         title="Migration configuration for Plone 2.5 content types"
@@ -45,31 +50,7 @@
         />
 
 
-  <!--utility
-     component=".blueprint.JSONSource"
-     name="collective.blueprint.jsonmigrator.source"
-     />
-
-  <utility
-     component=".blueprint.SkipItems"
-     name="collective.blueprint.jsonmigrator.skipitems"
-     />
-
-  <utility
-     component=".blueprint.PartialCommit"
-     name="collective.blueprint.jsonmigrator.partialcommit"
-     />
-
-  <utility
-     component=".blueprint.Statistics"
-     name="collective.blueprint.jsonmigrator.statistics"
-     />
-
-  <utility
-     component=".blueprint.WorkflowHistory"
-     name="collective.blueprint.jsonmigrator.workflowhistory"
-     />
-
+  <!--
   <utility
      component=".blueprint.Mimetype"
      name="collective.blueprint.jsonmigrator.mimetype"
@@ -94,10 +75,7 @@
      component=".blueprint.LocalRoles"
      name="collective.blueprint.jsonmigrator.ac_local_roles"
      />
+  -->
 
-  <utility
-     component=".blueprint.DataFields"
-     name="collective.blueprint.jsonmigrator.datafields"
-     /-->
 
 </configure>
