@@ -56,7 +56,9 @@ class WorkflowHistory(object):
                 # get back datetime stamp and set the workflow history
                 for workflow in item_tmp[workflowhistorykey]:
                     for k, workflow2 in enumerate(item_tmp[workflowhistorykey][workflow]):
-                        item_tmp[workflowhistorykey][workflow][k]['time'] = DateTime(item_tmp[workflowhistorykey][workflow][k]['time'])
+                        if 'time' in item_tmp[workflowhistorykey][workflow][k]:
+                            item_tmp[workflowhistorykey][workflow][k]['time'] = DateTime(
+                                    item_tmp[workflowhistorykey][workflow][k]['time'])
                 obj.workflow_history.data = item_tmp[workflowhistorykey]
 
                 # update security
