@@ -33,10 +33,10 @@
         name="collective.jsonmigrator.remotesource"
         />
 
-    <!--utility
-       component=".blueprint.ATDataFields"
-       name="collective.blueprint.jsonmigrator.atdatafields"
-       /-->
+    <utility
+       component=".datafields.DataFields"
+       name="collective.jsonmigrator.datafields"
+       />
 
     <transmogrifier:registerConfig
         name="collective.jsonmigrator.plone25"
