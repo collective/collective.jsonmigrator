@@ -43,6 +43,27 @@
         name="collective.jsonmigrator.workflowhistory"
         />
 
+    <utility
+        component=".properties.Properties"
+        name="collective.jsonmigrator.properties"
+        />
+
+    <utility
+        component=".permissions.Permissions"
+        name="collective.jsonmigrator.permissions"
+        />
+
+    <utility
+        component=".owner.Owner"
+        name="collective.jsonmigrator.owner"
+        />
+
+    <utility
+        component=".local_roles.LocalRoles"
+        name="collective.jsonmigrator.local_roles"
+        />
+
+
     <transmogrifier:registerConfig
         name="collective.jsonmigrator.plone25"
         title="Migration configuration for Plone 2.5 content types"
@@ -51,31 +72,11 @@
 
 
   <!--
-  <utility
-     component=".blueprint.Mimetype"
-     name="collective.blueprint.jsonmigrator.mimetype"
-     />
-
-  <utility
-     component=".blueprint.Properties"
-     name="collective.blueprint.jsonmigrator.properties"
-     />
-
-  <utility
-     component=".blueprint.PermissionMapping"
-     name="collective.blueprint.jsonmigrator.permission_mapping"
-     />
-
-  <utility
-     component=".blueprint.Owner"
-     name="collective.blueprint.jsonmigrator.owner"
-     />
-
-  <utility
-     component=".blueprint.LocalRoles"
-     name="collective.blueprint.jsonmigrator.ac_local_roles"
-     />
+    TODO: Not sure we need this
+    <utility
+        component=".mimetype.Mimetype"
+        name="collective.jsonmigrator.mimetype"
+        />
   -->
-
 
 </configure>
