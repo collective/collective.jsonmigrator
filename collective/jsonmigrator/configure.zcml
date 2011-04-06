@@ -63,20 +63,15 @@
         name="collective.jsonmigrator.local_roles"
         />
 
+    <utility
+        component=".mimetype.Mimetype"
+        name="collective.jsonmigrator.mimetype"
+        />
 
     <transmogrifier:registerConfig
         name="collective.jsonmigrator.plone25"
         title="Migration configuration for Plone 2.5 content types"
         configuration="config_plone25.cfg"
         />
-
-
-  <!--
-    TODO: Not sure we need this
-    <utility
-        component=".mimetype.Mimetype"
-        name="collective.jsonmigrator.mimetype"
-        />
-  -->
 
 </configure>
