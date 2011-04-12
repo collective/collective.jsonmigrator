@@ -34,6 +34,11 @@ class DataFields(object):
                 yield item
                 continue
 
+            # do nothing if we got a wrong object through acquisition
+            if '/'.join(obj.getPhysicalPath()) != item['_path']:
+                yield item
+                continue
+
             if IBaseObject.providedBy(obj):
                 for key in item.keys():
 
