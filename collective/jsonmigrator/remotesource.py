@@ -158,6 +158,10 @@ class RemoteSource(object):
 
             item, subitems = self.get_remote_item(path)
 
+            if item is None:
+                logger.warn(':: Skipping -> %s. No remote data.' % path)
+                return
+
             if item.startswith('ERROR'):
                 logger.error('%s :: EXPORT %s' % (path, item))
                 raise Exception('error2')
