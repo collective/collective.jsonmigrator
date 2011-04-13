@@ -17,6 +17,7 @@ class DataFields(object):
         self.previous = previous
         self.context = transmogrifier.context
         self.datafield_prefix = options.get('datafield-prefix', '_datafield_')
+        self.root_path_length = len(self.context.getPhysicalPath())
 
     def __iter__(self):
         for item in self.previous:
@@ -35,7 +36,7 @@ class DataFields(object):
                 continue
 
             # do nothing if we got a wrong object through acquisition
-            if '/'.join(obj.getPhysicalPath()) != item['_path']:
+            if '/'.join(obj.getPhysicalPath()[self.root_path_length:]) != item['_path'][1:]:
                 yield item
                 continue
 
