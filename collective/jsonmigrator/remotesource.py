@@ -211,9 +211,9 @@ class RemoteSource(object):
                     item['_path'] = item['_path'][1:]
 
                 # special case for to call setContentType as plone 4.1 needs to this display html
-                if '_content_type' in item:
-                    item['ContentType'] = item['_content_type']
-                #import pdb; pdb.set_trace()
+                #TODO there must be a more general way of doing this?
+                if '_content_type' in item and 'text' in item:
+                    item['text.mimetype'] = item['_content_type']
                 yield item
 
             if subitems.startswith('ERROR'):
