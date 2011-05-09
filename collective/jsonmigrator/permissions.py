@@ -8,6 +8,7 @@ from collective.transmogrifier.utils import Matcher
 from collective.transmogrifier.utils import defaultKeys
 
 from AccessControl.interfaces import IRoleManager
+from collective.jsonmigrator import logger
 
 
 class Permissions(object):
@@ -57,7 +58,9 @@ class Permissions(object):
                             roles=perm_dict['roles'],
                             acquire=perm_dict['acquire'])
                     except ValueError:
-                        raise Exception('Error setting the perm "%s"' % perm)
+                        #raise Exception('Error setting the perm "%s"' % perm)
+                        logger.error('Error setting the perm "%s" on %s' % (perm, item[pathkey]))
+
 
             yield item
 
