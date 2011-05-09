@@ -204,12 +204,16 @@ class RemoteSource(object):
                 pass
             else:
                 # item['_path'] is relative to domain root. we need relative to plone root
-                remote_url = self.remote_url+self.remote_path
+                remote_url = self.remote_url
                 _,_,remote_path,_,_,_ = urlparse.urlparse(remote_url)
                 item['_path'] = item['_path'][len(remote_path):]
                 if item['_path'].startswith('/'):
                     item['_path'] = item['_path'][1:]
 
+                # special case for to call setContentType as plone 4.1 needs to this display html
+                if '_content_type' in item:
+                    item['ContentType'] = item['_content_type']
+                #import pdb; pdb.set_trace()
                 yield item
 
             if subitems.startswith('ERROR'):
