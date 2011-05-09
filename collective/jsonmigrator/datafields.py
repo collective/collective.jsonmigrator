@@ -36,7 +36,10 @@ class DataFields(object):
                 continue
 
             # do nothing if we got a wrong object through acquisition
-            if '/'.join(obj.getPhysicalPath()[self.root_path_length:]) != item['_path'][1:]:
+            path = item['_path']
+            if path.startswith('/'):
+                path = path[1:]
+            if '/'.join(obj.getPhysicalPath()[self.root_path_length:]) != path:
                 yield item
                 continue
 
