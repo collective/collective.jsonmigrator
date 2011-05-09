@@ -2,6 +2,7 @@ import string
 import httplib
 import urllib
 import urllib2
+import urlparse
 import xmlrpclib
 import simplejson
 import pickle
@@ -74,6 +75,29 @@ class BasicAuth(xmlrpclib.Transport):
 
         return self.parse_response(h.getfile())
 
+class Urllibrpc(object):
+    def __init__(self, url, username, password):
+        self.url = url
+        self.username = username
+        self.password = password
+
+    def __getattr__(self, item):
+        def callable():
+            scheme,netloc,path,params,query,fragment = urlparse.urlparse(self.url)
+            if '@' not in netloc:
+                netloc = '%s:%s@%s'%(self.username, self.password, netloc)
+            if path.endswith("/"):
+                path = path[:-1]
+            path = path + '/' + item
+            url = urlparse.urlunparse( (scheme,netloc,path,params,query,fragment) )
+            f = urllib.urlopen(url)
+            content = f.read()
+            if f.getcode() != 200:
+                raise Exception(content)
+            f.close()
+            return content
+        return callable
+
 
 class RemoteSource(object):
     """ """
@@ -102,6 +126,8 @@ class RemoteSource(object):
             self.remote_crawl_depth = int(self.remote_crawl_depth)
         if type(self.remote_skip_path) in [str, unicode]:
             self.remote_skip_path = self.remote_skip_path.split()
+        if self.remote_path[-1] == '/':
+            self.remote_path = self.remote_path[:-1]
 
         # Load cached data from the given file
         self.cache = resolvePackageReferenceOrFile(options.get('cache', ''))
@@ -124,10 +150,14 @@ class RemoteSource(object):
             remote_url += '/'
         if path.startswith('/'):
             path = path[1:]
-        remote = xmlrpclib.Server(
-                 urllib2.urlparse.urljoin(remote_url, urllib.quote(path)),
-                 BasicAuth(self.remote_username, self.remote_password),
-                 )
+        url = urllib2.urlparse.urljoin(remote_url, urllib.quote(path))
+        #remote = xmlrpclib.Server(
+        #         url,
+        #         BasicAuth(self.remote_username, self.remote_password),
+        #         )
+        
+        # XMLRPC seems to be causing unexplained Faults where urllib works
+        remote = Urllibrpc(url, self.remote_username, self.remote_password)
 
         try:
             item = remote.get_item()
@@ -154,6 +184,8 @@ class RemoteSource(object):
         return item, subitems
         
     def get_items(self, path, depth=0):
+        if path and path[-1] == '/':
+            path = path[:-1]
         if self.remote_crawl_depth == -1 or depth <= self.remote_crawl_depth:
 
             item, subitems = self.get_remote_item(path)
@@ -168,7 +200,17 @@ class RemoteSource(object):
 
             item = simplejson.loads(item)
             logger.info(':: Crawling %s' % item['_path'])
-            yield item
+            if item['_type'] == "Plone Site":
+                pass
+            else:
+                # item['_path'] is relative to domain root. we need relative to plone root
+                remote_url = self.remote_url+self.remote_path
+                _,_,remote_path,_,_,_ = urlparse.urlparse(remote_url)
+                item['_path'] = item['_path'][len(remote_path):]
+                if item['_path'].startswith('/'):
+                    item['_path'] = item['_path'][1:]
+
+                yield item
 
             if subitems.startswith('ERROR'):
                 logger.error('%s :: \n%s' % (path, item))
