@@ -46,6 +46,10 @@ class Owner(object):
                ownerkey not in item:    # not enough info
                 yield item; continue
 
+            if item[ownerkey] is None or len(item[ownerkey]) != 2:
+                #owner is None or something else went wrong
+                yield item; continue
+
             obj = self.context.unrestrictedTraverse(
                     item[pathkey].lstrip('/'), None)
             if obj is None:             # path doesn't exist
