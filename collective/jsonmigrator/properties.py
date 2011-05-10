@@ -55,25 +55,26 @@ class Properties(object):
                 # path doesn't exist
                 yield item; continue
 
-            if not IBaseObject.providedBy(obj) and \
+            if not IBaseObject.providedBy(obj) or \
                not getattr(aq_base(obj), '_delProperty', False):
                 continue
 
-            for prop in item[propertieskey]:
-                if getattr(aq_base(obj), prop[0], None) is not None:
+            for pid,pvalue,ptype in item[propertieskey]:
+                if getattr(aq_base(obj), pid, None) is not None:
                     # if object have a attribute equal to property, do nothing
                     continue
 
                 try:
-                    if obj.hasProperty(prop[0]):
-                        obj._updateProperty(prop[0], prop[1])
+                    if obj.hasProperty(pid):
+                        obj._updateProperty(pid, pvalue)
                     else:
-                        obj._setProperty(prop[0], prop[1], prop[2])
+                        obj._setProperty(pid, pvalue, ptype)
                 except ConflictError:
                     raise
                 except Exception, e:
-                    raise Exception('Failed to set property %s type %s'
-                            ' to %s at object %s. ERROR: %s' % \
-                            (prop[0], prop[1], prop[2], str(obj), str(e)))
+                    import pdb; pdb.set_trace()
+                    raise Exception('Failed to set property "%s" type "%s"'
+                            ' to "%s" at object %s. ERROR: %s' % \
+                            (pid, ptype, pvalue, str(obj), str(e)))
 
             yield item
