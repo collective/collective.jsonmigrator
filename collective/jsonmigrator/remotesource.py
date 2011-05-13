@@ -195,8 +195,8 @@ class RemoteSource(object):
                 return
 
             if item.startswith('ERROR'):
-                logger.error('%s :: EXPORT %s' % (path, item))
-                raise Exception('error2')
+                logger.error("Could not get item '%s' from remote. Got %s." % (path, item))
+                return
 
             item = simplejson.loads(item)
             logger.info(':: Crawling %s' % item['_path'])
@@ -223,8 +223,8 @@ class RemoteSource(object):
                 yield item
 
             if subitems.startswith('ERROR'):
-                logger.error('%s :: \n%s' % (path, item))
-                raise Exception('error4')
+                logger.error("Could not get subitems for '%s'. Got %s." % (path, subitems))
+                return
 
             for subitem_id in simplejson.loads(subitems):
                 subitem_path = path + '/' + subitem_id
