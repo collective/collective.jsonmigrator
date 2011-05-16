@@ -75,6 +75,18 @@ class BasicAuth(xmlrpclib.Transport):
 
         return self.parse_response(h.getfile())
 
+class UrllibrpcException(Exception):
+    """Raised when reading an url fails.
+    """
+
+    def __init__(self, code, url):
+        self.code = code
+        self.url = url
+
+    def __str__(self):
+        return '%s:%s' % (self.code, self.url)
+
+
 class Urllibrpc(object):
     def __init__(self, url, username, password):
         self.url = url
@@ -93,7 +105,7 @@ class Urllibrpc(object):
             f = urllib.urlopen(url)
             content = f.read()
             if f.getcode() != 200:
-                raise Exception(content)
+                raise UrllibrpcException(f.getcode(), f.geturl())
             f.close()
             return content
         return callable
@@ -161,25 +173,17 @@ class RemoteSource(object):
 
         try:
             item = remote.get_item()
-        except xmlrpclib.ProtocolError, e:
-            logger.error(
-                    'XML-RPC protocol error:\n'
-                    '    URL: %s\n'
-                    '    HTTP headers: %s\n'
-                    '    %s: %s' %
-                        (e.url, e.headers, e.errcode, e.errmsg))
-            raise Exception('error1')
+        except UrllibrpcException, e:
+            logger.error("Failed reading url '%s' with error code %s." %
+                         (e.url, e.code))
+            return None, []
 
         try:
             subitems = remote.get_children()
-        except xmlrpclib.ProtocolError, e:
-            logger.error(
-                    'XML-RPC protocol error:\n'
-                    '    URL: %s\n'
-                    '    HTTP headers: %s\n'
-                    '    %s: %s' %
-                        (e.url, e.headers, e.errcode, e.errmsg))
-            raise Exception('error3')
+        except UrllibrpcException, e:
+            logger.error("Failed reading url '%s' with error code %s." %
+                         (e.url, e.code))
+            return item, []
 
         return item, subitems
         
