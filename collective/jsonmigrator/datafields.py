@@ -55,7 +55,9 @@ class DataFields(object):
                         continue
                     value = base64.b64decode(item[key]['data'])
 
-                    if len(value) != len(field.get(obj)):
+                    # XXX: handle other data field implementations
+                    old_value = field.get(obj).data
+                    if value != old_value:
                         field.set(obj, value)
                         obj.setFilename(item[key]['filename'])
                         obj.setContentType(item[key]['content_type'])
