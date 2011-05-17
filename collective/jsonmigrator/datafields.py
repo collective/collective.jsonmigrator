@@ -51,6 +51,8 @@ class DataFields(object):
 
                     fieldname = key[len(self.datafield_prefix):]
                     field = obj.getField(fieldname)
+                    if field is None:
+                        continue
                     value = base64.b64decode(item[key]['data'])
 
                     if len(value) != len(field.get(obj)):
