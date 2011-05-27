@@ -212,15 +212,6 @@ class RemoteSource(object):
             if item['_path'].startswith('/'):
                 item['_path'] = item['_path'][1:]
 
-            # special case for to call setContentType for text field
-            # as plone 4.1 needs to this display html
-            #TODO not sure if this is best place for this or in jsonify
-            for key in item.keys():
-                if key.startswith('_'):
-                    continue
-                if '_content_type_'+key in item:
-                    item[key+'.mimetype'] = item['_content_type_'+key]
-
             if item['_type'] == "Plone Site":
                 pass
             else:
