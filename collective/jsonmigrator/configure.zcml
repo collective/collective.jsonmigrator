@@ -69,6 +69,11 @@
         name="collective.jsonmigrator.mimetype"
         />
 
+    <utility
+        component=".order.OrderSection"
+        name="collective.jsonmigrator.order"
+        />
+
     <transmogrifier:registerConfig
         name="collective.jsonmigrator.plone25"
         title="Migration configuration for Plone 2.5 content types"
