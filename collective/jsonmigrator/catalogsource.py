@@ -25,6 +25,8 @@ class CatalogSourceSection(object):
         remote_password = self.get_option('remote-password', 'admin')
 
         catalog_path = self.get_option('catalog-path', '/Plone/portal_catalog')
+        self.site_path_length = len('/'.join(catalog_path.split('/')[:-1]))
+
         catalog_query = self.get_option('catalog-query', None)
         catalog_query = ' '.join(catalog_query.split())
         catalog_query = base64.b64encode(catalog_query)
@@ -66,6 +68,7 @@ class CatalogSourceSection(object):
         for path in self.item_paths:
             item = self.get_remote_item(path)
             if item:
+                item['_path'] = item['_path'][self.site_path_length:]
                 yield item
 
     def get_remote_item(self, path):
