@@ -7,6 +7,7 @@ from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.interfaces import ISection
 from collective.jsonmigrator import logger
 
+
 class CatalogSourceSection(object):
     """A source section which creates items from a remote Plone site by
        querying it's catalog.
@@ -19,7 +20,7 @@ class CatalogSourceSection(object):
         self.options = options
         self.context = transmogrifier.context
 
-        self.remote_url = self.get_option('remote-url', 
+        self.remote_url = self.get_option('remote-url',
                                           'http://localhost:8080')
         remote_username = self.get_option('remote-username', 'admin')
         remote_password = self.get_option('remote-password', 'admin')
@@ -64,7 +65,7 @@ class CatalogSourceSection(object):
     def __iter__(self):
         for item in self.previous:
             yield item
-        
+
         for path in self.item_paths:
             item = self.get_remote_item(path)
             if item:
@@ -79,5 +80,9 @@ class CatalogSourceSection(object):
         except urllib2.URLError, e:
             logger.error("Failed reading item from %s. %s" (item_url, str(e)))
             return None
-        item = simplejson.loads(item_json)
+        try:
+            item = simplejson.loads(item_json)
+        except simplejson.JSONDecodeError:
+            logger.error("Could not decode item from %s." % item_url)
+            return None
         return item
