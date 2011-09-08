@@ -74,6 +74,11 @@
         name="collective.jsonmigrator.order"
         />
 
+    <utility
+        component=".catalogsource.CatalogSourceSection"
+        name="collective.jsonmigrator.catalogsource"
+        />
+
     <transmogrifier:registerConfig
         name="collective.jsonmigrator.plone25"
         title="Migration configuration for Plone 2.5 content types"
