@@ -85,4 +85,10 @@
         configuration="config_plone25.cfg"
         />
 
+    <transmogrifier:registerConfig
+        name="collective.jsonmigrator.catalog"
+        title="Migration configuration for querying the catalog of a Plone site"
+        configuration="config_catalog.cfg"
+        />
+
 </configure>
