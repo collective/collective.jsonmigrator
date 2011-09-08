@@ -1,7 +1,11 @@
+from Acquisition import aq_base
 from zope.interface import classProvides, implements
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.utils import defaultMatcher
+from zope.app.container.contained import notifyContainerModified
+
+TEMP_ORDER_KEY = '_temp_gopip'
 
 
 class OrderSection(object):
@@ -16,17 +20,51 @@ class OrderSection(object):
         self.poskey = defaultMatcher(options, 'pos-key', name, 'gopip')
 
     def __iter__(self):
-        items = []
+        # Store position in a temporaray attribute and keep a list of parents
+        # that need to recalculate their ordering after all items were
+        # processed.
+        parents = set([])
         for item in self.previous:
-            items.append(item)
-            yield item
-
-        for item in items:
             keys = item.keys()
             pathkey = self.pathkey(*keys)[0]
             poskey = self.poskey(*keys)[0]
-            parent = self.context.unrestrictedTraverse(
-                '/'.join(item[pathkey].split('/')[:-1]), None)
-            if parent and item[poskey]:
-                objectid = item[pathkey].split('/')[-1:]
-                parent.moveObjectToPosition(objectid, item[poskey])
+            if not (pathkey and poskey):
+                yield item
+                continue
+
+            obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'),
+                                                    None)
+            if obj is None:
+                yield item
+                continue
+
+            setattr(obj, TEMP_ORDER_KEY, item[poskey])
+            parents.add('/'.join(item[pathkey].lstrip('/').split('/')[:-1]))
+            yield item
+
+        for item in parents:
+            parent = self.context.unrestrictedTraverse(item)
+
+            if hasattr(aq_base(parent), 'getOrdering'):
+                ordering = parent.getOrdering()
+                order = ordering._order()
+                pos = ordering._pos()
+
+                def my_cmp(x, y):
+                    # Keep the position of objects that do not have our order
+                    # key.
+                    posx = getattr(parent._getOb(x), TEMP_ORDER_KEY, None)
+                    posy = getattr(parent._getOb(y), TEMP_ORDER_KEY, None)
+                    if posx is None or posy is None:
+                        return 0
+                    return cmp(posx, posy)
+                order.sort(my_cmp)
+                for i, id_ in enumerate(order):
+                    pos[id_] = i
+
+                for id_ in parent.objectIds():
+                    obj = parent._getOb(id_)
+                    if hasattr(obj, TEMP_ORDER_KEY):
+                        delattr(obj, TEMP_ORDER_KEY)
+
+                notifyContainerModified(parent)
