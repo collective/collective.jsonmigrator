@@ -25,9 +25,7 @@ import sys, os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinxtogithub', 'sphinx.ext.viewcode']
-sphinx_to_github = True
-sphinx_to_github_verbose = True
+extensions = ['sphinx.ext.viewcode']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -108,7 +106,7 @@ html_theme = 'nature'
 #html_title = None
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
-html_short_title = 'collective.blueprint.jsonmigrator'
+html_short_title = 'collective.jsonmigrator'
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
@@ -182,8 +180,8 @@ htmlhelp_basename = 'cbjsonmigratordoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'collective-blueprint-jsonmigrator.tex',
-   u'collective.blueprint.jsonmigrator Documentation',
+  ('index', 'collective-jsonmigrator.tex',
+   u'collective.jsonmigrator Documentation',
    u'garbas', 'manual'),
 ]
 
@@ -216,7 +214,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'jsonmigrator', u'collective.blueprint.jsonmigrator documentation',
+    ('index', 'jsonmigrator', u'collective.jsonmigrator documentation',
      [u'garbas'], 1)
 ]
 
