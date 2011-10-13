@@ -66,21 +66,21 @@ class IJSONMigratorRun(Interface):
             title=_(u"Paths to skip"),
             description=_(u"Which paths to skip when crawling."),
             value_type=TextLine(),
-            required=True,
+            required=False,
             )
 
     catalog_path = TextLine(
-        title=_(u"Catalog Path"),
-        description=_(u"The absolute path of the catalog tool."),
-        required=True,
-    )
+            title=_(u"Catalog Path"),
+            description=_(u"The absolute path of the catalog tool."),
+            required=True,
+            )
 
     catalog_query = Text(
-        title=_(u"Catalog Query"),
-        description=_("Specify query parameters in dict notation. If left "
-                      "empty, all items will be returned."),
-        required=False,
-    )
+            title=_(u"Catalog Query"),
+            description=_("Specify query parameters in dict notation. If left "
+                          "empty, all items will be returned."),
+            required=False,
+            )
 
 
 class JSONMigratorRun(form.Form):
