@@ -44,9 +44,14 @@ class OrderSection(object):
 
         for item in parents:
             parent = self.context.unrestrictedTraverse(item)
+            parent_base = aq_base(parent)
 
-            if hasattr(aq_base(parent), 'getOrdering'):
+            if hasattr(parent_base, 'getOrdering'):
                 ordering = parent.getOrdering()
+                # Only DefaultOrdering of p.folder is supported
+                if (not hasattr(parent_base, '_order') 
+                    and not hasattr(parent_base, '_pos')):
+                    continue
                 order = ordering._order()
                 pos = ordering._pos()
 
