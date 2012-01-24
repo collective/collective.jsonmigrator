@@ -73,7 +73,7 @@ class CatalogSourceSection(object):
                 yield item
 
     def get_remote_item(self, path):
-        item_url = '%s%s/get_item' % (self.remote_url, path)
+        item_url = '%s%s/get_item' % (self.remote_url, urllib.quote(path))
         try:
             f = urllib2.urlopen(item_url)
             item_json = f.read()
