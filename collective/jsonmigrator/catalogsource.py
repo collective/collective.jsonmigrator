@@ -78,7 +78,7 @@ class CatalogSourceSection(object):
             f = urllib2.urlopen(item_url)
             item_json = f.read()
         except urllib2.URLError, e:
-            logger.error("Failed reading item from %s. %s" (item_url, str(e)))
+            logger.error("Failed reading item from %s. %s" % (item_url, str(e)))
             return None
         try:
             item = simplejson.loads(item_json)
