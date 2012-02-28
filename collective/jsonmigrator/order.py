@@ -5,8 +5,6 @@ from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.utils import defaultMatcher
 from zope.app.container.contained import notifyContainerModified
 
-TEMP_ORDER_KEY = '_temp_gopip'
-
 
 class OrderSection(object):
     classProvides(ISectionBlueprint)
@@ -18,12 +16,13 @@ class OrderSection(object):
         self.context = transmogrifier.context
         self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
         self.poskey = defaultMatcher(options, 'pos-key', name, 'gopip')
+        # Position of items without a position value
+        self.default_pos = int(options.get('default-pos', 1000000))
 
     def __iter__(self):
-        # Store position in a temporaray attribute and keep a list of parents
-        # that need to recalculate their ordering after all items were
-        # processed.
-        parents = set([])
+        # Store positions in a mapping containing an id to position mapping for
+        # each parent path {parent_path: {item_id: item_pos}}.
+        positions_mapping = {}
         for item in self.previous:
             keys = item.keys()
             pathkey = self.pathkey(*keys)[0]
@@ -32,44 +31,29 @@ class OrderSection(object):
                 yield item
                 continue
 
-            obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'),
-                                                    None)
-            if obj is None:
-                yield item
-                continue
+            item_id = item[pathkey].split('/')[-1]
+            parent_path = '/'.join(item[pathkey].split('/')[:-1])
+            if parent_path not in positions_mapping:
+                positions_mapping[parent_path] = {}
+            positions_mapping[parent_path][item_id] = item[poskey]
 
-            setattr(obj, TEMP_ORDER_KEY, item[poskey])
-            parents.add('/'.join(item[pathkey].lstrip('/').split('/')[:-1]))
             yield item
 
-        for item in parents:
-            parent = self.context.unrestrictedTraverse(item)
+        # Set positions on every parent
+        for path, positions in positions_mapping.items():
+            parent = self.context.unrestrictedTraverse(path.lstrip('/'))
             parent_base = aq_base(parent)
 
             if hasattr(parent_base, 'getOrdering'):
                 ordering = parent.getOrdering()
                 # Only DefaultOrdering of p.folder is supported
-                if (not hasattr(parent_base, '_order') 
-                    and not hasattr(parent_base, '_pos')):
+                if (not hasattr(ordering, '_order') 
+                    and not hasattr(ordering, '_pos')):
                     continue
                 order = ordering._order()
                 pos = ordering._pos()
-
-                def my_cmp(x, y):
-                    # Keep the position of objects that do not have our order
-                    # key.
-                    posx = getattr(parent._getOb(x), TEMP_ORDER_KEY, None)
-                    posy = getattr(parent._getOb(y), TEMP_ORDER_KEY, None)
-                    if posx is None or posy is None:
-                        return 0
-                    return cmp(posx, posy)
-                order.sort(my_cmp)
+                order.sort(key=lambda x: positions.get(x, self.default_pos))
                 for i, id_ in enumerate(order):
                     pos[id_] = i
-
-                for id_ in parent.objectIds():
-                    obj = parent._getOb(id_)
-                    if hasattr(obj, TEMP_ORDER_KEY):
-                        delattr(obj, TEMP_ORDER_KEY)
 
                 notifyContainerModified(parent)
