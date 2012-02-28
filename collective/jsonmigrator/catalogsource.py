@@ -32,6 +32,9 @@ class CatalogSourceSection(object):
         catalog_query = ' '.join(catalog_query.split())
         catalog_query = base64.b64encode(catalog_query)
 
+        self.remote_skip_paths = self.get_option('remote-skip-paths',
+                                                 '').split()
+
         # Install a basic auth handler
         auth_handler = urllib2.HTTPBasicAuthHandler()
         auth_handler.add_password(realm='Zope',
@@ -67,10 +70,15 @@ class CatalogSourceSection(object):
             yield item
 
         for path in self.item_paths:
-            item = self.get_remote_item(path)
-            if item:
-                item['_path'] = item['_path'][self.site_path_length:]
-                yield item
+            skip = False
+            for skip_path in self.remote_skip_paths:
+                if path.startswith(skip_path):
+                    skip = True
+            if not skip:
+                item = self.get_remote_item(path)
+                if item:
+                    item['_path'] = item['_path'][self.site_path_length:]
+                    yield item
 
     def get_remote_item(self, path):
         item_url = '%s%s/get_item' % (self.remote_url, urllib.quote(path))
