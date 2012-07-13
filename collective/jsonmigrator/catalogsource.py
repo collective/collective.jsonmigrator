@@ -58,9 +58,12 @@ class CatalogSourceSection(object):
         """Get an option from the request if available and fallback to the
         transmogrifier config.
         """
-        request = self.context.get('REQUEST', {})
-        value = request.form.get('form.widgets.'+name.replace('-', '_'),
-                                 self.options.get(name, default))
+        request = getattr(self.context, 'REQUEST', None)
+        if request is not None:
+            value = request.form.get('form.widgets.'+name.replace('-', '_'),
+                                     self.options.get(name, default))
+        else:
+            value = self.options.get(name, default)
         if isinstance(value, unicode):
             value = value.encode('utf8')
         return value
