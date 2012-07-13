@@ -41,6 +41,13 @@ class OrderSection(object):
 
         # Set positions on every parent
         for path, positions in positions_mapping.items():
+
+            # Normalize positions
+            ordered_keys = sorted(positions.keys(), key=lambda x: positions[x])
+            normalized_positions = {}
+            for pos, key in enumerate(ordered_keys):
+                normalized_positions[key] = pos
+
             parent = self.context.unrestrictedTraverse(path.lstrip('/'))
             parent_base = aq_base(parent)
 
@@ -52,7 +59,8 @@ class OrderSection(object):
                     continue
                 order = ordering._order()
                 pos = ordering._pos()
-                order.sort(key=lambda x: positions.get(x, self.default_pos))
+                order.sort(key=lambda x: normalized_positions.get(x,
+                           pos.get(x, self.default_pos)))
                 for i, id_ in enumerate(order):
                     pos[id_] = i
 
