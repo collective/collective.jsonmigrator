@@ -10,6 +10,8 @@ all your custom content types that you are using.
 
 Features: TODO
 
+(Note that collective.jsonmigrator was previously named `collective.blueprint.jsonmigrator`_).
 
 .. _`collective.transmogrifier`: http://pypi.python.org/pypi/collective.transmogrifier
 .. _`fully documented`: http://readthedocs.org/docs/collectivejsonmigrator/en/latest/
+.. _`collective.blueprint.jsonmigrator`: https://github.com/collective/collective.jsonmigrator/commit/747af7d0be1bf16f12822ef4841f40f5bb23a6b6
