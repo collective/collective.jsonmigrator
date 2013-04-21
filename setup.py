@@ -27,6 +27,7 @@ setup(
         'simplejson',
         'collective.transmogrifier',
         'plone.app.transmogrifier',
+        'zope.app.container',
         ],
     entry_points="""
     [z3c.autoinclude.plugin]
