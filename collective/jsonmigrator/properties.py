@@ -72,7 +72,6 @@ class Properties(object):
                 except ConflictError:
                     raise
                 except Exception, e:
-                    import pdb; pdb.set_trace()
                     raise Exception('Failed to set property "%s" type "%s"'
                             ' to "%s" at object %s. ERROR: %s' % \
                             (pid, ptype, pvalue, str(obj), str(e)))
