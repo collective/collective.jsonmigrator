@@ -3,6 +3,7 @@ from zope.interface import classProvides, implements
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.utils import defaultMatcher
+from collective.transmogrifier.utils import traverse
 from zope.app.container.contained import notifyContainerModified
 
 
@@ -48,13 +49,16 @@ class OrderSection(object):
             for pos, key in enumerate(ordered_keys):
                 normalized_positions[key] = pos
 
-            parent = self.context.unrestrictedTraverse(path.lstrip('/'))
+            parent = traverse(self.context, path)
+            if not parent:
+                continue
+
             parent_base = aq_base(parent)
 
             if hasattr(parent_base, 'getOrdering'):
                 ordering = parent.getOrdering()
                 # Only DefaultOrdering of p.folder is supported
-                if (not hasattr(ordering, '_order') 
+                if (not hasattr(ordering, '_order')
                     and not hasattr(ordering, '_pos')):
                     continue
                 order = ordering._order()
