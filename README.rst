@@ -1,3 +1,7 @@
+==============================
+collective.jsonmigrator
+==============================
+
 ``collective.jsonmigrator`` is a ready tool for you to migrate from old Plone
 sites (2.0, 2.1, 2.5) to new Plone 4.0 (or higher). Its based extensivly
 `collective.transmogrifier`_ and custom blueprints avaliable.

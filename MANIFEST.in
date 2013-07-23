@@ -1,4 +1,6 @@
-include README.rst
+include *.rst
+
+recursive-include collective *
 recursive-include docs *
-recursive-include collective/jsonmigrator *
-global-exclude *pyc
+
+global-exclude *.pyc
