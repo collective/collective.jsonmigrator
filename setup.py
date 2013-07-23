@@ -2,7 +2,7 @@
 from setuptools import setup
 from setuptools import find_packages
 
-version = '0.2'
+version = 'Y.dev0'
 
 description = "Migrations from legacy Plone sites (2.0, 2.1, 2.5) to Plone 4.0"
 
