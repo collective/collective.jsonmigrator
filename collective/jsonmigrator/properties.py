@@ -9,7 +9,6 @@ from collective.transmogrifier.utils import defaultKeys
 
 from Acquisition import aq_base
 from ZODB.POSException import ConflictError
-from Products.Archetypes.interfaces import IBaseObject
 
 
 class Properties(object):
@@ -55,9 +54,8 @@ class Properties(object):
                 # path doesn't exist
                 yield item; continue
 
-            if not IBaseObject.providedBy(obj) or \
-               not getattr(aq_base(obj), '_delProperty', False):
-                continue
+            if not getattr(aq_base(obj), '_setProperty', False):
+                yield item; continue
 
             for pid,pvalue,ptype in item[propertieskey]:
                 if getattr(aq_base(obj), pid, None) is not None:
