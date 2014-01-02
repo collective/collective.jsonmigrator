@@ -1,7 +1,9 @@
 import base64
+import simplejson
+import threading
+import time
 import urllib
 import urllib2
-import simplejson
 from zope.interface import classProvides, implements
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.interfaces import ISection
@@ -34,6 +36,7 @@ class CatalogSourceSection(object):
 
         self.remote_skip_paths = self.get_option('remote-skip-paths',
                                                  '').split()
+        self.queue_length = int(self.get_option('queue-size', '10'))
 
         # Install a basic auth handler
         auth_handler = urllib2.HTTPBasicAuthHandler()
@@ -72,18 +75,58 @@ class CatalogSourceSection(object):
         for item in self.previous:
             yield item
 
-        for path in self.item_paths:
-            skip = False
-            for skip_path in self.remote_skip_paths:
-                if path.startswith(skip_path):
-                    skip = True
-            if not skip:
-                item = self.get_remote_item(path)
-                if item:
-                    item['_path'] = item['_path'][self.site_path_length:]
-                    yield item
+        queue = QueuedItemLoader(self.remote_url, self.item_paths,
+                                 self.remote_skip_paths, self.queue_length)
+        queue.start()
 
-    def get_remote_item(self, path):
+        for item in queue:
+            if not item:
+                continue
+
+            item['_path'] = item['_path'][self.site_path_length:]
+            yield item
+
+
+class QueuedItemLoader(threading.Thread):
+
+    def __init__(self, remote_url, paths, remote_skip_paths, queue_length):
+        super(QueuedItemLoader, self).__init__()
+
+        self.remote_url = remote_url
+        self.paths = list(paths)
+        self.remote_skip_paths = remote_skip_paths
+        self.queue_length = queue_length
+
+        self.queue = []
+        self.finished = len(paths) == 0
+
+    def __iter__(self):
+        while not self.finished or len(self.queue) > 0:
+            while len(self.queue) == 0:
+                time.sleep(0.0001)
+
+            yield self.queue.pop(0)
+
+    def run(self):
+        while not self.finished:
+            while len(self.queue) >= self.queue_length:
+                time.sleep(0.0001)
+
+            path = self.paths.pop(0)
+            if not self._skip_path(path):
+                item = self._load_path(path)
+                self.queue.append(item)
+
+            if len(self.paths) == 0:
+                self.finished = True
+
+    def _skip_path(self, path):
+        for skip_path in self.remote_skip_paths:
+            if path.startswith(skip_path):
+                return True
+        return False
+
+    def _load_path(self, path):
         item_url = '%s%s/get_item' % (self.remote_url, urllib.quote(path))
         try:
             f = urllib2.urlopen(item_url)
