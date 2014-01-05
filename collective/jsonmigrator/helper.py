@@ -133,6 +133,15 @@ class JSONMigratorRun(form.Form):
         Transmogrifier(self.context)(data['config'])
         logger.info("Stop importing profile: " + data['config'])
 
+    @button.buttonAndHandler(u'Back')
+    def handleBack(self, action):
+        data, errors = self.extractData()
+        params = urllib.urlencode({'form.widgets.config': data.get('config')})
+        self.request.RESPONSE.redirect('/'.join((
+                    self.context.absolute_url(),
+                    '@@jsonmigrator',
+                    '?%s' % params)))
+
 
 
 class JSONMigratorConfigurations(object):
