@@ -56,7 +56,9 @@ class DataFields(object):
                     value = base64.b64decode(item[key]['data'])
 
                     # XXX: handle other data field implementations
-                    old_value = field.get(obj).data
+                    old_value = field.get(obj)
+                    if hasattr(old_value, 'data'):
+                        old_value = old_value.data
                     if value != old_value:
                         field.set(obj, value)
                         obj.setFilename(item[key]['filename'])
