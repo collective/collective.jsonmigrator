@@ -18,7 +18,6 @@ And if you might forgot, migration is a bitch ... so have fun :P
 
 .. toctree::
     :titlesonly:
-    :hidden:
 
     jsonsource <jsonsource>
     skipitems <skipitems>
