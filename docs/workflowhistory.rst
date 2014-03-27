@@ -1,7 +1,7 @@
 ``collective.blueprint.jsonmigrator.workflowhistory``
 =====================================================
 
-Update workflow history of an object.
+Update the workflow history of an object.
 
 Parameters
 ----------

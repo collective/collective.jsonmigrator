@@ -1,13 +1,13 @@
 ``collective.blueprint.jsonmigrator.partialcommit``
 ===================================================
 
-Used to commit after some items are being proccesed.
+Used to commit after some items have been processed.
 
 Parameters
 ----------
 
 :every (required): 
-    Define number after commit (writing to ZODB) will happen.
+    Define number of items after which commit (writing to ZODB) will happen.
 
 Example
 -------

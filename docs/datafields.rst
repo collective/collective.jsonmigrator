@@ -19,8 +19,8 @@ Expected data structure in pipeline:
 Example
 -------
 
-This example will try to store content of ``0/1.json-file-1`` into
-``attachment`` field of ``/Plone/index_html`` object.
+This example will try to store content of ``0/1.json-file-1`` into the
+``attachment`` field of the ``/Plone/index_html`` object.
 
 Configuration::
 
