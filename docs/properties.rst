@@ -1,4 +1,4 @@
-``collective.blueprint.jsonmigrator.properties``
+``collective.jsonmigrator.properties``
 ================================================
 
 Update properties of an object.
@@ -38,7 +38,7 @@ Example
 
 Configuration::
 
-    [tranmogrifier]
+    [transmogrifier]
     pipeline =
         source
         properties
@@ -46,7 +46,7 @@ Configuration::
     ...
 
     [properties]
-    blueprint = collective.blueprint.jsonmigrator.properties
+    blueprint = collective.jsonmigrator.properties
 
 Data in pipeline::
 

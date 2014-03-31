@@ -1,13 +1,12 @@
-collective.blueprint.jsonmigrator's documentation!
+collective.jsonmigrator's documentation!
 ==================================================
 
-The purpose of the ``collective.blueprint.jsonmigrator`` package is to provide
-a set of
+The purpose of the ``collective.jsonmigrator`` package is to provide a set of
 blueprints that help you to migrate content into `Plone`_. (``blueprint`` is
 an extension to `collective.transmogrifier`_).
 
 It provides a list of blueprints built around
-``collective.blueprints.jsonmigrator.source``
+``collective.jsonmigrator.source``
 with the purpose of providing flexible infrastructure to do migrations in Plone.
 
 And if you might forgot, migration is a bitch ... so have fun :P

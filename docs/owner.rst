@@ -1,4 +1,4 @@
-``collective.blueprint.jsonmigrator.owner``
+``collective.jsonmigrator.owner``
 ===========================================
 
 Update owner of an object.
@@ -18,7 +18,7 @@ Example
 
 Configuration::
 
-    [tranmogrifier]
+    [transmogrifier]
     pipeline =
         source
         owner
@@ -26,7 +26,7 @@ Configuration::
     ...
 
     [owner]
-    blueprint = collective.blueprint.jsonmigrator.owner
+    blueprint = collective.jsonmigrator.owner
 
 Data in pipeline::
 

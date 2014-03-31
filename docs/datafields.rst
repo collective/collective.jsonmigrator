@@ -1,4 +1,4 @@
-``collective.blueprint.jsonmigrator.datafields``
+``collective.jsonmigrator.datafields``
 ================================================
 
 Update data/blob fields of an object.
@@ -24,7 +24,7 @@ This example will try to store content of ``0/1.json-file-1`` into the
 
 Configuration::
 
-    [tranmogrifier]
+    [transmogrifier]
     pipeline =
         source
         datafields
@@ -32,7 +32,7 @@ Configuration::
     ...
 
     [datafields]
-    blueprint = collective.blueprint.jsonmigrator.datafields
+    blueprint = collective.jsonmigrator.datafields
 
 Data in pipeline::
 
