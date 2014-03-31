@@ -40,6 +40,11 @@
        />
 
     <utility
+       component=".datafields.PartialCommit"
+       name="collective.jsonmigrator.partialcommit"
+       />
+
+    <utility
         component=".workflowhistory.WorkflowHistory"
         name="collective.jsonmigrator.workflowhistory"
         />
