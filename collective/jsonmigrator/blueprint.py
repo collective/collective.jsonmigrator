@@ -84,22 +84,6 @@ class SkipItems(object):
                 yield item
             count += 1
 
-class PartialCommit(object):
-
-    classProvides(ISectionBlueprint)
-    implements(ISection)
-
-    def __init__(self, transmogrifier, name, options, previous):
-        self.previous = previous
-        self.step = int(options.get('every', 100))
-
-    def __iter__(self):
-        count = 1
-        for item in self.previous:
-            yield item
-            if count % self.step == 0:
-                transaction.commit()
-            count += 1
 
 class Statistics(object):
     """ This has to be placed in the pipeline just after all sources
@@ -193,8 +177,8 @@ class Mimetype(object):
             pathkey = self.pathkey(*item.keys())[0]
             mimetypekey = self.mimetypekey(*item.keys())[0]
 
-            if not pathkey or not mimetypekey or \
-               mimetypekey not in item:      # not enough info
+            if (not pathkey or not mimetypekey or 
+               mimetypekey not in item):      # not enough info
                 yield item; continue
 
             obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)
@@ -239,8 +223,8 @@ class WorkflowHistory(object):
             pathkey = self.pathkey(*item.keys())[0]
             workflowhistorykey = self.workflowhistorykey(*item.keys())[0]
 
-            if not pathkey or not workflowhistorykey or \
-               workflowhistorykey not in item:  # not enough info
+            if (not pathkey or not workflowhistorykey or 
+               workflowhistorykey not in item):  # not enough info
                 yield item; continue
 
             obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)
@@ -295,8 +279,8 @@ class Properties(object):
             pathkey = self.pathkey(*item.keys())[0]
             propertieskey = self.propertieskey(*item.keys())[0]
 
-            if not pathkey or not propertieskey or \
-               propertieskey not in item:   # not enough info
+            if (not pathkey or not propertieskey or 
+               propertieskey not in item):   # not enough info
                 yield item; continue
 
             obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)
@@ -354,8 +338,8 @@ class Owner(object):
             pathkey = self.pathkey(*item.keys())[0]
             ownerkey = self.ownerkey(*item.keys())[0]
 
-            if not pathkey or not ownerkey or \
-               ownerkey not in item:    # not enough info
+            if (not pathkey or not ownerkey or 
+               ownerkey not in item):    # not enough info
                 yield item; continue
 
             obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)
@@ -414,8 +398,8 @@ class PermissionMapping(object):
             pathkey = self.pathkey(*item.keys())[0]
             permskey = self.permskey(*item.keys())[0]
 
-            if not pathkey or not permskey or \
-               permskey not in item:    # not enough info
+            if (not pathkey or not permskey or 
+               permskey not in item):    # not enough info
                 yield item; continue
 
             obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)
@@ -463,8 +447,8 @@ class LocalRoles(object):
             pathkey = self.pathkey(*item.keys())[0]
             roleskey = self.roleskey(*item.keys())[0]
 
-            if not pathkey or not roleskey or \
-               roleskey not in item:    # not enough info
+            if (not pathkey or not roleskey or 
+               roleskey not in item):    # not enough info
                 yield item; continue
 
             obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)

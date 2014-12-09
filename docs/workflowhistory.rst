@@ -1,7 +1,7 @@
-``collective.blueprint.jsonmigrator.workflowhistory``
+``collective.jsonmigrator.workflowhistory``
 =====================================================
 
-Update workflow history of an object.
+Update the workflow history of an object.
 
 Parameters
 ----------
@@ -17,7 +17,7 @@ Example
 
 Configuration::
 
-    [tranmogrifier]
+    [transmogrifier]
     pipeline =
         source
         workflowhistory
@@ -25,7 +25,7 @@ Configuration::
     ...
 
     [workflowhistory]
-    blueprint = collective.blueprint.jsonmigrator.workflowhistory
+    blueprint = collective.jsonmigrator.workflowhistory
 
 Data in pipeline::
 

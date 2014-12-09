@@ -16,7 +16,7 @@ Example
 
 Configuration::
 
-    [tranmogrifier]
+    [transmogrifier]
     pipeline =
         source
         ac_local_roles

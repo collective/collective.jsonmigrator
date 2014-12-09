@@ -1,4 +1,4 @@
-``collective.blueprint.jsonmigrator.properties``
+``collective.jsonmigrator.properties``
 ================================================
 
 Update properties of an object.
@@ -14,7 +14,7 @@ Expected data structure in pipeline:
     * **_properties**: properties to be applied to object resolved above.
 
         properties passed in this data field (as shown in example) is a list of
-        3 item lists.::
+        3-item lists.::
 
             [
                 [
@@ -30,15 +30,15 @@ Expected data structure in pipeline:
                 ...
             ]
 
-        ``<property-type>`` is set of types which you can select through ZMI
-        when you edit/add property.
+        ``<property-type>`` is set of types which you can select through the 
+        ZMI when you edit/add a property.
 
 Example
 -------
 
 Configuration::
 
-    [tranmogrifier]
+    [transmogrifier]
     pipeline =
         source
         properties
@@ -46,7 +46,7 @@ Configuration::
     ...
 
     [properties]
-    blueprint = collective.blueprint.jsonmigrator.properties
+    blueprint = collective.jsonmigrator.properties
 
 Data in pipeline::
 

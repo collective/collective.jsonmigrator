@@ -1,6 +1,8 @@
 ``collective.blueprint.jsonmigrator.permission_mapping``
 ========================================================
 
+.. XXX: Moved to ``collective.jsonmigrator.permissions``?
+
 Update permissions of an object.
 
 Parameters
@@ -18,7 +20,7 @@ Example
 
 Configuration::
 
-    [tranmogrifier]
+    [transmogrifier]
     pipeline =
         source
         permission_mapping

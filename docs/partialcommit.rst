@@ -1,20 +1,20 @@
-``collective.blueprint.jsonmigrator.partialcommit``
+``collective.jsonmigrator.partialcommit``
 ===================================================
 
-Used to commit after some items are being proccesed.
+Used to commit after some items have been processed.
 
 Parameters
 ----------
 
-:every (required): 
-    Define number after commit (writing to ZODB) will happen.
+:every (default: 100): 
+    Define number of items after which commit (writing to ZODB) will happen.
 
 Example
 -------
 
 Configuration::
 
-    [tranmogrifier]
+    [transmogrifier]
     pipeline =
         source
         commit
@@ -22,5 +22,5 @@ Configuration::
     ...
 
     [commit]
-    blueprint = collective.blueprint.jsonmigrator.partialcommit
+    blueprint = collective.jsonmigrator.partialcommit
     every = 500

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# collective.blueprint.jsonmigrator documentation build configuration file,
+# collective.jsonmigrator documentation build configuration file,
 # created by sphinx-quickstart on Mon Sep 14 7:18:09 2010.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -40,7 +40,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'collective.blueprint.jsonmigrator'
+project = u'collective.jsonmigrator'
 copyright = u'2010, garbas'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -222,7 +222,7 @@ man_pages = [
 # -- Options for Epub output ---------------------------------------------------
 
 # Bibliographic Dublin Core info.
-epub_title = u'collective.blueprint.jsonmigrator'
+epub_title = u'collective.jsonmigrator'
 epub_author = u'garbas'
 epub_publisher = u'garbas'
 epub_copyright = u'2010, garbas'

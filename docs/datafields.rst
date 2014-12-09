@@ -1,4 +1,4 @@
-``collective.blueprint.jsonmigrator.datafields``
+``collective.jsonmigrator.datafields``
 ================================================
 
 Update data/blob fields of an object.
@@ -19,12 +19,12 @@ Expected data structure in pipeline:
 Example
 -------
 
-This example will try to store content of ``0/1.json-file-1`` into
-``attachment`` field of ``/Plone/index_html`` object.
+This example will try to store content of ``0/1.json-file-1`` into the
+``attachment`` field of the ``/Plone/index_html`` object.
 
 Configuration::
 
-    [tranmogrifier]
+    [transmogrifier]
     pipeline =
         source
         datafields
@@ -32,7 +32,7 @@ Configuration::
     ...
 
     [datafields]
-    blueprint = collective.blueprint.jsonmigrator.datafields
+    blueprint = collective.jsonmigrator.datafields
 
 Data in pipeline::
 

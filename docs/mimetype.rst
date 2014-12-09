@@ -1,7 +1,7 @@
-``collective.blueprint.jsonmigrator.mimetype``
+``collective.jsonmigrator.mimetype``
 ==============================================
 
-Sometimes we need to fix/change mimetype of migrated object.
+Sometimes we need to fix/change the mimetype of migrated objects.
 
 Parameters
 ----------
@@ -18,7 +18,7 @@ Example
 
 Configuration::
 
-    [tranmogrifier]
+    [transmogrifier]
     pipeline =
         source
         mimetype
@@ -26,7 +26,7 @@ Configuration::
     ...
 
     [mimetype]
-    blueprint = collective.blueprint.jsonmigrator.mimetype
+    blueprint = collective.jsonmigrator.mimetype
 
 Data in pipeline::
 
