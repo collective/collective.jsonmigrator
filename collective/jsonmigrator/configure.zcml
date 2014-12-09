@@ -40,7 +40,7 @@
        />
 
     <utility
-       component=".datafields.PartialCommit"
+       component=".partialcommit.PartialCommit"
        name="collective.jsonmigrator.partialcommit"
        />
 
