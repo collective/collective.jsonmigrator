@@ -1,14 +1,14 @@
-
-from zope.interface import implements
-from zope.interface import classProvides
-from collective.transmogrifier.interfaces import ISectionBlueprint
+from Products.Archetypes.interfaces import IBaseObject
 from collective.transmogrifier.interfaces import ISection
+from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import Matcher
 from collective.transmogrifier.utils import defaultKeys
-from Products.Archetypes.interfaces import IBaseObject
+from zope.interface import classProvides
+from zope.interface import implements
 
 
 class Mimetype(object):
+
     """
     """
 
@@ -32,9 +32,8 @@ class Mimetype(object):
             mimetypekeys = options['mimetype-key'].splitlines()
         else:
             mimetypekeys = defaultKeys(
-                    options['blueprint'], name, 'format')
+                options['blueprint'], name, 'format')
         self.mimetypekey = Matcher(*mimetypekeys)
-
 
     def __iter__(self):
         for item in self.previous:
@@ -44,16 +43,17 @@ class Mimetype(object):
             if not pathkey or not mimetypekey or \
                mimetypekey not in item:
                 # not enough info
-                yield item; continue
+                yield item
+                continue
 
             obj = self.context.unrestrictedTraverse(
-                            item[pathkey].lstrip('/'), None)
+                item[pathkey].lstrip('/'), None)
             if obj is None:
                 # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             if IBaseObject.providedBy(obj):
                 obj.setFormat(item[mimetypekey])
 
             yield item
-

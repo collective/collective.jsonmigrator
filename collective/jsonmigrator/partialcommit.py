@@ -1,9 +1,9 @@
-from zope.interface import implements
-from zope.interface import classProvides
-from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.interfaces import ISection
-import transaction
+from collective.transmogrifier.interfaces import ISectionBlueprint
+from zope.interface import classProvides
+from zope.interface import implements
 import logging
+import transaction
 
 
 class PartialCommit(object):
@@ -23,4 +23,3 @@ class PartialCommit(object):
                 transaction.commit()
                 logging.info('Committed after %s' % count)
             count += 1
-

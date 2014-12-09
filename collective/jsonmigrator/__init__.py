@@ -1,6 +1,5 @@
-
-import logging
 from zope.i18nmessageid import MessageFactory
+import logging
 
-logger = logging.getLogger("JSON Migrator")
-JSONMigratorMessageFactory = MessageFactory('collective.jsonmigrator')
+logger = logging.getLogger("collective.jsonmigrator")
+msgFact = MessageFactory('collective.jsonmigrator')

@@ -5,95 +5,95 @@
     i18n_domain="collective.jsonmigrator">
 
 
-    <include package="collective.transmogrifier" file="meta.zcml" />
-    <include package="collective.transmogrifier" />
-    <include package="plone.app.transmogrifier" />
-    <include package="Products.CMFCore" file="permissions.zcml" />
+  <include package="collective.transmogrifier" file="meta.zcml" />
+  <include package="collective.transmogrifier" />
+  <include package="plone.app.transmogrifier" />
+  <include package="Products.CMFCore" file="permissions.zcml" />
 
-    <utility
-        provides="zope.schema.interfaces.IVocabularyFactory"
-        component=".helper.JSONMigratorConfigurationsFactory"
-        name="collective-jsonmigrator-configurations"
-        />
+  <utility
+      provides="zope.schema.interfaces.IVocabularyFactory"
+      component=".helper.JSONMigratorConfigurationsFactory"
+      name="collective-jsonmigrator-configurations"
+      />
 
-    <browser:page
-        name="jsonmigrator"
-        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
-        permission="cmf.ManagePortal"
-        class=".helper.JSONMigratorView"
-        />
-    <browser:page
-        name="jsonmigrator-run"
-        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
-        permission="cmf.ManagePortal"
-        class=".helper.JSONMigratorRunView"
-        />
+  <browser:page
+      name="jsonmigrator"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+      permission="cmf.ManagePortal"
+      class=".helper.JSONMigratorView"
+      />
+  <browser:page
+      name="jsonmigrator-run"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+      permission="cmf.ManagePortal"
+      class=".helper.JSONMigratorRunView"
+      />
 
-    <utility
-        component=".remotesource.RemoteSource"
-        name="collective.jsonmigrator.remotesource"
-        />
+  <utility
+      component=".remotesource.RemoteSource"
+      name="collective.jsonmigrator.remotesource"
+      />
 
-    <utility
-       component=".datafields.DataFields"
-       name="collective.jsonmigrator.datafields"
-       />
+  <utility
+     component=".datafields.DataFields"
+     name="collective.jsonmigrator.datafields"
+     />
 
-    <utility
-       component=".datafields.PartialCommit"
-       name="collective.jsonmigrator.partialcommit"
-       />
+  <utility
+     component=".datafields.PartialCommit"
+     name="collective.jsonmigrator.partialcommit"
+     />
 
-    <utility
-        component=".workflowhistory.WorkflowHistory"
-        name="collective.jsonmigrator.workflowhistory"
-        />
+  <utility
+      component=".workflowhistory.WorkflowHistory"
+      name="collective.jsonmigrator.workflowhistory"
+      />
 
-    <utility
-        component=".properties.Properties"
-        name="collective.jsonmigrator.properties"
-        />
+  <utility
+      component=".properties.Properties"
+      name="collective.jsonmigrator.properties"
+      />
 
-    <utility
-        component=".permissions.Permissions"
-        name="collective.jsonmigrator.permissions"
-        />
+  <utility
+      component=".permissions.Permissions"
+      name="collective.jsonmigrator.permissions"
+      />
 
-    <utility
-        component=".owner.Owner"
-        name="collective.jsonmigrator.owner"
-        />
+  <utility
+      component=".owner.Owner"
+      name="collective.jsonmigrator.owner"
+      />
 
-    <utility
-        component=".local_roles.LocalRoles"
-        name="collective.jsonmigrator.local_roles"
-        />
+  <utility
+      component=".local_roles.LocalRoles"
+      name="collective.jsonmigrator.local_roles"
+      />
 
-    <utility
-        component=".mimetype.Mimetype"
-        name="collective.jsonmigrator.mimetype"
-        />
+  <utility
+      component=".mimetype.Mimetype"
+      name="collective.jsonmigrator.mimetype"
+      />
 
-    <utility
-        component=".order.OrderSection"
-        name="collective.jsonmigrator.order"
-        />
+  <utility
+      component=".order.OrderSection"
+      name="collective.jsonmigrator.order"
+      />
 
-    <utility
-        component=".catalogsource.CatalogSourceSection"
-        name="collective.jsonmigrator.catalogsource"
-        />
+  <utility
+      component=".catalogsource.CatalogSourceSection"
+      name="collective.jsonmigrator.catalogsource"
+      />
 
-    <transmogrifier:registerConfig
-        name="collective.jsonmigrator.plone25"
-        title="Migration configuration for Plone 2.5 content types"
-        configuration="config_plone25.cfg"
-        />
+  <transmogrifier:registerConfig
+      name="collective.jsonmigrator.plone25"
+      title="Migration configuration for Plone 2.5 content types"
+      configuration="config_plone25.cfg"
+      />
 
-    <transmogrifier:registerConfig
-        name="collective.jsonmigrator.catalog"
-        title="Migration configuration for querying the catalog of a Plone site"
-        configuration="config_catalog.cfg"
-        />
+  <transmogrifier:registerConfig
+      name="collective.jsonmigrator.catalog"
+      title="Migration configuration for querying the catalog of a Plone site"
+      configuration="config_catalog.cfg"
+      />
 
 </configure>

@@ -1,16 +1,14 @@
-
-from zope.interface import implements
-from zope.interface import classProvides
-
-from collective.transmogrifier.interfaces import ISectionBlueprint
+from AccessControl.interfaces import IRoleManager
 from collective.transmogrifier.interfaces import ISection
+from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import Matcher
 from collective.transmogrifier.utils import defaultKeys
-
-from AccessControl.interfaces import IRoleManager
+from zope.interface import classProvides
+from zope.interface import implements
 
 
 class LocalRoles(object):
+
     """ """
 
     classProvides(ISectionBlueprint)
@@ -32,7 +30,10 @@ class LocalRoles(object):
         if 'local-roles-key' in options:
             roleskeys = options['local-roles-key'].splitlines()
         else:
-            roleskeys = defaultKeys(options['blueprint'], name, 'ac_local_roles')
+            roleskeys = defaultKeys(
+                options['blueprint'],
+                name,
+                'ac_local_roles')
         self.roleskey = Matcher(*roleskeys)
 
     def __iter__(self):
@@ -42,12 +43,14 @@ class LocalRoles(object):
 
             if not pathkey or not roleskey or \
                roleskey not in item:    # not enough info
-                yield item; continue
+                yield item
+                continue
 
             obj = self.context.unrestrictedTraverse(
-                    item[pathkey].lstrip('/'), None)
+                item[pathkey].lstrip('/'), None)
             if obj is None:             # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             if IRoleManager.providedBy(obj):
                 for principal, roles in item[roleskey].items():

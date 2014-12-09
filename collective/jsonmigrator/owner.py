@@ -1,17 +1,15 @@
-
-from zope.interface import implements
-from zope.interface import classProvides
-
-from collective.transmogrifier.interfaces import ISectionBlueprint
+from Products.Archetypes.interfaces import IBaseObject
+from Products.CMFCore.utils import getToolByName
 from collective.transmogrifier.interfaces import ISection
+from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import Matcher
 from collective.transmogrifier.utils import defaultKeys
-
-from Products.CMFCore.utils import getToolByName
-from Products.Archetypes.interfaces import IBaseObject
+from zope.interface import classProvides
+from zope.interface import implements
 
 
 class Owner(object):
+
     """ """
 
     classProvides(ISectionBlueprint)
@@ -44,16 +42,19 @@ class Owner(object):
 
             if not pathkey or not ownerkey or \
                ownerkey not in item:    # not enough info
-                yield item; continue
+                yield item
+                continue
 
             if item[ownerkey] is None or len(item[ownerkey]) != 2:
-                #owner is None or something else went wrong
-                yield item; continue
+                # owner is None or something else went wrong
+                yield item
+                continue
 
             obj = self.context.unrestrictedTraverse(
-                    item[pathkey].lstrip('/'), None)
+                item[pathkey].lstrip('/'), None)
             if obj is None:             # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             if not IBaseObject.providedBy(obj):
                 continue
@@ -61,22 +62,22 @@ class Owner(object):
             if item[ownerkey][0] and item[ownerkey][1]:
                 try:
                     obj.changeOwnership(
-                            self.memtool.getMemberById(item[ownerkey][1]))
-                except Exception, e:
-                    raise Exception('ERROR: %s SETTING OWNERSHIP TO %s' % \
-                            (str(e), item[pathkey]))
+                        self.memtool.getMemberById(item[ownerkey][1]))
+                except Exception as e:
+                    raise Exception('ERROR: %s SETTING OWNERSHIP TO %s' %
+                                    (str(e), item[pathkey]))
 
                 try:
                     obj.manage_setLocalRoles(item[ownerkey][1], ['Owner'])
-                except Exception, e:
-                    raise Exception('ERROR: %s SETTING OWNERSHIP2 TO %s' % \
-                            (str(e), item[pathkey]))
+                except Exception as e:
+                    raise Exception('ERROR: %s SETTING OWNERSHIP2 TO %s' %
+                                    (str(e), item[pathkey]))
 
             elif not item[ownerkey][0] and item[ownerkey][1]:
                 try:
                     obj._owner = item[ownerkey][1]
-                except Exception, e:
-                    raise Exception('ERROR: %s SETTING __OWNERSHIP TO %s' % \
-                            (str(e), item[pathkey]))
+                except Exception as e:
+                    raise Exception('ERROR: %s SETTING __OWNERSHIP TO %s' %
+                                    (str(e), item[pathkey]))
 
             yield item

@@ -1,33 +1,28 @@
-
-import time
+from AccessControl.interfaces import IRoleManager
+from Acquisition import aq_base
+from DateTime import DateTime
+from Products.Archetypes.interfaces import IBaseObject
+from Products.CMFCore.utils import getToolByName
+from ZODB.POSException import ConflictError
+from collective.transmogrifier.interfaces import ISection
+from collective.transmogrifier.interfaces import ISectionBlueprint
+from collective.transmogrifier.utils import Matcher
+from collective.transmogrifier.utils import defaultKeys
+from collective.transmogrifier.utils import defaultMatcher
+from collective.transmogrifier.utils import resolvePackageReferenceOrFile
+from zope.interface import classProvides
+from zope.interface import implements
+import logging
 import os
 import simplejson
-import logging
-import transaction
-
-from DateTime import DateTime
-from Acquisition import aq_base
-from ZODB.POSException import ConflictError
-
-from zope.interface import implements
-from zope.interface import classProvides
-
-from collective.transmogrifier.interfaces import ISectionBlueprint
-from collective.transmogrifier.interfaces import ISection
-from collective.transmogrifier.utils import Matcher
-from collective.transmogrifier.utils import defaultMatcher
-from collective.transmogrifier.utils import defaultKeys
-from collective.transmogrifier.utils import resolvePackageReferenceOrFile
-
-from Products.CMFCore.utils import getToolByName
-from Products.Archetypes.interfaces import IBaseObject
-from AccessControl.interfaces import IRoleManager
+import time
 
 DATAFIELD = '_datafield_'
 STATISTICSFIELD = '_statistics_field_prefix_'
 
 
 class JSONSource(object):
+
     """ """
 
     classProvides(ISectionBlueprint)
@@ -42,7 +37,7 @@ class JSONSource(object):
 
         self.path = resolvePackageReferenceOrFile(options['path'])
         if self.path is None or not os.path.isdir(self.path):
-            raise Exception, 'Path ('+str(self.path)+') does not exists.'
+            raise Exception('Path (' + str(self.path) + ') does not exists.')
 
         self.datafield_prefix = options.get('datafield-prefix', DATAFIELD)
 
@@ -50,15 +45,18 @@ class JSONSource(object):
         for item in self.previous:
             yield item
 
-        for item3 in sorted([int(i)
-                                for i in os.listdir(self.path)
-                                    if not i.startswith('.')]):
+        for item3 in sorted([
+            int(i) for i in os.listdir(self.path) if not i.startswith('.')
+        ]):
+            for item2 in sorted([
+                int(j[:-5])
+                for j in os.listdir(os.path.join(self.path, str(item3)))
+                if j.endswith('.json')
+            ]):
 
-            for item2 in sorted([int(j[:-5])
-                                    for j in os.listdir(os.path.join(self.path, str(item3)))
-                                        if j.endswith('.json')]):
-
-                f = open(os.path.join(self.path, str(item3), str(item2)+'.json'))
+                f = open(os.path.join(
+                    self.path, str(item3), '%s.json' % item2
+                ))
                 item = simplejson.loads(f.read())
                 f.close()
 
@@ -67,6 +65,7 @@ class JSONSource(object):
                         item[key] = os.path.join(self.path, item[key])
 
                 yield item
+
 
 class SkipItems(object):
 
@@ -86,6 +85,7 @@ class SkipItems(object):
 
 
 class Statistics(object):
+
     """ This has to be placed in the pipeline just after all sources
     """
 
@@ -93,15 +93,17 @@ class Statistics(object):
     implements(ISection)
 
     def __init__(self, transmogrifier, name, options, previous):
-        self.stats = {'START_TIME':     int(time.time()),
+        self.stats = {'START_TIME': int(time.time()),
                       'TIME_LAST_STEP': 0,
-                      'STEP':           options.get('log-step', 25),
-                      'OBJ_COUNT':      0,
-                      'EXISTED':        0,
-                      'ADDED':          0,
-                      'NOT-ADDED':      0,}
+                      'STEP': options.get('log-step', 25),
+                      'OBJ_COUNT': 0,
+                      'EXISTED': 0,
+                      'ADDED': 0,
+                      'NOT-ADDED': 0, }
         self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
-        self.statistics_prefix = options.get('statisticsfield-prefix', STATISTICSFIELD)
+        self.statistics_prefix = options.get(
+            'statisticsfield-prefix',
+            STATISTICSFIELD)
         self.transmogrifier = transmogrifier
         self.name = name
         self.options = options
@@ -115,15 +117,17 @@ class Statistics(object):
 
             yield item
 
-            #if self.statistics_prefix + 'existed' in item and item[self.statistics_prefix + 'existed']:
+            # if self.statistics_prefix + 'existed' in item and item[
+            #       self.statistics_prefix + 'existed']:
             #    self.stats['EXISTED'] += 1
-            #else:
+            # else:
             #    keys = item.keys()
             #    pathkey = self.pathkey(*keys)[0]
             #    path = item[pathkey]
             #    path = path.encode('ASCII')
             #    context = self.context.unrestrictedTraverse(path, None)
-            #    if context is not None and path == '/'.join(context.getPhysicalPath()):
+            #    if context is not None and path == '/'.join(
+            #           context.getPhysicalPath()):
             #        self.stats['ADDED'] += 1
             #    else:
             #        self.stats['NOT-ADDED'] += 1
@@ -138,16 +142,18 @@ class Statistics(object):
                 now = int(time.time())
                 stat = 'COUNT: %d; ' % self.stats['OBJ_COUNT']
                 stat += 'TOTAL TIME: %d; ' % (now - self.stats['START_TIME'])
-                stat += 'STEP TIME: %d; ' % (now - self.stats['TIME_LAST_STEP'])
+                stat += 'STEP TIME: %d; ' % (now -
+                                             self.stats['TIME_LAST_STEP'])
                 self.stats['TIME_LAST_STEP'] = now
                 stat += 'EXISTED: %d; ADDED: %d; NOT-ADDED: %d' % (
-                                               self.stats['EXISTED'],
-                                               self.stats['ADDED'],
-                                               self.stats['NOT-ADDED'])
+                    self.stats['EXISTED'],
+                    self.stats['ADDED'],
+                    self.stats['NOT-ADDED'])
                 logging.warning(stat)
 
 
 class Mimetype(object):
+
     """ """
 
     classProvides(ISectionBlueprint)
@@ -169,7 +175,10 @@ class Mimetype(object):
         if 'mimetype-key' in options:
             mimetypekeys = options['mimetype-key'].splitlines()
         else:
-            mimetypekeys = defaultKeys(options['blueprint'], name, 'content_type')
+            mimetypekeys = defaultKeys(
+                options['blueprint'],
+                name,
+                'content_type')
         self.mimetypekey = Matcher(*mimetypekeys)
 
     def __iter__(self):
@@ -177,13 +186,17 @@ class Mimetype(object):
             pathkey = self.pathkey(*item.keys())[0]
             mimetypekey = self.mimetypekey(*item.keys())[0]
 
-            if (not pathkey or not mimetypekey or 
-               mimetypekey not in item):      # not enough info
-                yield item; continue
+            if (not pathkey or not mimetypekey or
+                    mimetypekey not in item):      # not enough info
+                yield item
+                continue
 
-            obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)
+            obj = self.context.unrestrictedTraverse(
+                item[pathkey].lstrip('/'),
+                None)
             if obj is None:                     # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             if IBaseObject.providedBy(obj):
                 obj.setFormat(item[mimetypekey])
@@ -192,6 +205,7 @@ class Mimetype(object):
 
 
 class WorkflowHistory(object):
+
     """ """
 
     classProvides(ISectionBlueprint)
@@ -214,30 +228,37 @@ class WorkflowHistory(object):
         if 'workflowhistory-key' in options:
             workflowhistorykeys = options['workflowhistory-key'].splitlines()
         else:
-            workflowhistorykeys = defaultKeys(options['blueprint'], name, 'workflow_history')
+            workflowhistorykeys = defaultKeys(
+                options['blueprint'],
+                name,
+                'workflow_history')
         self.workflowhistorykey = Matcher(*workflowhistorykeys)
-
 
     def __iter__(self):
         for item in self.previous:
             pathkey = self.pathkey(*item.keys())[0]
             workflowhistorykey = self.workflowhistorykey(*item.keys())[0]
 
-            if (not pathkey or not workflowhistorykey or 
-               workflowhistorykey not in item):  # not enough info
-                yield item; continue
+            if (not pathkey or not workflowhistorykey or
+                    workflowhistorykey not in item):  # not enough info
+                yield item
+                continue
 
-            obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)
+            obj = self.context.unrestrictedTraverse(
+                item[pathkey].lstrip('/'),
+                None)
             if obj is None or not getattr(obj, 'workflow_history', False):
-                yield item; continue
+                yield item
+                continue
 
             if IBaseObject.providedBy(obj):
                 item_tmp = item
 
                 # get back datetime stamp and set the workflow history
                 for workflow in item_tmp[workflowhistorykey]:
-                    for k, workflow2 in enumerate(item_tmp[workflowhistorykey][workflow]):
-                        item_tmp[workflowhistorykey][workflow][k]['time'] = DateTime(item_tmp[workflowhistorykey][workflow][k]['time'])
+                    for k, workflow2 in enumerate(item_tmp[workflowhistorykey][workflow]):  # noqa
+                        item_tmp[workflowhistorykey][workflow][k]['time'] = DateTime(  # noqa
+                            item_tmp[workflowhistorykey][workflow][k]['time'])
                 obj.workflow_history.data = item_tmp[workflowhistorykey]
 
                 # update security
@@ -249,6 +270,7 @@ class WorkflowHistory(object):
 
 
 class Properties(object):
+
     """ """
 
     classProvides(ISectionBlueprint)
@@ -261,7 +283,6 @@ class Properties(object):
         self.previous = previous
         self.context = transmogrifier.context
 
-
         if 'path-key' in options:
             pathkeys = options['path-key'].splitlines()
         else:
@@ -271,7 +292,10 @@ class Properties(object):
         if 'properties-key' in options:
             propertieskeys = options['properties-key'].splitlines()
         else:
-            propertieskeys = defaultKeys(options['blueprint'], name, 'properties')
+            propertieskeys = defaultKeys(
+                options['blueprint'],
+                name,
+                'properties')
         self.propertieskey = Matcher(*propertieskeys)
 
     def __iter__(self):
@@ -279,19 +303,24 @@ class Properties(object):
             pathkey = self.pathkey(*item.keys())[0]
             propertieskey = self.propertieskey(*item.keys())[0]
 
-            if (not pathkey or not propertieskey or 
-               propertieskey not in item):   # not enough info
-                yield item; continue
+            if (not pathkey or not propertieskey or
+                    propertieskey not in item):   # not enough info
+                yield item
+                continue
 
-            obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)
+            obj = self.context.unrestrictedTraverse(
+                item[pathkey].lstrip('/'),
+                None)
             if obj is None:                 # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             if IBaseObject.providedBy(obj):
                 if getattr(aq_base(obj), '_delProperty', False):
                     for prop in item[propertieskey]:
                         if getattr(aq_base(obj), prop[0], None) is not None:
-                            # if object have a attribute equal to property, do nothing
+                            # if object have a attribute equal to property, do
+                            # nothing
                             continue
                         try:
                             if obj.hasProperty(prop[0]):
@@ -300,14 +329,16 @@ class Properties(object):
                                 obj._setProperty(prop[0], prop[1], prop[2])
                         except ConflictError:
                             raise
-                        except Exception, e:
-                            raise Exception('Failed to set property %s type %s to %s at object %s. ERROR: %s' % \
-                                                        (prop[0], prop[1], prop[2], str(obj), str(e)))
+                        except Exception as e:
+                            raise Exception(
+                                'Failed to set property %s type %s to %s at object %s. ERROR: %s' %  # noqa
+                                (prop[0], prop[1], prop[2], str(obj), str(e)))
 
             yield item
 
 
 class Owner(object):
+
     """ """
 
     classProvides(ISectionBlueprint)
@@ -338,37 +369,50 @@ class Owner(object):
             pathkey = self.pathkey(*item.keys())[0]
             ownerkey = self.ownerkey(*item.keys())[0]
 
-            if (not pathkey or not ownerkey or 
-               ownerkey not in item):    # not enough info
-                yield item; continue
+            if (not pathkey or not ownerkey or
+                    ownerkey not in item):    # not enough info
+                yield item
+                continue
 
-            obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)
+            obj = self.context.unrestrictedTraverse(
+                item[pathkey].lstrip('/'),
+                None)
             if obj is None:             # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             if IBaseObject.providedBy(obj):
 
                 if item[ownerkey][0] and item[ownerkey][1]:
                     try:
-                        obj.changeOwnership(self.memtool.getMemberById(item[ownerkey][1]))
-                    except Exception, e:
-                        raise Exception('ERROR: %s SETTING OWNERSHIP TO %s' % (str(e), item[pathkey]))
+                        obj.changeOwnership(
+                            self.memtool.getMemberById(
+                                item[ownerkey][1]))
+                    except Exception as e:
+                        raise Exception(
+                            'ERROR: %s SETTING OWNERSHIP TO %s' %
+                            (str(e), item[pathkey]))
 
                     try:
                         obj.manage_setLocalRoles(item[ownerkey][1], ['Owner'])
-                    except Exception, e:
-                        raise Exception('ERROR: %s SETTING OWNERSHIP2 TO %s' % (str(e), item[pathkey]))
+                    except Exception as e:
+                        raise Exception(
+                            'ERROR: %s SETTING OWNERSHIP2 TO %s' %
+                            (str(e), item[pathkey]))
 
                 elif not item[ownerkey][0] and item[ownerkey][1]:
                     try:
                         obj._owner = item[ownerkey][1]
-                    except Exception, e:
-                        raise Exception('ERROR: %s SETTING __OWNERSHIP TO %s' % (str(e), item[pathkey]))
+                    except Exception as e:
+                        raise Exception(
+                            'ERROR: %s SETTING __OWNERSHIP TO %s' %
+                            (str(e), item[pathkey]))
 
             yield item
 
 
 class PermissionMapping(object):
+
     """ """
 
     classProvides(ISectionBlueprint)
@@ -390,7 +434,10 @@ class PermissionMapping(object):
         if 'perms-key' in options:
             permskeys = options['perms-key'].splitlines()
         else:
-            permskeys = defaultKeys(options['blueprint'], name, 'permission_mapping')
+            permskeys = defaultKeys(
+                options['blueprint'],
+                name,
+                'permission_mapping')
         self.permskey = Matcher(*permskeys)
 
     def __iter__(self):
@@ -398,26 +445,32 @@ class PermissionMapping(object):
             pathkey = self.pathkey(*item.keys())[0]
             permskey = self.permskey(*item.keys())[0]
 
-            if (not pathkey or not permskey or 
-               permskey not in item):    # not enough info
-                yield item; continue
+            if (not pathkey or not permskey or
+                    permskey not in item):    # not enough info
+                yield item
+                continue
 
-            obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)
+            obj = self.context.unrestrictedTraverse(
+                item[pathkey].lstrip('/'),
+                None)
             if obj is None:             # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             if IRoleManager.providedBy(obj):
                 for perm, perm_dict in item[permskey].items():
                     try:
                         obj.manage_permission(perm,
-                            roles=perm_dict['roles'],
-                            acquire=perm_dict['acquire'])
+                                              roles=perm_dict['roles'],
+                                              acquire=perm_dict['acquire'])
                     except ValueError:
                         logging.error('Error setting the perm "%s"' % perm)
 
             yield item
 
+
 class LocalRoles(object):
+
     """ """
 
     classProvides(ISectionBlueprint)
@@ -439,7 +492,10 @@ class LocalRoles(object):
         if 'local-roles-key' in options:
             roleskeys = options['local-roles-key'].splitlines()
         else:
-            roleskeys = defaultKeys(options['blueprint'], name, 'ac_local_roles')
+            roleskeys = defaultKeys(
+                options['blueprint'],
+                name,
+                'ac_local_roles')
         self.roleskey = Matcher(*roleskeys)
 
     def __iter__(self):
@@ -447,13 +503,17 @@ class LocalRoles(object):
             pathkey = self.pathkey(*item.keys())[0]
             roleskey = self.roleskey(*item.keys())[0]
 
-            if (not pathkey or not roleskey or 
-               roleskey not in item):    # not enough info
-                yield item; continue
+            if (not pathkey or not roleskey or
+                    roleskey not in item):    # not enough info
+                yield item
+                continue
 
-            obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)
+            obj = self.context.unrestrictedTraverse(
+                item[pathkey].lstrip('/'),
+                None)
             if obj is None:             # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             if IRoleManager.providedBy(obj):
                 for principal, roles in item[roleskey].items():
@@ -465,6 +525,7 @@ class LocalRoles(object):
 
 
 class DataFields(object):
+
     """ """
 
     classProvides(ISectionBlueprint)
@@ -490,11 +551,15 @@ class DataFields(object):
             pathkey = self.pathkey(*item.keys())[0]
 
             if not pathkey:                     # not enough info
-                yield item; continue
+                yield item
+                continue
 
-            obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)
+            obj = self.context.unrestrictedTraverse(
+                item[pathkey].lstrip('/'),
+                None)
             if obj is None:                     # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             if IBaseObject.providedBy(obj):
                 for key in item.keys():

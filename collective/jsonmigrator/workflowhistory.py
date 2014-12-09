@@ -1,15 +1,16 @@
-from zope.interface import implements
-from zope.interface import classProvides
-from collective.transmogrifier.interfaces import ISectionBlueprint
+from DateTime import DateTime
+from Products.Archetypes.interfaces import IBaseObject
+from Products.CMFCore.utils import getToolByName
 from collective.transmogrifier.interfaces import ISection
+from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import Matcher
 from collective.transmogrifier.utils import defaultKeys
-from Products.CMFCore.utils import getToolByName
-from Products.Archetypes.interfaces import IBaseObject
-from DateTime import DateTime
+from zope.interface import classProvides
+from zope.interface import implements
 
 
 class WorkflowHistory(object):
+
     """
     """
 
@@ -33,9 +34,11 @@ class WorkflowHistory(object):
         if 'workflowhistory-key' in options:
             workflowhistorykeys = options['workflowhistory-key'].splitlines()
         else:
-            workflowhistorykeys = defaultKeys(options['blueprint'], name, 'workflow_history')
+            workflowhistorykeys = defaultKeys(
+                options['blueprint'],
+                name,
+                'workflow_history')
         self.workflowhistorykey = Matcher(*workflowhistorykeys)
-
 
     def __iter__(self):
         for item in self.previous:
@@ -44,21 +47,25 @@ class WorkflowHistory(object):
 
             if not pathkey or not workflowhistorykey or \
                workflowhistorykey not in item:  # not enough info
-                yield item; continue
+                yield item
+                continue
 
-            obj = self.context.unrestrictedTraverse(item[pathkey].lstrip('/'), None)
+            obj = self.context.unrestrictedTraverse(
+                item[pathkey].lstrip('/'),
+                None)
             if obj is None or not getattr(obj, 'workflow_history', False):
-                yield item; continue
+                yield item
+                continue
 
             if IBaseObject.providedBy(obj):
                 item_tmp = item
 
                 # get back datetime stamp and set the workflow history
                 for workflow in item_tmp[workflowhistorykey]:
-                    for k, workflow2 in enumerate(item_tmp[workflowhistorykey][workflow]):
+                    for k, workflow2 in enumerate(item_tmp[workflowhistorykey][workflow]):  # noqa
                         if 'time' in item_tmp[workflowhistorykey][workflow][k]:
-                            item_tmp[workflowhistorykey][workflow][k]['time'] = DateTime(
-                                    item_tmp[workflowhistorykey][workflow][k]['time'])
+                            item_tmp[workflowhistorykey][workflow][k]['time'] = DateTime(  # noqa
+                                item_tmp[workflowhistorykey][workflow][k]['time'])  # noqa
                 obj.workflow_history.data = item_tmp[workflowhistorykey]
 
                 # update security

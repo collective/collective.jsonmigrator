@@ -2,7 +2,7 @@
 from setuptools import setup
 from setuptools import find_packages
 
-version = 'Y.dev0'
+version = '0.3.dev0'
 
 description = "Migrations from legacy Plone sites (2.0, 2.1, 2.5) to Plone 4.0"
 
@@ -10,7 +10,10 @@ setup(
     name='collective.jsonmigrator',
     version=version,
     description=description,
-    long_description=open("README.rst").read(),
+    long_description="%s%s%s%s" % (
+        open("README.rst").read() + "\n",
+        open("CHANGES.rst").read(),
+    ),
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Environment :: Web Environment",

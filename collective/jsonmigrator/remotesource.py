@@ -1,22 +1,23 @@
-import string
+from base64 import encodestring
+from collective.jsonmigrator import logger
+from collective.transmogrifier.interfaces import ISection
+from collective.transmogrifier.interfaces import ISectionBlueprint
+from collective.transmogrifier.utils import resolvePackageReferenceOrFile
+from zope.interface import classProvides
+from zope.interface import implements
 import httplib
+import os.path
+import pickle
+import simplejson
+import string
 import urllib
 import urllib2
 import urlparse
 import xmlrpclib
-import simplejson
-import pickle
-import os.path
-from base64 import encodestring
-from zope.interface import implements
-from zope.interface import classProvides
-from collective.transmogrifier.interfaces import ISection
-from collective.transmogrifier.interfaces import ISectionBlueprint
-from collective.transmogrifier.utils import resolvePackageReferenceOrFile
-from collective.jsonmigrator import logger
 
 _marker = object()
 MEMOIZE_PROPNAME = '_memojito_'
+
 
 def memoize(func):
     """A caching decorator which stores values in an attribute on the instance.
@@ -31,8 +32,8 @@ def memoize(func):
         key = (func.__name__, args[1:], frozenset(kwargs.items()))
         val = cache.get(key, _marker)
         if val is _marker:
-            val=func(*args, **kwargs)
-            cache[key]=val
+            val = func(*args, **kwargs)
+            cache[key] = val
             setattr(inst, MEMOIZE_PROPNAME, cache)
         return val
     return memogetter
@@ -57,8 +58,8 @@ class BasicAuth(xmlrpclib.Transport):
 
         if self.username is not None and self.password is not None:
             h.putheader("AUTHORIZATION", "Basic %s" % string.replace(
-                    encodestring("%s:%s" % (self.username, self.password)),
-                    "\012", ""))
+                encodestring("%s:%s" % (self.username, self.password)),
+                "\012", ""))
         h.endheaders()
 
         if request_body:
@@ -71,11 +72,13 @@ class BasicAuth(xmlrpclib.Transport):
                 host + handler,
                 errcode, errmsg,
                 headers
-                )
+            )
 
         return self.parse_response(h.getfile())
 
+
 class UrllibrpcException(Exception):
+
     """Raised when reading an url fails.
     """
 
@@ -88,6 +91,7 @@ class UrllibrpcException(Exception):
 
 
 class Urllibrpc(object):
+
     def __init__(self, url, username, password):
         self.url = url
         self.username = username
@@ -95,13 +99,15 @@ class Urllibrpc(object):
 
     def __getattr__(self, item):
         def callable():
-            scheme,netloc,path,params,query,fragment = urlparse.urlparse(self.url)
+            scheme, netloc, path, params, query, fragment = urlparse.urlparse(
+                self.url)
             if '@' not in netloc:
-                netloc = '%s:%s@%s'%(self.username, self.password, netloc)
+                netloc = '%s:%s@%s' % (self.username, self.password, netloc)
             if path.endswith("/"):
                 path = path[:-1]
             path = path + '/' + item
-            url = urlparse.urlunparse( (scheme,netloc,path,params,query,fragment) )
+            url = urlparse.urlunparse(
+                (scheme, netloc, path, params, query, fragment))
             f = urllib.urlopen(url)
             content = f.read()
             if f.getcode() != 200:
@@ -112,17 +118,18 @@ class Urllibrpc(object):
 
 
 class RemoteSource(object):
+
     """ """
 
     name = 'collective.jsonmigrator.remotesource'
     _options = [
-            ('remote-url', 'http://127.0.0.1:8080'),
-            ('remote-username', 'admin'),
-            ('remote-password', 'admin'),
-            ('remote-path', '/Plone'),
-            ('remote-crawl-depth', -1),
-            ('remote-skip-path', ''),
-            ]
+        ('remote-url', 'http://127.0.0.1:8080'),
+        ('remote-username', 'admin'),
+        ('remote-password', 'admin'),
+        ('remote-path', '/Plone'),
+        ('remote-crawl-depth', -1),
+        ('remote-skip-path', ''),
+    ]
 
     classProvides(ISectionBlueprint)
     implements(ISection)
@@ -152,41 +159,41 @@ class RemoteSource(object):
     def get_option(self, name, default):
         request = self.context.get('REQUEST', {})
         return request.get(
-                    'form.widgets.'+name.replace('-', '_'),
-                    self.options.get(name, default))
+            'form.widgets.' + name.replace('-', '_'),
+            self.options.get(name, default))
 
     @memoize
     def get_remote_item(self, path):
-        remote_url = self.remote_url+self.remote_path
+        remote_url = self.remote_url + self.remote_path
         if not remote_url.endswith('/'):
             remote_url += '/'
         if path.startswith('/'):
             path = path[1:]
         url = urllib2.urlparse.urljoin(remote_url, urllib.quote(path))
-        #remote = xmlrpclib.Server(
+        # remote = xmlrpclib.Server(
         #         url,
         #         BasicAuth(self.remote_username, self.remote_password),
         #         )
-        
+
         # XMLRPC seems to be causing unexplained Faults where urllib works
         remote = Urllibrpc(url, self.remote_username, self.remote_password)
 
         try:
             item = remote.get_item()
-        except UrllibrpcException, e:
+        except UrllibrpcException as e:
             logger.error("Failed reading url '%s' with error code %s." %
                          (e.url, e.code))
             return None, []
 
         try:
             subitems = remote.get_children()
-        except UrllibrpcException, e:
+        except UrllibrpcException as e:
             logger.error("Failed reading url '%s' with error code %s." %
                          (e.url, e.code))
             return item, []
 
         return item, subitems
-        
+
     def get_items(self, path, depth=0):
         if path and path[-1] == '/':
             path = path[:-1]
@@ -199,15 +206,18 @@ class RemoteSource(object):
                 return
 
             if item.startswith('ERROR'):
-                logger.error("Could not get item '%s' from remote. Got %s." % (path, item))
+                logger.error(
+                    "Could not get item '%s' from remote. Got %s." %
+                    (path, item))
                 return
 
             item = simplejson.loads(item)
             logger.info(':: Crawling %s' % item['_path'])
 
-            # item['_path'] is relative to domain root. we need relative to plone root
+            # item['_path'] is relative to domain root. we need relative to
+            # plone root
             remote_url = self.remote_url
-            _,_,remote_path,_,_,_ = urlparse.urlparse(remote_url)
+            _, _, remote_path, _, _, _ = urlparse.urlparse(remote_url)
             item['_path'] = item['_path'][len(remote_path):]
             if item['_path'].startswith('/'):
                 item['_path'] = item['_path'][1:]
@@ -218,17 +228,20 @@ class RemoteSource(object):
                 yield item
 
             if subitems.startswith('ERROR'):
-                logger.error("Could not get subitems for '%s'. Got %s." % (path, subitems))
+                logger.error(
+                    "Could not get subitems for '%s'. Got %s." %
+                    (path, subitems))
                 return
 
             for subitem_id in simplejson.loads(subitems):
                 subitem_path = path + '/' + subitem_id
 
-                if subitem_path[len(self.remote_path):] in self.remote_skip_path:
+                if subitem_path[len(self.remote_path):]\
+                        in self.remote_skip_path:
                     logger.info(':: Skipping -> ' + subitem_path)
                     continue
 
-                for subitem in self.get_items(subitem_path, depth+1):
+                for subitem in self.get_items(subitem_path, depth + 1):
                     yield subitem
 
     def __iter__(self):
@@ -238,7 +251,7 @@ class RemoteSource(object):
         for item in self.get_items(self.remote_path):
             if item:
                 yield item
-        
+
         # Store cached items in a file
         if self.cache:
             cache = getattr(self, MEMOIZE_PROPNAME, _marker)

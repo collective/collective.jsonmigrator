@@ -1,17 +1,15 @@
-
-from zope.interface import implements
-from zope.interface import classProvides
-
-from collective.transmogrifier.interfaces import ISectionBlueprint
-from collective.transmogrifier.interfaces import ISection
-from collective.transmogrifier.utils import Matcher
-from collective.transmogrifier.utils import defaultKeys
-
 from Acquisition import aq_base
 from ZODB.POSException import ConflictError
+from collective.transmogrifier.interfaces import ISection
+from collective.transmogrifier.interfaces import ISectionBlueprint
+from collective.transmogrifier.utils import Matcher
+from collective.transmogrifier.utils import defaultKeys
+from zope.interface import classProvides
+from zope.interface import implements
 
 
 class Properties(object):
+
     """ """
 
     classProvides(ISectionBlueprint)
@@ -24,7 +22,6 @@ class Properties(object):
         self.previous = previous
         self.context = transmogrifier.context
 
-
         if 'path-key' in options:
             pathkeys = options['path-key'].splitlines()
         else:
@@ -35,7 +32,7 @@ class Properties(object):
             propertieskeys = options['properties-key'].splitlines()
         else:
             propertieskeys = defaultKeys(
-                    options['blueprint'], name, 'properties')
+                options['blueprint'], name, 'properties')
         self.propertieskey = Matcher(*propertieskeys)
 
     def __iter__(self):
@@ -46,18 +43,21 @@ class Properties(object):
             if not pathkey or not propertieskey or \
                propertieskey not in item:
                 # not enough info
-                yield item; continue
+                yield item
+                continue
 
             obj = self.context.unrestrictedTraverse(
-                            item[pathkey].lstrip('/'), None)
+                item[pathkey].lstrip('/'), None)
             if obj is None:
                 # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             if not getattr(aq_base(obj), '_setProperty', False):
-                yield item; continue
+                yield item
+                continue
 
-            for pid,pvalue,ptype in item[propertieskey]:
+            for pid, pvalue, ptype in item[propertieskey]:
                 if getattr(aq_base(obj), pid, None) is not None:
                     # if object have a attribute equal to property, do nothing
                     continue
@@ -69,9 +69,9 @@ class Properties(object):
                         obj._setProperty(pid, pvalue, ptype)
                 except ConflictError:
                     raise
-                except Exception, e:
+                except Exception as e:
                     raise Exception('Failed to set property "%s" type "%s"'
-                            ' to "%s" at object %s. ERROR: %s' % \
-                            (pid, ptype, pvalue, str(obj), str(e)))
+                                    ' to "%s" at object %s. ERROR: %s' %
+                                    (pid, ptype, pvalue, str(obj), str(e)))
 
             yield item

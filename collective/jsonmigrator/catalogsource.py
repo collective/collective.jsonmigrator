@@ -1,16 +1,17 @@
+from collective.jsonmigrator import logger
+from collective.transmogrifier.interfaces import ISection
+from collective.transmogrifier.interfaces import ISectionBlueprint
+from zope.interface import classProvides, implements
 import base64
 import simplejson
 import threading
 import time
 import urllib
 import urllib2
-from zope.interface import classProvides, implements
-from collective.transmogrifier.interfaces import ISectionBlueprint
-from collective.transmogrifier.interfaces import ISection
-from collective.jsonmigrator import logger
 
 
 class CatalogSourceSection(object):
+
     """A source section which creates items from a remote Plone site by
        querying it's catalog.
     """
@@ -47,8 +48,11 @@ class CatalogSourceSection(object):
         opener = urllib2.build_opener(auth_handler)
         urllib2.install_opener(opener)
 
-        req = urllib2.Request('%s%s/get_catalog_results' % (self.remote_url,
-            catalog_path), urllib.urlencode({'catalog_query': catalog_query}))
+        req = urllib2.Request(
+            '%s%s/get_catalog_results' %
+            (self.remote_url, catalog_path), urllib.urlencode(
+                {
+                    'catalog_query': catalog_query}))
         try:
             f = urllib2.urlopen(req)
             resp = f.read()
@@ -63,7 +67,7 @@ class CatalogSourceSection(object):
         """
         request = getattr(self.context, 'REQUEST', None)
         if request is not None:
-            value = request.form.get('form.widgets.'+name.replace('-', '_'),
+            value = request.form.get('form.widgets.' + name.replace('-', '_'),
                                      self.options.get(name, default))
         else:
             value = self.options.get(name, default)
@@ -131,8 +135,10 @@ class QueuedItemLoader(threading.Thread):
         try:
             f = urllib2.urlopen(item_url)
             item_json = f.read()
-        except urllib2.URLError, e:
-            logger.error("Failed reading item from %s. %s" % (item_url, str(e)))
+        except urllib2.URLError as e:
+            logger.error(
+                "Failed reading item from %s. %s" %
+                (item_url, str(e)))
             return None
         try:
             item = simplejson.loads(item_json)
