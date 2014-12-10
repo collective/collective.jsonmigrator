@@ -4,17 +4,12 @@
     xmlns:transmogrifier="http://namespaces.plone.org/transmogrifier"
     i18n_domain="collective.jsonmigrator">
 
-
   <include package="collective.transmogrifier" file="meta.zcml" />
   <include package="collective.transmogrifier" />
   <include package="plone.app.transmogrifier" />
   <include package="Products.CMFCore" file="permissions.zcml" />
 
-  <utility
-      provides="zope.schema.interfaces.IVocabularyFactory"
-      component=".helper.JSONMigratorConfigurationsFactory"
-      name="collective-jsonmigrator-configurations"
-      />
+  <include package=".blueprints"/>
 
   <browser:page
       name="jsonmigrator"
@@ -30,58 +25,9 @@
       />
 
   <utility
-      component=".remotesource.RemoteSource"
-      name="collective.jsonmigrator.remotesource"
-      />
-
-  <utility
-     component=".datafields.DataFields"
-     name="collective.jsonmigrator.datafields"
-     />
-
-  <utility
-     component=".datafields.PartialCommit"
-     name="collective.jsonmigrator.partialcommit"
-     />
-
-  <utility
-      component=".workflowhistory.WorkflowHistory"
-      name="collective.jsonmigrator.workflowhistory"
-      />
-
-  <utility
-      component=".properties.Properties"
-      name="collective.jsonmigrator.properties"
-      />
-
-  <utility
-      component=".permissions.Permissions"
-      name="collective.jsonmigrator.permissions"
-      />
-
-  <utility
-      component=".owner.Owner"
-      name="collective.jsonmigrator.owner"
-      />
-
-  <utility
-      component=".local_roles.LocalRoles"
-      name="collective.jsonmigrator.local_roles"
-      />
-
-  <utility
-      component=".mimetype.Mimetype"
-      name="collective.jsonmigrator.mimetype"
-      />
-
-  <utility
-      component=".order.OrderSection"
-      name="collective.jsonmigrator.order"
-      />
-
-  <utility
-      component=".catalogsource.CatalogSourceSection"
-      name="collective.jsonmigrator.catalogsource"
+      provides="zope.schema.interfaces.IVocabularyFactory"
+      component=".helper.JSONMigratorConfigurationsFactory"
+      name="collective-jsonmigrator-configurations"
       />
 
   <transmogrifier:registerConfig

@@ -10,8 +10,8 @@ setup(
     name='collective.jsonmigrator',
     version=version,
     description=description,
-    long_description="%s%s%s%s" % (
-        open("README.rst").read() + "\n",
+    long_description="%s\n%s" % (
+        open("README.rst").read(),
         open("CHANGES.rst").read(),
     ),
     classifiers=[
