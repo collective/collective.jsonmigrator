@@ -33,13 +33,13 @@
   <transmogrifier:registerConfig
       name="collective.jsonmigrator.plone25"
       title="Migration configuration for Plone 2.5 content types"
-      configuration="config_plone25.cfg"
+      configuration="pipelines/plone25.cfg"
       />
 
   <transmogrifier:registerConfig
       name="collective.jsonmigrator.catalog"
       title="Migration configuration for querying the catalog of a Plone site"
-      configuration="config_catalog.cfg"
+      configuration="pipelines/catalog.cfg"
       />
 
 </configure>
