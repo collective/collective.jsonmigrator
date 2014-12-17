@@ -1,9 +1,13 @@
-from Products.Archetypes.interfaces import IBaseObject
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from zope.interface import classProvides
 from zope.interface import implements
 import base64
+
+try:
+    from Products.Archetypes.interfaces import IBaseObject
+except ImportError:
+    IBaseObject = None
 
 
 class DataFields(object):
@@ -44,7 +48,7 @@ class DataFields(object):
                 yield item
                 continue
 
-            if IBaseObject.providedBy(obj):
+            if IBaseObject and IBaseObject.providedBy(obj):
                 for key in item.keys():
 
                     if not key.startswith(self.datafield_prefix):
