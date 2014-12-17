@@ -48,8 +48,4 @@ class JSONSource(object):
                 item = simplejson.loads(f.read())
                 f.close()
 
-                for key in item.keys():
-                    if key.startswith(self.datafield_prefix):
-                        item[key] = os.path.join(self.path, item[key])
-
                 yield item
