@@ -1,4 +1,5 @@
 from DateTime import DateTime
+from Products.Archetypes.interfaces import IBaseObject
 from Products.CMFCore.utils import getToolByName
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
@@ -56,19 +57,20 @@ class WorkflowHistory(object):
                 yield item
                 continue
 
-            item_tmp = item
+            if IBaseObject.providedBy(obj):
+                item_tmp = item
 
-            # get back datetime stamp and set the workflow history
-            for workflow in item_tmp[workflowhistorykey]:
-                for k, workflow2 in enumerate(item_tmp[workflowhistorykey][workflow]):  # noqa
-                    if 'time' in item_tmp[workflowhistorykey][workflow][k]:
-                        item_tmp[workflowhistorykey][workflow][k]['time'] = DateTime(  # noqa
-                            item_tmp[workflowhistorykey][workflow][k]['time'])  # noqa
-            obj.workflow_history.data = item_tmp[workflowhistorykey]
+                # get back datetime stamp and set the workflow history
+                for workflow in item_tmp[workflowhistorykey]:
+                    for k, workflow2 in enumerate(item_tmp[workflowhistorykey][workflow]):  # noqa
+                        if 'time' in item_tmp[workflowhistorykey][workflow][k]:
+                            item_tmp[workflowhistorykey][workflow][k]['time'] = DateTime(  # noqa
+                                item_tmp[workflowhistorykey][workflow][k]['time'])  # noqa
+                obj.workflow_history.data = item_tmp[workflowhistorykey]
 
-            # update security
-            workflows = self.wftool.getWorkflowsFor(obj)
-            if workflows:
-                workflows[0].updateRoleMappingsFor(obj)
+                # update security
+                workflows = self.wftool.getWorkflowsFor(obj)
+                if workflows:
+                    workflows[0].updateRoleMappingsFor(obj)
 
             yield item
