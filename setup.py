@@ -2,9 +2,9 @@
 from setuptools import setup
 from setuptools import find_packages
 
-version = '0.3.dev0'
 
-description = "Migrations from legacy Plone sites (2.0, 2.1, 2.5) to Plone 4.0"
+version = '0.3.dev0'
+description = "JSON based migrations for Plone"
 
 setup(
     name='collective.jsonmigrator',
