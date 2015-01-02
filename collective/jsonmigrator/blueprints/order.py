@@ -1,9 +1,9 @@
 from Acquisition import aq_base
-from zope.interface import classProvides, implements
-from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.interfaces import ISection
+from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
 from zope.app.container.contained import notifyContainerModified
+from zope.interface import classProvides, implements
 
 
 class OrderSection(object):
@@ -62,7 +62,7 @@ class OrderSection(object):
                 ordering = parent.getOrdering()
                 # Only DefaultOrdering of p.folder is supported
                 if (not hasattr(ordering, '_order')
-                    and not hasattr(ordering, '_pos')):
+                        and not hasattr(ordering, '_pos')):
                     continue
                 order = ordering._order()
                 pos = ordering._pos()

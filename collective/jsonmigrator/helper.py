@@ -1,86 +1,87 @@
-
-import urllib
+from collective.jsonmigrator import msgFact as _
+from collective.jsonmigrator import logger
+from collective.transmogrifier.transmogrifier import Transmogrifier
+from collective.transmogrifier.transmogrifier import _load_config
+from collective.transmogrifier.transmogrifier import configuration_registry
+from plone.z3cform.layout import wrap_form
+from z3c.form import button
+from z3c.form import field
+from z3c.form import form
+from z3c.form import interfaces
 from zope.interface import Interface
-from zope.schema import URI
+from zope.schema import ASCIILine
+from zope.schema import Choice
 from zope.schema import Int
 from zope.schema import List
-from zope.schema import Choice
 from zope.schema import Text
 from zope.schema import TextLine
-from zope.schema import ASCIILine
-from zope.schema.vocabulary import SimpleVocabulary
+from zope.schema import URI
 from zope.schema.interfaces import IFromUnicode, IList
-from z3c.form import form
-from z3c.form import field
-from z3c.form import button
-from z3c.form import interfaces
-from plone.z3cform.layout import wrap_form
-from collective.transmogrifier.transmogrifier import Transmogrifier
-from collective.transmogrifier.transmogrifier import configuration_registry
-from collective.transmogrifier.transmogrifier import _load_config
-from collective.jsonmigrator import JSONMigratorMessageFactory as _
-from collective.jsonmigrator import logger
+from zope.schema.vocabulary import SimpleVocabulary
+import urllib
 
 SOURCE_SECTIONS = frozenset(['collective.jsonmigrator.remotesource',
                              'collective.jsonmigrator.catalogsource'])
 
+
 class IJSONMigratorRun(Interface):
+
     """ remote source interface
     """
 
     config = TextLine()
 
     remote_url = URI(
-            title=_(u"URL"),
-            description=_(u"URL for the remote site that will provide the "
-                          u"content to be imported and migrated "),
-            required=True,
-            )
+        title=_(u"URL"),
+        description=_(u"URL for the remote site that will provide the "
+                      u"content to be imported and migrated "),
+        required=True,
+    )
 
     remote_username = ASCIILine(
-            title=_(u"Username"),
-            description=_(u"Username to log in to the remote site "),
-            required=True,
-            )
+        title=_(u"Username"),
+        description=_(u"Username to log in to the remote site "),
+        required=True,
+    )
 
     remote_password = TextLine(
-            title=_(u"Password"),
-            description=_(u"Password to log in to the remote site "),
-            required=True,
-            )
+        title=_(u"Password"),
+        description=_(u"Password to log in to the remote site "),
+        required=True,
+    )
 
     remote_path = TextLine(
-            title=_(u"Start path"),
-            description=_(u"Path where to start crawling and importing "
-                          u"into current location."),
-            required=True,
-            )
+        title=_(u"Start path"),
+        description=_(u"Path where to start crawling and importing "
+                      u"into current location."),
+        required=True,
+    )
 
     remote_crawl_depth = Int(
-            title=_(u"Crawl depth"),
-            description=_(u"How deep should we crawl remote site"),
-            required=True,
-            )
+        title=_(u"Crawl depth"),
+        description=_(u"How deep should we crawl remote site"),
+        required=True,
+    )
 
     remote_skip_path = List(
-            title=_(u"Paths to skip"),
-            description=_(u"Which paths to skip when crawling."),
-            value_type=TextLine(),
-            required=False,
-            )
+        title=_(u"Paths to skip"),
+        description=_(u"Which paths to skip when crawling."),
+        value_type=TextLine(),
+        required=False,
+    )
 
     catalog_path = TextLine(
-            title=_(u"Catalog Path"),
-            description=_(u"The absolute path of the catalog tool."),
-            required=True,
-            )
+        title=_(u"Catalog Path"),
+        description=_(u"The absolute path of the catalog tool."),
+        required=True,
+    )
 
     catalog_query = Text(
-            title=_(u"Catalog Query"),
-            description=_("Specify query parameters in dict notation. If left "
-                          "empty, all items will be returned."),
-            required=False,
-            )
+        title=_(u"Catalog Query"),
+        description=_("Specify query parameters in dict notation. If left "
+                      "empty, all items will be returned."),
+        required=False,
+    )
 
 
 class JSONMigratorRun(form.Form):
@@ -138,10 +139,9 @@ class JSONMigratorRun(form.Form):
         data, errors = self.extractData()
         params = urllib.urlencode({'form.widgets.config': data.get('config')})
         self.request.RESPONSE.redirect('/'.join((
-                    self.context.absolute_url(),
-                    '@@jsonmigrator',
-                    '?%s' % params)))
-
+            self.context.absolute_url(),
+            '@@jsonmigrator',
+            '?%s' % params)))
 
 
 class JSONMigratorConfigurations(object):
@@ -155,19 +155,20 @@ class JSONMigratorConfigurations(object):
                 if section.get('blueprint', '') in SOURCE_SECTIONS:
                     conf = configuration_registry.getConfiguration(conf_id)
                     terms.append(SimpleVocabulary.createTerm(
-                            conf_id, conf_id, conf['title']))
+                        conf_id, conf_id, conf['title']))
                     break
         return SimpleVocabulary(terms)
 
 
 class IJSONMigrator(Interface):
+
     """ remote source interface """
 
     config = Choice(
-            title=_(u"Select configuration"),
-            description=_(u"Registered configurations to choose from."),
-            vocabulary=u"collective-jsonmigrator-configurations",
-            )
+        title=_(u"Select configuration"),
+        description=_(u"Registered configurations to choose from."),
+        vocabulary=u"collective-jsonmigrator-configurations",
+    )
 
 
 class JSONMigrator(form.Form):
@@ -182,8 +183,9 @@ class JSONMigrator(form.Form):
         data, errors = self.extractData()
         if errors:
             return False
-        self.request.RESPONSE.redirect('%s/@@jsonmigrator-run?form.widgets.%s' %
-                (self.context.absolute_url(), urllib.urlencode(data)))
+        self.request.RESPONSE.redirect(
+            '%s/@@jsonmigrator-run?form.widgets.%s' %
+            (self.context.absolute_url(), urllib.urlencode(data)))
 
 
 JSONMigratorConfigurationsFactory = JSONMigratorConfigurations()

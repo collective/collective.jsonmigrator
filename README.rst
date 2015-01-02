@@ -1,6 +1,8 @@
-==============================
+=======================
 collective.jsonmigrator
-==============================
+=======================
+
+JSON based migrations for Plone
 
 ``collective.jsonmigrator`` is a ready tool for you to migrate from old Plone
 sites (2.0, 2.1, 2.5) to new Plone 4.0 (or higher). Its based extensivly
@@ -11,8 +13,6 @@ documented`_ and proven to work on lots of migration projects.
 
 Real beauty of it lays in ability to easily customize it and extend to support
 all your custom content types that you are using.
-
-Features: TODO
 
 (Note that collective.jsonmigrator was previously named `collective.blueprint.jsonmigrator`_).
 

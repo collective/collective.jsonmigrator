@@ -1,17 +1,15 @@
-
-from zope.interface import implements
-from zope.interface import classProvides
-
-from collective.transmogrifier.interfaces import ISectionBlueprint
-from collective.transmogrifier.interfaces import ISection
-from collective.transmogrifier.utils import Matcher
-from collective.transmogrifier.utils import defaultKeys
-
 from AccessControl.interfaces import IRoleManager
 from collective.jsonmigrator import logger
+from collective.transmogrifier.interfaces import ISection
+from collective.transmogrifier.interfaces import ISectionBlueprint
+from collective.transmogrifier.utils import Matcher
+from collective.transmogrifier.utils import defaultKeys
+from zope.interface import classProvides
+from zope.interface import implements
 
 
 class Permissions(object):
+
     """ """
 
     classProvides(ISectionBlueprint)
@@ -34,7 +32,7 @@ class Permissions(object):
             permskeys = options['perms-key'].splitlines()
         else:
             permskeys = defaultKeys(
-                    options['blueprint'], name, 'permissions')
+                options['blueprint'], name, 'permissions')
         self.permskey = Matcher(*permskeys)
 
     def __iter__(self):
@@ -44,23 +42,25 @@ class Permissions(object):
 
             if not pathkey or not permskey or \
                permskey not in item:    # not enough info
-                yield item; continue
+                yield item
+                continue
 
             obj = self.context.unrestrictedTraverse(
-                    item[pathkey].lstrip('/'), None)
+                item[pathkey].lstrip('/'), None)
             if obj is None:             # path doesn't exist
-                yield item; continue
+                yield item
+                continue
 
             if IRoleManager.providedBy(obj):
                 for perm, perm_dict in item[permskey].items():
                     try:
                         obj.manage_permission(perm,
-                            roles=perm_dict['roles'],
-                            acquire=perm_dict['acquire'])
+                                              roles=perm_dict['roles'],
+                                              acquire=perm_dict['acquire'])
                     except ValueError:
-                        #raise Exception('Error setting the perm "%s"' % perm)
-                        logger.error('Error setting the perm "%s" on %s' % (perm, item[pathkey]))
-
+                        # raise Exception('Error setting the perm "%s"' % perm)
+                        logger.error(
+                            'Error setting the perm "%s" on %s' %
+                            (perm, item[pathkey]))
 
             yield item
-
