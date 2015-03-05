@@ -1,4 +1,4 @@
-``collective.blueprint.jsonmigrator.skipitems``
+``collective.jsonmigrator.skipitems``
 ===============================================
 
 Skip first N item in pipeline.
@@ -25,5 +25,5 @@ Configuration::
     ...
 
     [skipitems]
-    blueprint = collective.blueprint.jsonmigrator.skipitems
+    blueprint = collective.jsonmigrator.skipitems
     first = 10000

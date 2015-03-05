@@ -1,4 +1,4 @@
-``collective.blueprint.jsonmigrator.permission_mapping``
+``collective.jsonmigrator.permission_mapping``
 ========================================================
 
 .. XXX: Moved to ``collective.jsonmigrator.permissions``?
@@ -28,33 +28,33 @@ Configuration::
     ...
 
     [mimetype]
-    blueprint = collective.blueprint.jsonmigrator.permission_mapping
+    blueprint = collective.jsonmigrator.permission_mapping
 
 Data in pipeline::
 
     {
-        "_path": "/Plone/index_html", 
+        "_path": "/Plone/index_html",
         "_permission_mapping": {
             "Modify portal content": {
-                "acquire": false, 
+                "acquire": false,
                 "roles": [
-                    "Manager", 
+                    "Manager",
                     "Owner"
                 ]
-            }, 
+            },
             "Access contents information": {
-                "acquire": true, 
+                "acquire": true,
                 "roles": [
-                    "Anonymous", 
-                    "Manager", 
+                    "Anonymous",
+                    "Manager",
                     "Reviewer"
                 ]
-            }, 
+            },
             "View": {
-                "acquire": true, 
+                "acquire": true,
                 "roles": [
-                    "Anonymous", 
-                    "Manager", 
+                    "Anonymous",
+                    "Manager",
                     "Reviewer"
                 ]
             }
