@@ -1,4 +1,4 @@
-``collective.blueprint.jsonmigrator.statistics``
+``collective.jsonmigrator.statistics``
 ================================================
 
 :TODO:

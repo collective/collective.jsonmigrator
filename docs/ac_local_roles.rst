@@ -1,4 +1,4 @@
-``collective.blueprint.jsonmigrator.ac_local_roles``
+``collective.jsonmigrator.ac_local_roles``
 ====================================================
 
 Update local roles of an object.
@@ -24,17 +24,17 @@ Configuration::
     ...
 
     [ac_local_roles]
-    blueprint = collective.blueprint.jsonmigrator.ac_local_roles
+    blueprint = collective.jsonmigrator.ac_local_roles
 
 Data in pipeline::
 
     {
-        "_path": "/Plone/index_html", 
+        "_path": "/Plone/index_html",
         "_ac_local_roles": {
             "admin": [
                 "Owner"
             ]
         },
     }
-    
+
 
