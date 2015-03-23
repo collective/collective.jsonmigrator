@@ -20,8 +20,8 @@ from zope.schema.interfaces import IFromUnicode, IList
 from zope.schema.vocabulary import SimpleVocabulary
 import urllib
 
-SOURCE_SECTIONS = frozenset(['collective.jsonmigrator.remotesource',
-                             'collective.jsonmigrator.catalogsource'])
+SOURCE_SECTIONS = ['collective.jsonmigrator.remotesource',
+                   'collective.jsonmigrator.catalogsource']
 
 
 class IJSONMigratorRun(Interface):
