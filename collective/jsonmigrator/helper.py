@@ -4,6 +4,7 @@ from collective.transmogrifier.transmogrifier import _load_config
 from collective.transmogrifier.transmogrifier import configuration_registry
 from collective.transmogrifier.transmogrifier import Transmogrifier
 from plone.z3cform.layout import wrap_form
+from Products.statusmessages.interfaces import IStatusMessage
 from z3c.form import button
 from z3c.form import field
 from z3c.form import form
@@ -162,6 +163,8 @@ class JSONMigratorRun(form.Form):
         logger.info("Start importing profile: " + data['config'])
         Transmogrifier(self.context)(data['config'])
         logger.info("Stop importing profile: " + data['config'])
+        IStatusMessage(self.request).addStatusMessage(
+            'Migrated: %s' % data['config'], type='info')
 
     def _redirect(self, viewname, config_id):
         if isinstance(config_id, unicode):
