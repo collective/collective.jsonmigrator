@@ -1,8 +1,8 @@
-from collective.jsonmigrator import msgFact as _
 from collective.jsonmigrator import logger
-from collective.transmogrifier.transmogrifier import Transmogrifier
+from collective.jsonmigrator import msgFact as _
 from collective.transmogrifier.transmogrifier import _load_config
 from collective.transmogrifier.transmogrifier import configuration_registry
+from collective.transmogrifier.transmogrifier import Transmogrifier
 from plone.z3cform.layout import wrap_form
 from z3c.form import button
 from z3c.form import field
@@ -91,6 +91,7 @@ class JSONMigratorRun(form.Form):
     ignoreContext = True
 
     def updateWidgets(self):
+        self.label = self.request.get('form.widgets.config')
         config = _load_config(self.request.get('form.widgets.config'))
         section = None
         for section_id in config.keys():
@@ -129,10 +130,24 @@ class JSONMigratorRun(form.Form):
         data, errors = self.extractData()
         if errors:
             return False
+        self._run(data)
 
-        logger.info("Start importing profile: " + data['config'])
-        Transmogrifier(self.context)(data['config'])
-        logger.info("Stop importing profile: " + data['config'])
+    @button.buttonAndHandler(u'Run & Next')
+    def handleRunAndNext(self, action):
+        data, errors = self.extractData()
+        if errors:
+            return False
+        self._run(data)
+
+        configs = configuration_registry.listConfigurationIds()
+        current_config = data.get('config')
+        if configs.index(current_config) + 2 > len(configs):
+            # This was the last config
+            self._redirect('@@jsonmigrator', current_config)
+
+        else:
+            next_config = configs[configs.index(current_config) + 1]
+            self._redirect('@@jsonmigrator-run', next_config)
 
     @button.buttonAndHandler(u'Back')
     def handleBack(self, action):
@@ -142,6 +157,21 @@ class JSONMigratorRun(form.Form):
             self.context.absolute_url(),
             '@@jsonmigrator',
             '?%s' % params)))
+
+    def _run(self, data):
+        logger.info("Start importing profile: " + data['config'])
+        Transmogrifier(self.context)(data['config'])
+        logger.info("Stop importing profile: " + data['config'])
+
+    def _redirect(self, viewname, config_id):
+        if isinstance(config_id, unicode):
+            config_id = config_id.encode('utf-8')
+        params = urllib.urlencode({'form.widgets.config': config_id})
+        return self.request.RESPONSE.redirect('/'.join((
+                    self.context.absolute_url(),
+                    viewname,
+                    '?%s' % params)))
+
 
 
 class JSONMigratorConfigurations(object):
