@@ -211,7 +211,12 @@ class RemoteSource(object):
                     (path, item))
                 return
 
-            item = simplejson.loads(item)
+            try:
+                item = simplejson.loads(item)
+            except simplejson.JSONDecodeError:
+                logger.error(
+                    "Could not decode item from path '%s' as JSON." % path)
+                return
             logger.info(':: Crawling %s' % item['_path'])
 
             # item['_path'] is relative to domain root. we need relative to
