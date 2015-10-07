@@ -1,4 +1,4 @@
-``collective.jsonmigrator.source``
+``collective.jsonmigrator.jsonsource``
 ============================================
 
 Read JSON files and insert them into transmogrifier pipeline.
@@ -21,7 +21,7 @@ Configuration::
         source
 
     [source]
-    blueprint = collective.jsonmigrator.source
+    blueprint = collective.jsonmigrator.jsonsource
     path = some.package:/path/to/json/dir
 
 JSON files structure::

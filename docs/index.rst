@@ -6,7 +6,7 @@ blueprints that help you to migrate content into `Plone`_. (``blueprint`` is
 an extension to `collective.transmogrifier`_).
 
 It provides a list of blueprints built around
-``collective.jsonmigrator.source``
+``collective.jsonmigrator.jsonsource``
 with the purpose of providing flexible infrastructure to do migrations in Plone.
 
 And if you might forgot, migration is a bitch ... so have fun :P
