@@ -171,10 +171,9 @@ class JSONMigratorRun(form.Form):
             config_id = config_id.encode('utf-8')
         params = urllib.urlencode({'form.widgets.config': config_id})
         return self.request.RESPONSE.redirect('/'.join((
-                    self.context.absolute_url(),
-                    viewname,
-                    '?%s' % params)))
-
+            self.context.absolute_url(),
+            viewname,
+            '?%s' % params)))
 
 
 class JSONMigratorConfigurations(object):

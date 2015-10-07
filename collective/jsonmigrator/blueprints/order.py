@@ -66,8 +66,8 @@ class OrderSection(object):
                     continue
                 order = ordering._order()
                 pos = ordering._pos()
-                order.sort(key=lambda x: normalized_positions.get(x,
-                           pos.get(x, self.default_pos)))
+                order.sort(key=lambda x: normalized_positions.get(
+                    x, pos.get(x, self.default_pos)))
                 for i, id_ in enumerate(order):
                     pos[id_] = i
 
