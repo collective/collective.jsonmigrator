@@ -7,7 +7,7 @@ Parameters
 ----------
 
 :path (required):
-    Path to directory containing JSON files (look in example bellow).
+    Path to directory containing JSON files (look in example below).
 
     Also possible to specify in ``some.package:path/to/json/directory`` way.
 
