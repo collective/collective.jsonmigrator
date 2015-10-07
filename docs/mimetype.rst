@@ -31,6 +31,6 @@ Configuration::
 Data in pipeline::
 
     {
-        "_path": "/Plone/index_html", 
-        "_content_type": "text/html", 
+        "_path": "/Plone/index_html",
+        "_content_type": "text/html",
     }

@@ -6,7 +6,7 @@ Used to commit after some items have been processed.
 Parameters
 ----------
 
-:every (default: 100): 
+:every (default: 100):
     Define number of items after which commit (writing to ZODB) will happen.
 
 Example

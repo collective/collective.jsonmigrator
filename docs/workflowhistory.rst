@@ -30,17 +30,17 @@ Configuration::
 Data in pipeline::
 
     {
-        "_path": "/Plone/index_html", 
+        "_path": "/Plone/index_html",
         "_workflow_history": {
             "plone_workflow": [
                 {
-                    "action": null, 
-                    "review_state": "visible", 
-                    "comments": "", 
-                    "actor": "admin", 
+                    "action": null,
+                    "review_state": "visible",
+                    "comments": "",
+                    "actor": "admin",
                     "time": "2010/09/15 02:19:57.932 GMT+2"
                 }
             ]
-        }, 
+        },
     }
-    
+

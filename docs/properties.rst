@@ -30,7 +30,7 @@ Expected data structure in pipeline:
                 ...
             ]
 
-        ``<property-type>`` is set of types which you can select through the 
+        ``<property-type>`` is set of types which you can select through the
         ZMI when you edit/add a property.
 
 Example
@@ -51,11 +51,11 @@ Configuration::
 Data in pipeline::
 
     {
-        "_path": "/Plone/index_html", 
+        "_path": "/Plone/index_html",
         "_properties": [
             [
-                "title", 
-                "Welcome to Plone", 
+                "title",
+                "Welcome to Plone",
                 "string"
             ]
         ],
