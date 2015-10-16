@@ -9,7 +9,7 @@ It provides a list of blueprints built around
 ``collective.jsonmigrator.jsonsource``
 with the purpose of providing flexible infrastructure to do migrations in Plone.
 
-And if you might forgot, migration is a bitch ... so have fun :P
+And just incase you forgot, migration is a bitch... so have fun :P
 
 .. toctree::
     :titlesonly:
