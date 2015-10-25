@@ -12,4 +12,6 @@ Changelog
   [thet]
 
 - PEP 8.
-  [thet]
+  [thet, mauritsvanrees]
+
+- Log json decode error instead of crashing [marciomazza]
