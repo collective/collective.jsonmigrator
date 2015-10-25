@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
 from collective.jsonmigrator import logger
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from zope.interface import classProvides, implements
+
 import base64
 import simplejson
 import threading

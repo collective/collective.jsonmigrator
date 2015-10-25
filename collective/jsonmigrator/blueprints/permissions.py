@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from AccessControl.interfaces import IRoleManager
 from collective.jsonmigrator import logger
 from collective.transmogrifier.interfaces import ISection

@@ -1,9 +1,10 @@
+# -*- coding: utf-8 -*-
 from Acquisition import aq_base
-from ZODB.POSException import ConflictError
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
-from collective.transmogrifier.utils import Matcher
 from collective.transmogrifier.utils import defaultKeys
+from collective.transmogrifier.utils import Matcher
+from ZODB.POSException import ConflictError
 from zope.interface import classProvides
 from zope.interface import implements
 

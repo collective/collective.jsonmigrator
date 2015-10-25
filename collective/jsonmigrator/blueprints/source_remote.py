@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from base64 import encodestring
 from collective.jsonmigrator import logger
 from collective.transmogrifier.interfaces import ISection
@@ -5,6 +6,7 @@ from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import resolvePackageReferenceOrFile
 from zope.interface import classProvides
 from zope.interface import implements
+
 import httplib
 import os.path
 import pickle

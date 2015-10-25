@@ -1,9 +1,10 @@
-from Products.Archetypes.interfaces import IBaseObject
-from Products.CMFCore.utils import getToolByName
+# -*- coding: utf-8 -*-
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
-from collective.transmogrifier.utils import Matcher
 from collective.transmogrifier.utils import defaultKeys
+from collective.transmogrifier.utils import Matcher
+from Products.Archetypes.interfaces import IBaseObject
+from Products.CMFCore.utils import getToolByName
 from zope.interface import classProvides
 from zope.interface import implements
 
