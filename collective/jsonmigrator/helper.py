@@ -124,6 +124,7 @@ class JSONMigratorRun(form.Form):
                 elif IList.providedBy(field):
                     field.default = [field.value_type.fromUnicode(v) for v
                                      in value.split()]
+            logger.info( "%s(%s)::%s" % (option, field, field.default))
 
         super(JSONMigratorRun, self).updateWidgets()
         self.widgets['config'].mode = interfaces.HIDDEN_MODE
