@@ -10,12 +10,16 @@ from zope.interface import implements
 import httplib
 import os.path
 import pickle
-import simplejson
 import string
 import urllib
 import urllib2
 import urlparse
 import xmlrpclib
+
+try:
+    import json
+except ImportError:
+    import simplejson as json
 
 _marker = object()
 MEMOIZE_PROPNAME = '_memojito_'
@@ -214,8 +218,8 @@ class RemoteSource(object):
                 return
 
             try:
-                item = simplejson.loads(item)
-            except simplejson.JSONDecodeError:
+                item = json.loads(item)
+            except json.JSONDecodeError:
                 logger.error(
                     "Could not decode item from path '%s' as JSON." % path)
                 return
@@ -240,7 +244,7 @@ class RemoteSource(object):
                     (path, subitems))
                 return
 
-            for subitem_id in simplejson.loads(subitems):
+            for subitem_id in json.loads(subitems):
                 subitem_path = path + '/' + subitem_id
 
                 if subitem_path[len(self.remote_path):]\
