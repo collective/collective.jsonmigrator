@@ -23,7 +23,7 @@ Configuration::
 
     ...
 
-    [ac_local_roles]
+    [local_roles]
     blueprint = collective.jsonmigrator.local_roles
 
 Data in pipeline::
