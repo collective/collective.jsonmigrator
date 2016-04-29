@@ -6,6 +6,19 @@ from setuptools import find_packages
 version = '0.4.dev0'
 description = "JSON based migrations for Plone"
 
+requirements = [
+    'setuptools',
+    'collective.transmogrifier',
+    'plone.app.transmogrifier',
+    'zope.app.container',
+]
+
+try:
+    import json
+except ImportError:
+    requirements.append('simplejson')
+
+
 setup(
     name='collective.jsonmigrator',
     version=version,
@@ -33,13 +46,7 @@ setup(
     namespace_packages=['collective'],
     include_package_data=True,
     zip_safe=False,
-    install_requires=[
-        'setuptools',
-        'simplejson',
-        'collective.transmogrifier',
-        'plone.app.transmogrifier',
-        'zope.app.container',
-    ],
+    install_requires=requirements,
     entry_points="""
     [z3c.autoinclude.plugin]
     target = plone

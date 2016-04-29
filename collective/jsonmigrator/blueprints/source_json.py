@@ -6,7 +6,11 @@ from zope.interface import classProvides
 from zope.interface import implements
 
 import os
-import simplejson
+
+try:
+    import json
+except ImportError:
+    import simplejson as json
 
 DATAFIELD = '_datafield_'
 
@@ -47,7 +51,7 @@ class JSONSource(object):
                 f = open(os.path.join(
                     self.path, str(item3), '%s.json' % item2
                 ))
-                item = simplejson.loads(f.read())
+                item = json.loads(f.read())
                 f.close()
 
                 yield item
