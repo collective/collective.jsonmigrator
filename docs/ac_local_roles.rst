@@ -1,5 +1,5 @@
-``collective.jsonmigrator.ac_local_roles``
-====================================================
+``collective.jsonmigrator.local_roles``
+=======================================
 
 Update local roles of an object.
 
@@ -19,12 +19,12 @@ Configuration::
     [transmogrifier]
     pipeline =
         source
-        ac_local_roles
+        local_roles
 
     ...
 
     [ac_local_roles]
-    blueprint = collective.jsonmigrator.ac_local_roles
+    blueprint = collective.jsonmigrator.local_roles
 
 Data in pipeline::
 
