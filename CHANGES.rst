@@ -4,7 +4,8 @@ Changelog
 0.4 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Do not require simplejson if we already have the native json module.
+  [ale-rt]
 
 
 0.3 (2015-10-25)
