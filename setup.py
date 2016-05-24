@@ -3,7 +3,7 @@ from setuptools import setup
 from setuptools import find_packages
 
 
-version = '0.4'
+version = '0.5.dev0'
 description = "JSON based migrations for Plone"
 
 requirements = [
