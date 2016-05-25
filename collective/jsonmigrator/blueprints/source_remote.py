@@ -186,14 +186,14 @@ class RemoteSource(object):
 
         try:
             item = remote.get_item()
-        except UrllibrpcException as e:
+        except UrllibrpcException, e:
             logger.error("Failed reading url '%s' with error code %s." %
                          (e.url, e.code))
             return None, []
 
         try:
             subitems = remote.get_children()
-        except UrllibrpcException as e:
+        except UrllibrpcException, e:
             logger.error("Failed reading url '%s' with error code %s." %
                          (e.url, e.code))
             return item, []

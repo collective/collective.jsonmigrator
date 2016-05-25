@@ -64,20 +64,20 @@ class Owner(object):
                 try:
                     obj.changeOwnership(
                         self.memtool.getMemberById(item[ownerkey][1]))
-                except Exception as e:
+                except Exception, e:
                     raise Exception('ERROR: %s SETTING OWNERSHIP TO %s' %
                                     (str(e), item[pathkey]))
 
                 try:
                     obj.manage_setLocalRoles(item[ownerkey][1], ['Owner'])
-                except Exception as e:
+                except Exception, e:
                     raise Exception('ERROR: %s SETTING OWNERSHIP2 TO %s' %
                                     (str(e), item[pathkey]))
 
             elif not item[ownerkey][0] and item[ownerkey][1]:
                 try:
                     obj._owner = item[ownerkey][1]
-                except Exception as e:
+                except Exception, e:
                     raise Exception('ERROR: %s SETTING __OWNERSHIP TO %s' %
                                     (str(e), item[pathkey]))
 

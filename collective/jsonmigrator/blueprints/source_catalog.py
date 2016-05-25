@@ -141,7 +141,7 @@ class QueuedItemLoader(threading.Thread):
         try:
             f = urllib2.urlopen(item_url)
             item_json = f.read()
-        except urllib2.URLError as e:
+        except urllib2.URLError, e:
             logger.error(
                 "Failed reading item from %s. %s" %
                 (item_url, str(e)))

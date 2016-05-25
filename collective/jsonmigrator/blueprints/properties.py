@@ -70,7 +70,7 @@ class Properties(object):
                         obj._setProperty(pid, pvalue, ptype)
                 except ConflictError:
                     raise
-                except Exception as e:
+                except Exception, e:
                     raise Exception('Failed to set property "%s" type "%s"'
                                     ' to "%s" at object %s. ERROR: %s' %
                                     (pid, ptype, pvalue, str(obj), str(e)))

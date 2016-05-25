@@ -4,6 +4,7 @@ Changelog
 0.5 (unreleased)
 ----------------
 
+- Handle the exceptions in a Python 2.4 compatible way
 - Require Python 2.4 compatibile packages.
   [ale-rt]
 
