@@ -10,7 +10,6 @@ description = "JSON based migrations for Plone"
 requirements = [
     'setuptools',
     'collective.transmogrifier',
-    'plone.app.transmogrifier',
     'zope.app.container',
 ]
 
@@ -22,6 +21,8 @@ if version_info[0] == 2 and version_info[1] < 6:
     requirements.append('simplejson < 2.4')
     # To my knowledge 1.3 work fine
     requirements.append('plone.app.transmogrifier < 1.4')
+else:
+    requirements.append('plone.app.transmogrifier')
 
 
 setup(
