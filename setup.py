@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 from setuptools import setup
 from setuptools import find_packages
+from sys import version_info
 
 
 version = '0.5.dev0'
@@ -13,10 +14,14 @@ requirements = [
     'zope.app.container',
 ]
 
-try:
-    import json
-except ImportError:
-    requirements.append('simplejson')
+if version_info[0] == 2 and version_info[1] < 6:
+    # If this happens you are probably using Python 2.4
+    # According to the documentation of simplejson, since version 2.1.0,
+    # Python 2.4 is no longer supported but may still work
+    # This line will probably pull in simplejson 2.3.3
+    requirements.append('simplejson < 2.4')
+    # To my knowledge 1.3 work fine
+    requirements.append('plone.app.transmogrifier < 1.4')
 
 
 setup(

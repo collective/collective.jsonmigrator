@@ -4,8 +4,8 @@ Changelog
 0.5 (unreleased)
 ----------------
 
-- Nothing changed yet.
-
+- Require Python 2.4 compatibile packages.
+  [ale-rt]
 
 0.4 (2016-05-24)
 ----------------
