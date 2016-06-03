@@ -6,6 +6,7 @@ from collective.transmogrifier.utils import Matcher
 from DateTime import DateTime
 from Products.Archetypes.interfaces import IBaseObject
 from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.utils import safe_unicode
 from zope.interface import classProvides
 from zope.interface import implements
 
@@ -52,7 +53,7 @@ class WorkflowHistory(object):
                 continue
 
             obj = self.context.unrestrictedTraverse(
-                item[pathkey].lstrip('/'),
+                safe_unicode(item[pathkey].lstrip('/')).encode('utf-8'),
                 None)
             if obj is None or not getattr(obj, 'workflow_history', False):
                 yield item
