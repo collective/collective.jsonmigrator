@@ -4,7 +4,8 @@ Changelog
 0.5 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Fix workflow_history to also work with dexterity
+  [erral, djowett]
 
 
 0.4 (2016-05-24)
