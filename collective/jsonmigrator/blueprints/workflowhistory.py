@@ -3,11 +3,18 @@ from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import defaultKeys
 from collective.transmogrifier.utils import Matcher
+from collective.transmogrifier.utils import traverse
 from DateTime import DateTime
 from Products.Archetypes.interfaces import IBaseObject
 from Products.CMFCore.utils import getToolByName
 from zope.interface import classProvides
 from zope.interface import implements
+
+try:
+    from plone.dexterity.interfaces import IDexterityContent
+    dexterity_available = True
+except:
+    dexterity_available = False
 
 
 class WorkflowHistory(object):
@@ -51,14 +58,14 @@ class WorkflowHistory(object):
                 yield item
                 continue
 
-            obj = self.context.unrestrictedTraverse(
-                item[pathkey].lstrip('/'),
-                None)
+            # traverse() available in version 1.5+ of collective.transmogrifier
+            obj = traverse(self.context, item[pathkey].lstrip('/'), None)
             if obj is None or not getattr(obj, 'workflow_history', False):
                 yield item
                 continue
 
-            if IBaseObject.providedBy(obj):
+            if (IBaseObject.providedBy(obj) or 
+                (dexterity_available and IDexterityContent.providedBy(obj))):
                 item_tmp = item
 
                 # get back datetime stamp and set the workflow history

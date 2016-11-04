@@ -7,6 +7,9 @@ Changelog
 - Set default value of config field for jsonmigrator-run view.
   [bsuttor]
 
+- Fix workflow_history to also work with dexterity
+  [erral, djowett]
+
 
 0.4 (2016-05-24)
 ----------------
