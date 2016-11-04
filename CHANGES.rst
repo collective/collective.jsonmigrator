@@ -4,7 +4,8 @@ Changelog
 0.5 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Set default value of config fields for jsonmigrator-run view.
+  [bsuttor]
 
 
 0.4 (2016-05-24)
