@@ -95,7 +95,8 @@ class JSONMigratorRun(form.Form):
 
     def updateWidgets(self):
         self.label = self.request.get('form.widgets.config')
-        config = _load_config(self.request.get('form.widgets.config'))
+        self.fields['config'].field.default = self.label
+        config = _load_config(self.label)
         section = None
         for section_id in config.keys():
             tmp = config[section_id]
