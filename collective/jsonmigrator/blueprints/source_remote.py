@@ -18,8 +18,10 @@ import xmlrpclib
 
 try:
     import json
+    JSONDecodeError = ValueError
 except ImportError:
     import simplejson as json
+    JSONDecodeError = json.JSONDecodeError
 
 _marker = object()
 MEMOIZE_PROPNAME = '_memojito_'
@@ -219,7 +221,7 @@ class RemoteSource(object):
 
             try:
                 item = json.loads(item)
-            except json.JSONDecodeError:
+            except JSONDecodeError:
                 logger.error(
                     "Could not decode item from path '%s' as JSON." % path)
                 return
