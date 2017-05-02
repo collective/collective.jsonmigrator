@@ -4,6 +4,10 @@ Changelog
 0.5 (unreleased)
 ----------------
 
+- No longer depend on zope.app.container.notifyContainerModified.
+  Use from zope.container.contained import notifyContainerModified instead.
+  [mathias.leimgruber]
+
 - Set default value of config field for jsonmigrator-run view.
   [bsuttor]
 

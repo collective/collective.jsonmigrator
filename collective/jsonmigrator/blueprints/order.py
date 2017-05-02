@@ -3,7 +3,7 @@ from Acquisition import aq_base
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
-from zope.app.container.contained import notifyContainerModified
+from zope.container.contained import notifyContainerModified
 from zope.interface import classProvides, implements
 
 

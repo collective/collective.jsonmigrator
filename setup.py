@@ -10,7 +10,6 @@ requirements = [
     'setuptools',
     'collective.transmogrifier>=1.5',
     'plone.app.transmogrifier',
-    'zope.app.container',
 ]
 
 try:
