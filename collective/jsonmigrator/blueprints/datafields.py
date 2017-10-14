@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+from Products.CMFPlone.utils import safe_unicode
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
+from collective.transmogrifier.utils import traverse
 from zope.interface import classProvides
 from zope.interface import implements
 
@@ -34,19 +36,11 @@ class DataFields(object):
                 yield item
                 continue
 
-            obj = self.context.unrestrictedTraverse(
-                item['_path'].lstrip('/'), None)
+            path = safe_unicode(item['_path'].lstrip('/')).encode('ascii')
+            obj = traverse(self.context, path, None)
 
             # path doesn't exist
             if obj is None:
-                yield item
-                continue
-
-            # do nothing if we got a wrong object through acquisition
-            path = item['_path']
-            if path.startswith('/'):
-                path = path[1:]
-            if '/'.join(obj.getPhysicalPath()[self.root_path_length:]) != path:
                 yield item
                 continue
 
@@ -57,6 +51,7 @@ class DataFields(object):
                         continue
 
                     fieldname = key[len(self.datafield_prefix):]
+
                     field = obj.getField(fieldname)
                     if field is None:
                         continue

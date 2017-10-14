@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 from AccessControl.interfaces import IRoleManager
+from Products.CMFPlone.utils import safe_unicode
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import defaultKeys
 from collective.transmogrifier.utils import Matcher
+from collective.transmogrifier.utils import traverse
 from zope.interface import classProvides
 from zope.interface import implements
 
@@ -47,9 +49,11 @@ class LocalRoles(object):
                 yield item
                 continue
 
-            obj = self.context.unrestrictedTraverse(
-                item[pathkey].lstrip('/'), None)
-            if obj is None:             # path doesn't exist
+            path = safe_unicode(item[pathkey].lstrip('/')).encode('ascii')
+            obj = traverse(self.context, path, None)
+
+            # path doesn't exist
+            if obj is None:
                 yield item
                 continue
 

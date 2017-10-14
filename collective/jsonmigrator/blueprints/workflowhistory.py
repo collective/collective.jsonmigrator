@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from Products.CMFPlone.utils import safe_unicode
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import defaultKeys
@@ -59,12 +60,14 @@ class WorkflowHistory(object):
                 continue
 
             # traverse() available in version 1.5+ of collective.transmogrifier
-            obj = traverse(self.context, item[pathkey].lstrip('/'), None)
+            path = safe_unicode(item[pathkey].lstrip('/')).encode('ascii')
+            obj = traverse(self.context, path, None)
+
             if obj is None or not getattr(obj, 'workflow_history', False):
                 yield item
                 continue
 
-            if (IBaseObject.providedBy(obj) or 
+            if (IBaseObject.providedBy(obj) or
                 (dexterity_available and IDexterityContent.providedBy(obj))):
                 item_tmp = item
 
