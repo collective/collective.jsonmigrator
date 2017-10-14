@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from Acquisition import aq_base
+from Products.CMFPlone.utils import safe_unicode
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
+from collective.transmogrifier.utils import traverse
 from zope.app.container.contained import notifyContainerModified
 from zope.interface import classProvides, implements
 
@@ -49,11 +51,9 @@ class OrderSection(object):
             for pos, key in enumerate(ordered_keys):
                 normalized_positions[key] = pos
 
-            # TODO: After the new collective.transmogrifier release (>1.4), the
-            # utils.py provides a traverse method.
-            # from collective.transmogrifier.utils import traverse
-            # parent = traverse(self.context, path)
-            parent = self.context.unrestrictedTraverse(path.lstrip('/'))
+            path = safe_unicode(path.lstrip('/')).encode('ascii')
+            parent = traverse(self.context, path, None)
+
             if not parent:
                 continue
 
