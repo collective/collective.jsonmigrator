@@ -4,7 +4,8 @@ Changelog
 1.1 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- if certain properties (default page, others?) are unicode they cause site failures.
+  [sunew]
 
 
 1.0 (2017-12-22)
