@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.5 (unreleased)
+1.0 (2017-12-22)
 ----------------
 
 - Set default value of config field for jsonmigrator-run view.
