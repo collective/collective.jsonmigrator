@@ -66,6 +66,8 @@ class Properties(object):
                     # if object have a attribute equal to property, do nothing
                     continue
 
+                if ptype == 'string':
+                    pvalue = safe_unicode(pvalue).encode('utf-8')
                 try:
                     if obj.hasProperty(pid):
                         obj._updateProperty(pid, pvalue)
