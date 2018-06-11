@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.1 (unreleased)
-----------------
+1.0.1 (2018-06-11)
+------------------
 
 - if certain properties (default page, others?) are unicode they cause site failures.
   [sunew]
