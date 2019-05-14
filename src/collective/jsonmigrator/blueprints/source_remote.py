@@ -7,6 +7,7 @@ from collective.transmogrifier.utils import resolvePackageReferenceOrFile
 from zope.interface import provider
 from zope.interface import implementer
 
+<<<<<<< HEAD:src/collective/jsonmigrator/blueprints/source_remote.py
 import six.moves.http_client
 import os.path
 import pickle
@@ -17,6 +18,16 @@ import six.moves.urllib.parse
 import six.moves.xmlrpc_client
 import six
 import urllib2
+=======
+import http.client
+import os.path
+import pickle
+import string
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
+import urllib.parse
+import xmlrpc.client
+>>>>>>> 2e537ac... Python 3 fixes:collective/jsonmigrator/blueprints/source_remote.py
 
 try:
     import json
@@ -49,7 +60,11 @@ def memoize(func):
     return memogetter
 
 
+<<<<<<< HEAD:src/collective/jsonmigrator/blueprints/source_remote.py
 class BasicAuth(six.moves.xmlrpc_client.Transport):
+=======
+class BasicAuth(xmlrpc.client.Transport):
+>>>>>>> 2e537ac... Python 3 fixes:collective/jsonmigrator/blueprints/source_remote.py
 
     def __init__(self, username=None, password=None, verbose=False):
         self.username = username
@@ -58,7 +73,11 @@ class BasicAuth(six.moves.xmlrpc_client.Transport):
         self._use_datetime = True
 
     def request(self, host, handler, request_body, verbose):
+<<<<<<< HEAD:src/collective/jsonmigrator/blueprints/source_remote.py
         h = six.moves.http_client.HTTP(host)
+=======
+        h = http.client.HTTP(host)
+>>>>>>> 2e537ac... Python 3 fixes:collective/jsonmigrator/blueprints/source_remote.py
 
         h.putrequest("POST", handler)
         h.putheader("Host", host)
@@ -78,7 +97,11 @@ class BasicAuth(six.moves.xmlrpc_client.Transport):
         errcode, errmsg, headers = h.getreply()
 
         if errcode != 200:
+<<<<<<< HEAD:src/collective/jsonmigrator/blueprints/source_remote.py
             raise six.moves.xmlrpc_client.ProtocolError(
+=======
+            raise xmlrpc.client.ProtocolError(
+>>>>>>> 2e537ac... Python 3 fixes:collective/jsonmigrator/blueprints/source_remote.py
                 host + handler,
                 errcode, errmsg,
                 headers
@@ -109,16 +132,26 @@ class Urllibrpc(object):
 
     def __getattr__(self, item):
         def callable():
+<<<<<<< HEAD:src/collective/jsonmigrator/blueprints/source_remote.py
             scheme, netloc, path, params, query, fragment = six.moves.urllib.parse.urlparse(
+=======
+            scheme, netloc, path, params, query, fragment = urllib.parse.urlparse(
+>>>>>>> 2e537ac... Python 3 fixes:collective/jsonmigrator/blueprints/source_remote.py
                 self.url)
             if '@' not in netloc:
                 netloc = '%s:%s@%s' % (self.username, self.password, netloc)
             if path.endswith("/"):
                 path = path[:-1]
             path = path + '/' + item
+<<<<<<< HEAD:src/collective/jsonmigrator/blueprints/source_remote.py
             url = six.moves.urllib.parse.urlunparse(
                 (scheme, netloc, path, params, query, fragment))
             f = six.moves.urllib.request.urlopen(url)
+=======
+            url = urllib.parse.urlunparse(
+                (scheme, netloc, path, params, query, fragment))
+            f = urllib.request.urlopen(url)
+>>>>>>> 2e537ac... Python 3 fixes:collective/jsonmigrator/blueprints/source_remote.py
             content = f.read()
             if f.getcode() != 200:
                 raise UrllibrpcException(f.getcode(), f.geturl())
@@ -150,9 +183,15 @@ class RemoteSource(object):
         for option, default in self._options:
             setattr(self, option.replace('-', '_'),
                     self.get_option(option, default))
+<<<<<<< HEAD:src/collective/jsonmigrator/blueprints/source_remote.py
         if type(self.remote_crawl_depth) in [str, six.text_type]:
             self.remote_crawl_depth = int(self.remote_crawl_depth)
         if type(self.remote_skip_path) in [str, six.text_type]:
+=======
+        if type(self.remote_crawl_depth) in [str, str]:
+            self.remote_crawl_depth = int(self.remote_crawl_depth)
+        if type(self.remote_skip_path) in [str, str]:
+>>>>>>> 2e537ac... Python 3 fixes:collective/jsonmigrator/blueprints/source_remote.py
             self.remote_skip_path = self.remote_skip_path.split()
         if self.remote_path[-1] == '/':
             self.remote_path = self.remote_path[:-1]
@@ -178,7 +217,7 @@ class RemoteSource(object):
             remote_url += '/'
         if path.startswith('/'):
             path = path[1:]
-        url = urllib2.urlparse.urljoin(remote_url, six.moves.urllib.parse.quote(path))
+        url = urllib2.urlparse.urljoin(remote_url, urllib.parse.quote(path))
         # remote = xmlrpclib.Server(
         #         url,
         #         BasicAuth(self.remote_username, self.remote_password),
@@ -231,7 +270,7 @@ class RemoteSource(object):
             # item['_path'] is relative to domain root. we need relative to
             # plone root
             remote_url = self.remote_url
-            _, _, remote_path, _, _, _ = six.moves.urllib.parse.urlparse(remote_url)
+            _, _, remote_path, _, _, _ = urllib.parse.urlparse(remote_url)
             item['_path'] = item['_path'][len(remote_path):]
             if item['_path'].startswith('/'):
                 item['_path'] = item['_path'][1:]

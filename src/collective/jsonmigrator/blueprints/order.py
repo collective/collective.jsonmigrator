@@ -44,7 +44,7 @@ class OrderSection(object):
             yield item
 
         # Set positions on every parent
-        for path, positions in positions_mapping.items():
+        for path, positions in list(positions_mapping.items()):
 
             # Normalize positions
             ordered_keys = sorted(list(positions.keys()), key=lambda x: positions[x])

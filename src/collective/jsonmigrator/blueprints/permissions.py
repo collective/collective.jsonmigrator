@@ -53,7 +53,7 @@ class Permissions(object):
                 continue
 
             if IRoleManager.providedBy(obj):
-                for perm, perm_dict in item[permskey].items():
+                for perm, perm_dict in list(item[permskey].items()):
                     try:
                         obj.manage_permission(perm,
                                               roles=perm_dict['roles'],

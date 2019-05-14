@@ -29,7 +29,7 @@
       component=".helper.JSONMigratorConfigurationsFactory"
       name="collective-jsonmigrator-configurations"
       />
-
+  <!--
   <transmogrifier:registerConfig
       name="collectiveJsonmigratorPlone25"
       title="Migration configuration for Plone 2.5 content types"
@@ -41,5 +41,5 @@
       title="Migration configuration for querying the catalog of a Plone site"
       configuration="pipelines/catalog.cfg"
       />
-
+   -->
 </configure>

@@ -55,7 +55,7 @@ class LocalRoles(object):
                 continue
 
             if IRoleManager.providedBy(obj):
-                for principal, roles in item[roleskey].items():
+                for principal, roles in list(item[roleskey].items()):
                     if roles:
                         obj.manage_addLocalRoles(principal, roles)
                         obj.reindexObjectSecurity()
