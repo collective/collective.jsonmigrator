@@ -2,7 +2,7 @@
 from collective.jsonmigrator import logger
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
-from zope.interface import classProvides, implements
+from zope.interface import provider, implementer
 
 import base64
 import threading
@@ -16,13 +16,13 @@ except ImportError:
     import simplejson as json
 
 
+@provider(ISectionBlueprint)
+@implementer(ISection)
 class CatalogSourceSection(object):
 
     """A source section which creates items from a remote Plone site by
        querying it's catalog.
     """
-    classProvides(ISectionBlueprint)
-    implements(ISection)
 
     def __init__(self, transmogrifier, name, options, previous):
         self.previous = previous

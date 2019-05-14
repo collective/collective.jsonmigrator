@@ -6,12 +6,12 @@ from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
 from collective.transmogrifier.utils import traverse
 from zope.app.container.contained import notifyContainerModified
-from zope.interface import classProvides, implements
+from zope.interface import provider, implementer
 
 
+@provider(ISectionBlueprint)
+@implementer(ISection)
 class OrderSection(object):
-    classProvides(ISectionBlueprint)
-    implements(ISection)
 
     def __init__(self, transmogrifier, name, options, previous):
         self.every = int(options.get('every', 1000))

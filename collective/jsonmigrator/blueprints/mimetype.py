@@ -6,17 +6,16 @@ from collective.transmogrifier.utils import defaultKeys
 from collective.transmogrifier.utils import Matcher
 from collective.transmogrifier.utils import traverse
 from Products.Archetypes.interfaces import IBaseObject
-from zope.interface import classProvides
-from zope.interface import implements
+from zope.interface import provider
+from zope.interface import implementer
 
 
+@provider(ISectionBlueprint)
+@implementer(ISection)
 class Mimetype(object):
 
     """
     """
-
-    classProvides(ISectionBlueprint)
-    implements(ISection)
 
     def __init__(self, transmogrifier, name, options, previous):
         self.transmogrifier = transmogrifier

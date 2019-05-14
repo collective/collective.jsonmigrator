@@ -4,8 +4,8 @@ from collective.jsonmigrator import logger
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import resolvePackageReferenceOrFile
-from zope.interface import classProvides
-from zope.interface import implements
+from zope.interface import provider
+from zope.interface import implementer
 
 import httplib
 import os.path
@@ -125,6 +125,8 @@ class Urllibrpc(object):
         return callable
 
 
+@provider(ISectionBlueprint)
+@implementer(ISection)
 class RemoteSource(object):
 
     """ """
@@ -139,8 +141,6 @@ class RemoteSource(object):
         ('remote-skip-path', ''),
     ]
 
-    classProvides(ISectionBlueprint)
-    implements(ISection)
 
     def __init__(self, transmogrifier, name, options, previous):
         self.name, self.options, self.previous = name, options, previous
