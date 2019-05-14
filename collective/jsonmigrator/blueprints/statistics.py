@@ -61,7 +61,7 @@ class Statistics(object):
 
             if self.stats['OBJ_COUNT'] % self.stats['STEP'] == 0:
 
-                keys = item.keys()
+                keys = list(item.keys())
                 pathkey = self.pathkey(*keys)[0]
                 path = item.get(pathkey, 'Unknown')
                 logging.warning('Migrating now: %s' % path)

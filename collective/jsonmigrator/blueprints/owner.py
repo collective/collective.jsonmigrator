@@ -40,8 +40,8 @@ class Owner(object):
 
     def __iter__(self):
         for item in self.previous:
-            pathkey = self.pathkey(*item.keys())[0]
-            ownerkey = self.ownerkey(*item.keys())[0]
+            pathkey = self.pathkey(*list(item.keys()))[0]
+            ownerkey = self.ownerkey(*list(item.keys()))[0]
 
             if not pathkey or not ownerkey or \
                ownerkey not in item:    # not enough info

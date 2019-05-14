@@ -45,7 +45,7 @@ class DataFields(object):
                 continue
 
             if IBaseObject and IBaseObject.providedBy(obj):
-                for key in item.keys():
+                for key in list(item.keys()):
 
                     if not key.startswith(self.datafield_prefix):
                         continue

@@ -27,7 +27,7 @@ class OrderSection(object):
         # each parent path {parent_path: {item_id: item_pos}}.
         positions_mapping = {}
         for item in self.previous:
-            keys = item.keys()
+            keys = list(item.keys())
             pathkey = self.pathkey(*keys)[0]
             poskey = self.poskey(*keys)[0]
             if not (pathkey and poskey):
@@ -43,10 +43,10 @@ class OrderSection(object):
             yield item
 
         # Set positions on every parent
-        for path, positions in positions_mapping.items():
+        for path, positions in list(positions_mapping.items()):
 
             # Normalize positions
-            ordered_keys = sorted(positions.keys(), key=lambda x: positions[x])
+            ordered_keys = sorted(list(positions.keys()), key=lambda x: positions[x])
             normalized_positions = {}
             for pos, key in enumerate(ordered_keys):
                 normalized_positions[key] = pos

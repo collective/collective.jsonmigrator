@@ -51,8 +51,8 @@ class WorkflowHistory(object):
 
     def __iter__(self):
         for item in self.previous:
-            pathkey = self.pathkey(*item.keys())[0]
-            workflowhistorykey = self.workflowhistorykey(*item.keys())[0]
+            pathkey = self.pathkey(*list(item.keys()))[0]
+            workflowhistorykey = self.workflowhistorykey(*list(item.keys()))[0]
 
             if not pathkey or not workflowhistorykey or \
                workflowhistorykey not in item:  # not enough info

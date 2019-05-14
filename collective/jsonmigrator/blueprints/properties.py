@@ -40,8 +40,8 @@ class Properties(object):
 
     def __iter__(self):
         for item in self.previous:
-            pathkey = self.pathkey(*item.keys())[0]
-            propertieskey = self.propertieskey(*item.keys())[0]
+            pathkey = self.pathkey(*list(item.keys()))[0]
+            propertieskey = self.propertieskey(*list(item.keys()))[0]
 
             if not pathkey or not propertieskey or \
                propertieskey not in item:

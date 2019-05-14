@@ -40,8 +40,8 @@ class Permissions(object):
 
     def __iter__(self):
         for item in self.previous:
-            pathkey = self.pathkey(*item.keys())[0]
-            permskey = self.permskey(*item.keys())[0]
+            pathkey = self.pathkey(*list(item.keys()))[0]
+            permskey = self.permskey(*list(item.keys()))[0]
 
             if not pathkey or not permskey or \
                permskey not in item:    # not enough info
@@ -56,7 +56,7 @@ class Permissions(object):
                 continue
 
             if IRoleManager.providedBy(obj):
-                for perm, perm_dict in item[permskey].items():
+                for perm, perm_dict in list(item[permskey].items()):
                     try:
                         obj.manage_permission(perm,
                                               roles=perm_dict['roles'],
