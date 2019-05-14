@@ -2,30 +2,36 @@
     xmlns="http://namespaces.zope.org/zope"
     i18n_domain="collective.jsonmigrator">
 
+  <!--  AT dependency 
   <utility
       component=".datafields.DataFields"
       name="collective.jsonmigrator.datafields"
       />
+  -->
 
   <utility
       component=".local_roles.LocalRoles"
       name="collective.jsonmigrator.local_roles"
       />
 
+  <!--  AT dependency 
   <utility
       component=".mimetype.Mimetype"
       name="collective.jsonmigrator.mimetype"
       />
+  -->
 
   <utility
       component=".order.OrderSection"
       name="collective.jsonmigrator.order"
       />
 
+  <!--  AT dependency 
   <utility
       component=".owner.Owner"
       name="collective.jsonmigrator.owner"
       />
+  -->
 
   <utility
       component=".partialcommit.PartialCommit"
@@ -67,9 +73,11 @@
       name="collective.jsonmigrator.statistics"
       />
 
+  <!--
   <utility
       component=".workflowhistory.WorkflowHistory"
       name="collective.jsonmigrator.workflowhistory"
       />
-
+  -->
+  
 </configure>
