@@ -7,12 +7,7 @@ from collective.transmogrifier.utils import Matcher
 from collective.transmogrifier.utils import traverse
 from zope.interface import provider
 from zope.interface import implementer
-
-try:
-    from Products.Archetypes.interfaces import IBaseObject
-except ImportError:
-    IBaseObject = None
-
+from Products.CMFCore.interfaces import IMutableDublinCore
 
 @provider(ISectionBlueprint)
 @implementer(ISection)
@@ -57,7 +52,7 @@ class Mimetype(object):
                 yield item
                 continue
 
-            if IBaseObject and IBaseObject.providedBy(obj):
+            if IMutableDublinCore.providedBy(obj):
                 obj.setFormat(item[mimetypekey])
 
             yield item

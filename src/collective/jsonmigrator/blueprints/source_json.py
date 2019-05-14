@@ -6,11 +6,7 @@ from zope.interface import provider
 from zope.interface import implementer
 
 import os
-
-try:
-    import json
-except ImportError:
-    import simplejson as json
+import json
 
 DATAFIELD = '_datafield_'
 
@@ -18,8 +14,6 @@ DATAFIELD = '_datafield_'
 @provider(ISectionBlueprint)
 @implementer(ISection)
 class JSONSource(object):
-    """
-    """
 
     def __init__(self, transmogrifier, name, options, previous):
         self.transmogrifier = transmogrifier

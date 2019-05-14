@@ -10,18 +10,6 @@ from Products.CMFCore.utils import getToolByName
 from zope.interface import provider
 from zope.interface import implementer
 
-try:
-    from Products.Archetypes.interfaces import IBaseObject
-except ImportError:
-    IBaseObject = None
-
-try:
-    from plone.dexterity.interfaces import IDexterityContent
-    dexterity_available = True
-except:
-    dexterity_available = False
-
-
 @provider(ISectionBlueprint)
 @implementer(ISection)
 class WorkflowHistory(object):
@@ -67,21 +55,19 @@ class WorkflowHistory(object):
                 yield item
                 continue
 
-            if ((IBaseObject and IBaseObject.providedBy(obj)) or
-                (dexterity_available and IDexterityContent.providedBy(obj))):
-                item_tmp = item
+            item_tmp = item
 
-                # get back datetime stamp and set the workflow history
-                for workflow in item_tmp[workflowhistorykey]:
-                    for k, workflow2 in enumerate(item_tmp[workflowhistorykey][workflow]):  # noqa
-                        if 'time' in item_tmp[workflowhistorykey][workflow][k]:
-                            item_tmp[workflowhistorykey][workflow][k]['time'] = DateTime(  # noqa
-                                item_tmp[workflowhistorykey][workflow][k]['time'])  # noqa
-                obj.workflow_history.data = item_tmp[workflowhistorykey]
+            # get back datetime stamp and set the workflow history
+            for workflow in item_tmp[workflowhistorykey]:
+                for k, workflow2 in enumerate(item_tmp[workflowhistorykey][workflow]):  # noqa
+                    if 'time' in item_tmp[workflowhistorykey][workflow][k]:
+                        item_tmp[workflowhistorykey][workflow][k]['time'] = DateTime(  # noqa
+                            item_tmp[workflowhistorykey][workflow][k]['time'])  # noqa
+            obj.workflow_history.data = item_tmp[workflowhistorykey]
 
-                # update security
-                workflows = self.wftool.getWorkflowsFor(obj)
-                if workflows:
-                    workflows[0].updateRoleMappingsFor(obj)
+            # update security
+            workflows = self.wftool.getWorkflowsFor(obj)
+            if workflows:
+                workflows[0].updateRoleMappingsFor(obj)
 
             yield item

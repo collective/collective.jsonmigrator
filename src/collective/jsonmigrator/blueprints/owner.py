@@ -8,18 +8,11 @@ from collective.transmogrifier.utils import traverse
 from Products.CMFCore.utils import getToolByName
 from zope.interface import provider
 from zope.interface import implementer
-
-try:
-    from Products.Archetypes.interfaces import IBaseObject
-except ImportError:
-    IBaseObject = None
-
+from AccessControl.interfaces import IOwned
 
 @provider(ISectionBlueprint)
 @implementer(ISection)
 class Owner(object):
-
-    """ """
 
     def __init__(self, transmogrifier, name, options, previous):
         self.transmogrifier = transmogrifier
@@ -63,7 +56,7 @@ class Owner(object):
                 yield item
                 continue
 
-            if not IBaseObject or not IBaseObject.providedBy(obj):
+            if IOwned.providedBy(obj):
                 continue
 
             if item[ownerkey][0] and item[ownerkey][1]:

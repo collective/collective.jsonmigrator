@@ -16,6 +16,7 @@ import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 import six.moves.urllib.parse
 import six.moves.xmlrpc_client
 import six
+import urllib2
 
 try:
     import json

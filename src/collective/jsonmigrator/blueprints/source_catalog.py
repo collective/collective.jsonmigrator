@@ -12,10 +12,8 @@ import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
 import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 import six
 
-try:
-    import json
-except ImportError:
-    import simplejson as json
+import json
+   
 
 
 @provider(ISectionBlueprint)

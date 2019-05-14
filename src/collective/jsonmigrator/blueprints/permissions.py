@@ -15,8 +15,6 @@ from zope.interface import implementer
 @implementer(ISection)
 class Permissions(object):
 
-    """ """
-
     def __init__(self, transmogrifier, name, options, previous):
         self.transmogrifier = transmogrifier
         self.name = name
