@@ -30,7 +30,7 @@
       name="collective-jsonmigrator-configurations"
       />
 
-<!--  <transmogrifier:registerConfig
+  <transmogrifier:registerConfig
       name="collective.jsonmigrator.plone25"
       title="Migration configuration for Plone 2.5 content types"
       configuration="pipelines/plone25.cfg"
@@ -40,19 +40,6 @@
       name="collective.jsonmigrator.catalog"
       title="Migration configuration for querying the catalog of a Plone site"
       configuration="pipelines/catalog.cfg"
-      /> -->
-
-  <transmogrifier:registerConfig
-      name="collective_jsonmigrator_plone25"
-      title="Migration configuration for Plone 2.5 content types"
-      configuration="pipelines/plone25.cfg"
       />
-
-  <transmogrifier:registerConfig
-      name="collective_jsonmigrator_catalog"
-      title="Migration configuration for querying the catalog of a Plone site"
-      configuration="pipelines/catalog.cfg"
-      />
-
 
 </configure>
