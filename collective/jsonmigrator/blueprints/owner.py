@@ -5,7 +5,6 @@ from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import defaultKeys
 from collective.transmogrifier.utils import Matcher
 from collective.transmogrifier.utils import traverse
-from Products.Archetypes.interfaces import IBaseObject
 from Products.CMFCore.utils import getToolByName
 from zope.interface import provider
 from zope.interface import implementer
@@ -48,19 +47,16 @@ class Owner(object):
                 yield item
                 continue
 
-            if item[ownerkey] is None or len(item[ownerkey]) != 2:
+            if item[ownerkey] is None:
                 # owner is None or something else went wrong
                 yield item
                 continue
 
-            path = safe_unicode(item[pathkey].lstrip('/')).encode('ascii')
+            path = safe_unicode(item[pathkey].lstrip('/'))
             obj = traverse(self.context, path, None)
 
             if obj is None:
                 yield item
-                continue
-
-            if not IBaseObject.providedBy(obj):
                 continue
 
             if item[ownerkey][0] and item[ownerkey][1]:

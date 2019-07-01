@@ -26,12 +26,10 @@
       name="collective.jsonmigrator.order"
       />
 
-  <!--  AT dependency 
   <utility
       component=".owner.Owner"
       name="collective.jsonmigrator.owner"
       />
-  -->
 
   <utility
       component=".partialcommit.PartialCommit"
