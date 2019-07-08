@@ -9,13 +9,14 @@ from Products.CMFCore.utils import getToolByName
 from zope.interface import provider
 from zope.interface import implementer
 
+import six
+
 
 @provider(ISectionBlueprint)
 @implementer(ISection)
 class Owner(object):
 
     """ """
-
 
     def __init__(self, transmogrifier, name, options, previous):
         self.transmogrifier = transmogrifier
@@ -53,6 +54,8 @@ class Owner(object):
                 continue
 
             path = safe_unicode(item[pathkey].lstrip('/'))
+            if six.PY2 and isinstance(path, six.text_type):
+                path = path.encode('ascii')
             obj = traverse(self.context, path, None)
 
             if obj is None:
