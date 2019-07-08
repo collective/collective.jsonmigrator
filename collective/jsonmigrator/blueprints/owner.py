@@ -47,7 +47,7 @@ class Owner(object):
                 yield item
                 continue
 
-            if item[ownerkey] is None:
+            if item[ownerkey] is None or len(item[ownerkey]) != 2:
                 # owner is None or something else went wrong
                 yield item
                 continue
