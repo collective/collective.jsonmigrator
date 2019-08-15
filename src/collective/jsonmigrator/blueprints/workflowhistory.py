@@ -48,14 +48,12 @@ class WorkflowHistory(object):
                 continue
 
             # traverse() available in version 1.5+ of collective.transmogrifier
-            path = safe_unicode(item[pathkey].lstrip('/')).encode('ascii')
+            path = safe_unicode(item[pathkey].lstrip('/'))
             obj = traverse(self.context, path, None)
 
             if obj is None or not getattr(obj, 'workflow_history', False):
                 yield item
                 continue
-
-            item_tmp = item
 
             # get back datetime stamp and set the workflow history
             for workflow in item_tmp[workflowhistorykey]:

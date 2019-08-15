@@ -73,11 +73,9 @@
       name="collective.jsonmigrator.statistics"
       />
 
-  <!--
   <utility
       component=".workflowhistory.WorkflowHistory"
       name="collective.jsonmigrator.workflowhistory"
       />
-  -->
   
 </configure>
