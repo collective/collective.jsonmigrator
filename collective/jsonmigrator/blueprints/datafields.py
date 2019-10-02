@@ -61,9 +61,10 @@ class DataFields(object):
                     field_value = field.get(obj)
                     if not hasattr(field_value, 'data') or (
                             value != field_value.data):
-                        field.set(obj, value)
-                        obj.setFilename(item[key]['filename'], fieldname)
-                        obj.setContentType(
-                            item[key]['content_type'], fieldname)
-
+                        kwargs = dict()
+                        if item[key]['filename']:
+                            kwargs['filename'] = item[key]['filename']
+                        if item[key]['content_type']:
+                            kwargs['mimetype'] = item[key]['content_type']
+                        field.set(obj, value, **kwargs)
             yield item
