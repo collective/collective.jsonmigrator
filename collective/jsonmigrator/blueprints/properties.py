@@ -48,7 +48,7 @@ class Properties(object):
                 yield item
                 continue
 
-            path = safe_unicode(item[pathkey].lstrip('/')).encode('ascii')
+            path = item[pathkey].lstrip('/')
             obj = traverse(self.context, path, None)
 
             if obj is None:
