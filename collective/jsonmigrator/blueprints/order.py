@@ -5,7 +5,9 @@ from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
 from collective.transmogrifier.utils import traverse
-from zope.app.container.contained import notifyContainerModified, implements
+from zope.app.container.contained import notifyContainerModified
+from zope.interface import provider
+from zope.interface import implementer
 
 
 @provider(ISectionBlueprint)
