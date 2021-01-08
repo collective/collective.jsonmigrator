@@ -6,10 +6,14 @@ from collective.transmogrifier.utils import defaultKeys
 from collective.transmogrifier.utils import Matcher
 from collective.transmogrifier.utils import traverse
 from DateTime import DateTime
-from Products.Archetypes.interfaces import IBaseObject
 from Products.CMFCore.utils import getToolByName
 from zope.interface import provider
 from zope.interface import implementer
+
+try:
+    from Products.Archetypes.interfaces import IBaseObject
+except ImportError:
+    IBaseObject = None
 
 try:
     from plone.dexterity.interfaces import IDexterityContent
@@ -63,7 +67,7 @@ class WorkflowHistory(object):
                 yield item
                 continue
 
-            if (IBaseObject.providedBy(obj) or
+            if ((IBaseObject and IBaseObject.providedBy(obj)) or
                 (dexterity_available and IDexterityContent.providedBy(obj))):
                 item_tmp = item
 
