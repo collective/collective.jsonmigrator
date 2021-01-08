@@ -4,7 +4,8 @@ Changelog
 1.0.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Python 3 compatibility 
+  [ksuess]
 
 
 1.0.1 (2018-06-11)
