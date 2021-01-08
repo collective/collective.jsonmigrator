@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 from collective.jsonmigrator import logger
 from collective.transmogrifier.interfaces import ISection
-from collective.transmogrifier.interfaces import ISectionBlueprint
-from zope.interface import classProvides, implements
+from collective.transmogrifier.interfaces import ISectionBlueprint, implements
 
 import base64
 import threading
 import time
-import urllib
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six
 
 try:
     import json
@@ -16,13 +16,13 @@ except ImportError:
     import simplejson as json
 
 
+@provider(ISectionBlueprint)
+@implementer(ISection)
 class CatalogSourceSection(object):
 
     """A source section which creates items from a remote Plone site by
        querying it's catalog.
     """
-    classProvides(ISectionBlueprint)
-    implements(ISection)
 
     def __init__(self, transmogrifier, name, options, previous):
         self.previous = previous
@@ -46,23 +46,23 @@ class CatalogSourceSection(object):
         self.queue_length = int(self.get_option('queue-size', '10'))
 
         # Install a basic auth handler
-        auth_handler = urllib2.HTTPBasicAuthHandler()
+        auth_handler = six.moves.urllib.request.HTTPBasicAuthHandler()
         auth_handler.add_password(realm='Zope',
                                   uri=self.remote_url,
                                   user=remote_username,
                                   passwd=remote_password)
-        opener = urllib2.build_opener(auth_handler)
-        urllib2.install_opener(opener)
+        opener = six.moves.urllib.request.build_opener(auth_handler)
+        six.moves.urllib.request.install_opener(opener)
 
-        req = urllib2.Request(
+        req = six.moves.urllib.request.Request(
             '%s%s/get_catalog_results' %
-            (self.remote_url, catalog_path), urllib.urlencode(
+            (self.remote_url, catalog_path), six.moves.urllib.parse.urlencode(
                 {
                     'catalog_query': catalog_query}))
         try:
-            f = urllib2.urlopen(req)
+            f = six.moves.urllib.request.urlopen(req)
             resp = f.read()
-        except urllib2.URLError:
+        except six.moves.urllib.error.URLError:
             raise
 
         self.item_paths = sorted(json.loads(resp))
@@ -77,7 +77,7 @@ class CatalogSourceSection(object):
                                      self.options.get(name, default))
         else:
             value = self.options.get(name, default)
-        if isinstance(value, unicode):
+        if isinstance(value, six.text_type):
             value = value.encode('utf8')
         return value
 
@@ -137,11 +137,11 @@ class QueuedItemLoader(threading.Thread):
         return False
 
     def _load_path(self, path):
-        item_url = '%s%s/get_item' % (self.remote_url, urllib.quote(path))
+        item_url = '%s%s/get_item' % (self.remote_url, six.moves.urllib.parse.quote(path))
         try:
-            f = urllib2.urlopen(item_url)
+            f = six.moves.urllib.request.urlopen(item_url)
             item_json = f.read()
-        except urllib2.URLError as e:
+        except six.moves.urllib.error.URLError as e:
             logger.error(
                 "Failed reading item from %s. %s" %
                 (item_url, str(e)))

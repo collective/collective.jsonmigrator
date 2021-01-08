@@ -22,7 +22,8 @@ from zope.schema.interfaces import IFromUnicode, IList
 from zope.schema.vocabulary import SimpleVocabulary
 from plone.z3cform.layout import wrap_form
 
-import urllib
+import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
+import six
 
 
 SOURCE_SECTIONS = ['collective.jsonmigrator.remotesource',
@@ -158,7 +159,7 @@ class JSONMigratorRun(form.Form):
     @button.buttonAndHandler(u'Back')
     def handleBack(self, action):
         data, errors = self.extractData()
-        params = urllib.urlencode({'form.widgets.config': data.get('config')})
+        params = six.moves.urllib.parse.urlencode({'form.widgets.config': data.get('config')})
         self.request.RESPONSE.redirect('/'.join((
             self.context.absolute_url(),
             '@@jsonmigrator',
@@ -172,9 +173,9 @@ class JSONMigratorRun(form.Form):
             'Migrated: %s' % data['config'], type='info')
 
     def _redirect(self, viewname, config_id):
-        if isinstance(config_id, unicode):
+        if isinstance(config_id, six.text_type):
             config_id = config_id.encode('utf-8')
-        params = urllib.urlencode({'form.widgets.config': config_id})
+        params = six.moves.urllib.parse.urlencode({'form.widgets.config': config_id})
         return self.request.RESPONSE.redirect('/'.join((
             self.context.absolute_url(),
             viewname,
@@ -222,7 +223,7 @@ class JSONMigrator(form.Form):
             return False
         self.request.RESPONSE.redirect(
             '%s/@@jsonmigrator-run?form.widgets.%s' %
-            (self.context.absolute_url(), urllib.urlencode(data)))
+            (self.context.absolute_url(), six.moves.urllib.parse.urlencode(data)))
 
 
 JSONMigratorConfigurationsFactory = JSONMigratorConfigurations()

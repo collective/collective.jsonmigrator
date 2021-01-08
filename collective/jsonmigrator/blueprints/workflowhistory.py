@@ -8,8 +8,8 @@ from collective.transmogrifier.utils import traverse
 from DateTime import DateTime
 from Products.Archetypes.interfaces import IBaseObject
 from Products.CMFCore.utils import getToolByName
-from zope.interface import classProvides
-from zope.interface import implements
+from zope.interface import provider
+from zope.interface import implementer
 
 try:
     from plone.dexterity.interfaces import IDexterityContent
@@ -18,13 +18,9 @@ except:
     dexterity_available = False
 
 
+@provider(ISectionBlueprint)
+@implementer(ISection)
 class WorkflowHistory(object):
-
-    """
-    """
-
-    classProvides(ISectionBlueprint)
-    implements(ISection)
 
     def __init__(self, transmogrifier, name, options, previous):
         self.transmogrifier = transmogrifier
@@ -51,8 +47,8 @@ class WorkflowHistory(object):
 
     def __iter__(self):
         for item in self.previous:
-            pathkey = self.pathkey(*item.keys())[0]
-            workflowhistorykey = self.workflowhistorykey(*item.keys())[0]
+            pathkey = self.pathkey(*list(item.keys()))[0]
+            workflowhistorykey = self.workflowhistorykey(*list(item.keys()))[0]
 
             if not pathkey or not workflowhistorykey or \
                workflowhistorykey not in item:  # not enough info

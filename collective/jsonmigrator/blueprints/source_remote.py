@@ -4,17 +4,18 @@ from collective.jsonmigrator import logger
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import resolvePackageReferenceOrFile
-from zope.interface import classProvides
-from zope.interface import implements
+from zope.interface import provider
+from zope.interface import implementer
 
-import httplib
+import six.moves.http_client
 import os.path
 import pickle
 import string
-import urllib
-import urllib2
-import urlparse
-import xmlrpclib
+import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
+import six.moves.urllib.parse
+import six.moves.xmlrpc_client
+import six
 
 try:
     import json
@@ -37,7 +38,7 @@ def memoize(func):
         if cache is _marker:
             setattr(inst, MEMOIZE_PROPNAME, dict())
             cache = getattr(inst, MEMOIZE_PROPNAME)
-        key = (func.__name__, args[1:], frozenset(kwargs.items()))
+        key = (func.__name__, args[1:], frozenset(list(kwargs.items())))
         val = cache.get(key, _marker)
         if val is _marker:
             val = func(*args, **kwargs)
@@ -47,7 +48,7 @@ def memoize(func):
     return memogetter
 
 
-class BasicAuth(xmlrpclib.Transport):
+class BasicAuth(six.moves.xmlrpc_client.Transport):
 
     def __init__(self, username=None, password=None, verbose=False):
         self.username = username
@@ -56,7 +57,7 @@ class BasicAuth(xmlrpclib.Transport):
         self._use_datetime = True
 
     def request(self, host, handler, request_body, verbose):
-        h = httplib.HTTP(host)
+        h = six.moves.http_client.HTTP(host)
 
         h.putrequest("POST", handler)
         h.putheader("Host", host)
@@ -76,7 +77,7 @@ class BasicAuth(xmlrpclib.Transport):
         errcode, errmsg, headers = h.getreply()
 
         if errcode != 200:
-            raise xmlrpclib.ProtocolError(
+            raise six.moves.xmlrpc_client.ProtocolError(
                 host + handler,
                 errcode, errmsg,
                 headers
@@ -107,16 +108,16 @@ class Urllibrpc(object):
 
     def __getattr__(self, item):
         def callable():
-            scheme, netloc, path, params, query, fragment = urlparse.urlparse(
+            scheme, netloc, path, params, query, fragment = six.moves.urllib.parse.urlparse(
                 self.url)
             if '@' not in netloc:
                 netloc = '%s:%s@%s' % (self.username, self.password, netloc)
             if path.endswith("/"):
                 path = path[:-1]
             path = path + '/' + item
-            url = urlparse.urlunparse(
+            url = six.moves.urllib.parse.urlunparse(
                 (scheme, netloc, path, params, query, fragment))
-            f = urllib.urlopen(url)
+            f = six.moves.urllib.request.urlopen(url)
             content = f.read()
             if f.getcode() != 200:
                 raise UrllibrpcException(f.getcode(), f.geturl())
@@ -125,6 +126,8 @@ class Urllibrpc(object):
         return callable
 
 
+@provider(ISectionBlueprint)
+@implementer(ISection)
 class RemoteSource(object):
 
     """ """
@@ -139,9 +142,6 @@ class RemoteSource(object):
         ('remote-skip-path', ''),
     ]
 
-    classProvides(ISectionBlueprint)
-    implements(ISection)
-
     def __init__(self, transmogrifier, name, options, previous):
         self.name, self.options, self.previous = name, options, previous
         self.transmogrifier = transmogrifier
@@ -149,9 +149,9 @@ class RemoteSource(object):
         for option, default in self._options:
             setattr(self, option.replace('-', '_'),
                     self.get_option(option, default))
-        if type(self.remote_crawl_depth) in [str, unicode]:
+        if type(self.remote_crawl_depth) in [str, six.text_type]:
             self.remote_crawl_depth = int(self.remote_crawl_depth)
-        if type(self.remote_skip_path) in [str, unicode]:
+        if type(self.remote_skip_path) in [str, six.text_type]:
             self.remote_skip_path = self.remote_skip_path.split()
         if self.remote_path[-1] == '/':
             self.remote_path = self.remote_path[:-1]
@@ -177,7 +177,7 @@ class RemoteSource(object):
             remote_url += '/'
         if path.startswith('/'):
             path = path[1:]
-        url = urllib2.urlparse.urljoin(remote_url, urllib.quote(path))
+        url = urllib2.urlparse.urljoin(remote_url, six.moves.urllib.parse.quote(path))
         # remote = xmlrpclib.Server(
         #         url,
         #         BasicAuth(self.remote_username, self.remote_password),
@@ -230,7 +230,7 @@ class RemoteSource(object):
             # item['_path'] is relative to domain root. we need relative to
             # plone root
             remote_url = self.remote_url
-            _, _, remote_path, _, _, _ = urlparse.urlparse(remote_url)
+            _, _, remote_path, _, _, _ = six.moves.urllib.parse.urlparse(remote_url)
             item['_path'] = item['_path'][len(remote_path):]
             if item['_path'].startswith('/'):
                 item['_path'] = item['_path'][1:]
