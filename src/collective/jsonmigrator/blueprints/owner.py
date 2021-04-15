@@ -56,7 +56,7 @@ class Owner(object):
                 yield item
                 continue
 
-            if IOwned.providedBy(obj):
+            if not IOwned.providedBy(obj):
                 continue
 
             if item[ownerkey][0] and item[ownerkey][1]:
