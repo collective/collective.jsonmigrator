@@ -4,18 +4,21 @@ from collective.jsonmigrator import logger
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import resolvePackageReferenceOrFile
-from zope.interface import provider
+from urllib.parse import urljoin
 from zope.interface import implementer
+from zope.interface import provider
 
+import base64
 import http.client
 import os.path
 import pickle
 import string
-import urllib.request, urllib.parse, urllib.error
-import urllib.request, urllib.error, urllib.parse
+import urllib
+import urllib.error
 import urllib.parse
+import urllib.request
 import xmlrpc.client
-from urllib.parse import urljoin
+
 
 try:
     import json
@@ -110,14 +113,25 @@ class Urllibrpc(object):
         def callable():
             scheme, netloc, path, params, query, fragment = urllib.parse.urlparse(
                 self.url)
-            if '@' not in netloc:
-                netloc = '%s:%s@%s' % (self.username, self.password, netloc)
+            #if '@' not in netloc:
+            #    netloc = '%s:%s@%s' % (self.username, self.password, netloc)
             if path.endswith("/"):
                 path = path[:-1]
             path = path + '/' + item
             url = urllib.parse.urlunparse(
                 (scheme, netloc, path, params, query, fragment))
-            f = urllib.request.urlopen(url)
+            try:
+                req = urllib.request.Request(url)
+
+                credentials = ('%s:%s' % (self.username, self.password))
+                encoded_credentials = base64.b64encode(credentials.encode('ascii'))
+                req.add_header('Authorization', 'Basic %s' % encoded_credentials.decode("ascii"))
+
+                f = urllib.request.urlopen(url)
+            except urllib.error.URLError as e:
+                print(url)
+                import pdb;pdb.set_trace()
+                raise e
             content = f.read()
             if f.getcode() != 200:
                 raise UrllibrpcException(f.getcode(), f.geturl())
@@ -215,7 +229,7 @@ class RemoteSource(object):
                 logger.warn(':: Skipping -> %s. No remote data.' % path)
                 return
 
-            if item.startswith('ERROR'):
+            if item.startswith(b'ERROR'):
                 logger.error(
                     "Could not get item '%s' from remote. Got %s." %
                     (path, item))
@@ -242,7 +256,7 @@ class RemoteSource(object):
             else:
                 yield item
 
-            if subitems.startswith('ERROR'):
+            if subitems.startswith(b'ERROR'):
                 logger.error(
                     "Could not get subitems for '%s'. Got %s." %
                     (path, subitems))
