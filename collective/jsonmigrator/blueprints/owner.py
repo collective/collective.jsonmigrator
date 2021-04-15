@@ -5,7 +5,7 @@ from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import defaultKeys
 from collective.transmogrifier.utils import Matcher
 from collective.transmogrifier.utils import traverse
-from Products.Archetypes.interfaces import IBaseObject
+# from Products.Archetypes.interfaces import IBaseObject
 from Products.CMFCore.utils import getToolByName
 from zope.interface import provider
 from zope.interface import implementer
@@ -16,7 +16,6 @@ from zope.interface import implementer
 class Owner(object):
 
     """ """
-
 
     def __init__(self, transmogrifier, name, options, previous):
         self.transmogrifier = transmogrifier
@@ -59,6 +58,10 @@ class Owner(object):
             if obj is None:
                 yield item
                 continue
+
+            # So there's no archetypes, so there will be no more
+            # code execution after this point, so why not just
+            continue
 
             if not IBaseObject.providedBy(obj):
                 continue

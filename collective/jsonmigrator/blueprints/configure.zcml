@@ -2,12 +2,10 @@
     xmlns="http://namespaces.zope.org/zope"
     i18n_domain="collective.jsonmigrator">
 
-  <!--  AT dependency 
   <utility
       component=".datafields.DataFields"
       name="collective.jsonmigrator.datafields"
       />
-  -->
 
   <utility
       component=".local_roles.LocalRoles"
@@ -26,12 +24,10 @@
       name="collective.jsonmigrator.order"
       />
 
-  <!--  AT dependency 
   <utility
       component=".owner.Owner"
       name="collective.jsonmigrator.owner"
       />
-  -->
 
   <utility
       component=".partialcommit.PartialCommit"

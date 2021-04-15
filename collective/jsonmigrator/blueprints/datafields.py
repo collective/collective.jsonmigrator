@@ -8,10 +8,7 @@ from zope.interface import implementer
 
 import base64
 
-try:
-    from Products.Archetypes.interfaces import IBaseObject
-except ImportError:
-    IBaseObject = None
+IBaseObject = None
 
 
 @provider(ISectionBlueprint)
