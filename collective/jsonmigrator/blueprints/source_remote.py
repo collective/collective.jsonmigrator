@@ -15,6 +15,7 @@ import urllib.request, urllib.parse, urllib.error
 import urllib.request, urllib.error, urllib.parse
 import urllib.parse
 import xmlrpc.client
+from urllib.parse import urljoin
 
 try:
     import json
@@ -177,7 +178,8 @@ class RemoteSource(object):
             remote_url += '/'
         if path.startswith('/'):
             path = path[1:]
-        url = urllib2.urlparse.urljoin(remote_url, urllib.parse.quote(path))
+        url = urljoin(remote_url, urllib.parse.quote(path))
+        #url = urllib2.urlparse.urljoin(remote_url, urllib.parse.quote(path))
         # remote = xmlrpclib.Server(
         #         url,
         #         BasicAuth(self.remote_username, self.remote_password),
