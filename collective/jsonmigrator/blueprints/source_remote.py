@@ -13,6 +13,7 @@ import http.client
 import os.path
 import pickle
 import string
+import time
 import urllib
 import urllib.error
 import urllib.parse
@@ -29,6 +30,8 @@ except ImportError:
 
 _marker = object()
 MEMOIZE_PROPNAME = '_memojito_'
+MAX_TRIES = 10
+TRIES = 0
 
 
 def memoize(func):
@@ -120,18 +123,25 @@ class Urllibrpc(object):
             path = path + '/' + item
             url = urllib.parse.urlunparse(
                 (scheme, netloc, path, params, query, fragment))
-            try:
-                req = urllib.request.Request(url)
-
-                credentials = ('%s:%s' % (self.username, self.password))
-                encoded_credentials = base64.b64encode(credentials.encode('ascii'))
-                req.add_header('Authorization', 'Basic %s' % encoded_credentials.decode("ascii"))
-
-                f = urllib.request.urlopen(url)
-            except urllib.error.URLError as e:
-                print(url)
-                import pdb;pdb.set_trace()
-                raise e
+            done = False
+            while not done:
+                try:
+                    req = urllib.request.Request(url)
+                    credentials = ('%s:%s' % (self.username, self.password))
+                    encoded_credentials = base64.b64encode(credentials.encode('ascii'))
+                    req.add_header('Authorization', 'Basic %s' % encoded_credentials.decode("ascii"))
+                    f = urllib.request.urlopen(url)
+                    done = True
+                except Exception as e:
+                    logger.info(f"Exception {e} at {url}")
+                    print()
+                    TRIES += 1
+                    if TRIES > MAX_TRIES:
+                        raise e
+                    else:
+                        logger.info("Sleeping...")
+                        time.sleep(10.0)
+                        logger.info("Trying again.")
             content = f.read()
             if f.getcode() != 200:
                 raise UrllibrpcException(f.getcode(), f.geturl())
