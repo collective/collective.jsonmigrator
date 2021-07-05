@@ -31,7 +31,6 @@ except ImportError:
 _marker = object()
 MEMOIZE_PROPNAME = '_memojito_'
 MAX_TRIES = 10
-TRIES = 0
 
 
 def memoize(func):
@@ -124,6 +123,7 @@ class Urllibrpc(object):
             url = urllib.parse.urlunparse(
                 (scheme, netloc, path, params, query, fragment))
             done = False
+            TRIES = 0
             while not done:
                 try:
                     req = urllib.request.Request(url)
