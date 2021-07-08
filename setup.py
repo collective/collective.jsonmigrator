@@ -24,10 +24,10 @@ setup(
         "Framework :: Plone",
         "Framework :: Plone :: Addon",
         "Framework :: Plone :: 4.3",
-        "Intended Audience :: System Administrators",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2.7",
         "Operating System :: OS Independent",
+        "Intended Audience :: System Administrators",
         "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
@@ -56,6 +56,7 @@ setup(
     ],
     extras_require={
         'test': [
+            'plone.api',
             'plone.app.testing',
         ],
     },
