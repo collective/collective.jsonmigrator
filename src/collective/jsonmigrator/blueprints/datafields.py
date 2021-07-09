@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
+from collective.transmogrifier.interfaces import ISection
+from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import traverse
 from Products.CMFPlone.utils import safe_unicode
-from zope.interface import implementer, provider
+from zope.interface import implementer
+from zope.interface import provider
 
 import base64
 

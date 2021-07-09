@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 from base64 import encodestring
 from collective.jsonmigrator import logger
-from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
+from collective.transmogrifier.interfaces import ISection
+from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import resolvePackageReferenceOrFile
-from zope.interface import implementer, provider
+from zope.interface import implementer
+from zope.interface import provider
 
 import os.path
 import pickle

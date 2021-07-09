@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 from Acquisition import aq_base
-from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
-from collective.transmogrifier.utils import defaultKeys, Matcher, traverse
+from collective.transmogrifier.interfaces import ISection
+from collective.transmogrifier.interfaces import ISectionBlueprint
+from collective.transmogrifier.utils import defaultKeys
+from collective.transmogrifier.utils import Matcher
+from collective.transmogrifier.utils import traverse
 from Products.CMFPlone.utils import safe_unicode
 from ZODB.POSException import ConflictError
-from zope.interface import implementer, provider
+from zope.interface import implementer
+from zope.interface import provider
 
 
 @provider(ISectionBlueprint)

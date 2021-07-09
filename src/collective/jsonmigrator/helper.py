@@ -1,17 +1,25 @@
 # -*- coding: utf-8 -*-
 from collective.jsonmigrator import logger
 from collective.jsonmigrator import msgFact as _
-from collective.transmogrifier.transmogrifier import (
-    _load_config,
-    configuration_registry,
-    Transmogrifier,
-)
+from collective.transmogrifier.transmogrifier import _load_config
+from collective.transmogrifier.transmogrifier import configuration_registry
+from collective.transmogrifier.transmogrifier import Transmogrifier
 from plone.z3cform.layout import wrap_form
 from Products.statusmessages.interfaces import IStatusMessage
-from z3c.form import button, field, form, interfaces
+from z3c.form import button
+from z3c.form import field
+from z3c.form import form
+from z3c.form import interfaces
 from zope.interface import Interface
-from zope.schema import ASCIILine, Choice, Int, List, Text, TextLine, URI
-from zope.schema.interfaces import IFromUnicode, IList
+from zope.schema import ASCIILine
+from zope.schema import Choice
+from zope.schema import Int
+from zope.schema import List
+from zope.schema import Text
+from zope.schema import TextLine
+from zope.schema import URI
+from zope.schema.interfaces import IFromUnicode
+from zope.schema.interfaces import IList
 from zope.schema.vocabulary import SimpleVocabulary
 
 import six

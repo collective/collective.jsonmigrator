@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
-from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
-from collective.transmogrifier.utils import defaultKeys, Matcher, traverse
+from collective.transmogrifier.interfaces import ISection
+from collective.transmogrifier.interfaces import ISectionBlueprint
+from collective.transmogrifier.utils import defaultKeys
+from collective.transmogrifier.utils import Matcher
+from collective.transmogrifier.utils import traverse
 from DateTime import DateTime
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
-from zope.interface import implementer, provider
+from zope.interface import implementer
+from zope.interface import provider
 
 
 try:
