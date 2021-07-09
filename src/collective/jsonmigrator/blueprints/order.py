@@ -3,7 +3,7 @@ from Acquisition import aq_base
 from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher, traverse
 from Products.CMFPlone.utils import safe_unicode
-from zope.app.container.contained import notifyContainerModified
+from zope.container.contained import notifyContainerModified
 from zope.interface import implementer, provider
 
 

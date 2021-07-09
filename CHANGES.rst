@@ -4,6 +4,10 @@ Changelog
 1.0.2 (unreleased)
 ------------------
 
+- No longer depend on zope.app.container.notifyContainerModified.
+  Use from zope.container.contained import notifyContainerModified instead.
+  [mathias.leimgruber]
+
 - Python 3 compatibility 
   [ksuess]
 

@@ -53,7 +53,6 @@ setup(
         "collective.transmogrifier",
         "plone.app.transmogrifier",
         "setuptools",
-        "zope.app.container",
     ],
     extras_require={
         "test": [
