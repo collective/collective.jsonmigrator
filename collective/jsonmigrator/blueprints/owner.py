@@ -5,18 +5,17 @@ from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import defaultKeys
 from collective.transmogrifier.utils import Matcher
 from collective.transmogrifier.utils import traverse
-from Products.Archetypes.interfaces import IBaseObject
+# from Products.Archetypes.interfaces import IBaseObject
 from Products.CMFCore.utils import getToolByName
-from zope.interface import classProvides
-from zope.interface import implements
+from zope.interface import provider
+from zope.interface import implementer
 
 
+@provider(ISectionBlueprint)
+@implementer(ISection)
 class Owner(object):
 
     """ """
-
-    classProvides(ISectionBlueprint)
-    implements(ISection)
 
     def __init__(self, transmogrifier, name, options, previous):
         self.transmogrifier = transmogrifier
@@ -40,8 +39,8 @@ class Owner(object):
 
     def __iter__(self):
         for item in self.previous:
-            pathkey = self.pathkey(*item.keys())[0]
-            ownerkey = self.ownerkey(*item.keys())[0]
+            pathkey = self.pathkey(*list(item.keys()))[0]
+            ownerkey = self.ownerkey(*list(item.keys()))[0]
 
             if not pathkey or not ownerkey or \
                ownerkey not in item:    # not enough info
@@ -59,6 +58,10 @@ class Owner(object):
             if obj is None:
                 yield item
                 continue
+
+            # So there's no archetypes, so there will be no more
+            # code execution after this point, so why not just
+            continue
 
             if not IBaseObject.providedBy(obj):
                 continue

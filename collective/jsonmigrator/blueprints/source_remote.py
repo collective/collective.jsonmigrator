@@ -1,20 +1,25 @@
 # -*- coding: utf-8 -*-
-from base64 import encodestring
+from base64 import encodebytes
 from collective.jsonmigrator import logger
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import resolvePackageReferenceOrFile
-from zope.interface import classProvides
-from zope.interface import implements
+from urllib.parse import urljoin
+from zope.interface import implementer
+from zope.interface import provider
 
-import httplib
+import base64
+import http.client
 import os.path
 import pickle
 import string
+import time
 import urllib
-import urllib2
-import urlparse
-import xmlrpclib
+import urllib.error
+import urllib.parse
+import urllib.request
+import xmlrpc.client
+
 
 try:
     import json
@@ -25,6 +30,7 @@ except ImportError:
 
 _marker = object()
 MEMOIZE_PROPNAME = '_memojito_'
+MAX_TRIES = 10
 
 
 def memoize(func):
@@ -37,7 +43,7 @@ def memoize(func):
         if cache is _marker:
             setattr(inst, MEMOIZE_PROPNAME, dict())
             cache = getattr(inst, MEMOIZE_PROPNAME)
-        key = (func.__name__, args[1:], frozenset(kwargs.items()))
+        key = (func.__name__, args[1:], frozenset(list(kwargs.items())))
         val = cache.get(key, _marker)
         if val is _marker:
             val = func(*args, **kwargs)
@@ -47,7 +53,7 @@ def memoize(func):
     return memogetter
 
 
-class BasicAuth(xmlrpclib.Transport):
+class BasicAuth(xmlrpc.client.Transport):
 
     def __init__(self, username=None, password=None, verbose=False):
         self.username = username
@@ -56,7 +62,7 @@ class BasicAuth(xmlrpclib.Transport):
         self._use_datetime = True
 
     def request(self, host, handler, request_body, verbose):
-        h = httplib.HTTP(host)
+        h = http.client.HTTP(host)
 
         h.putrequest("POST", handler)
         h.putheader("Host", host)
@@ -66,7 +72,7 @@ class BasicAuth(xmlrpclib.Transport):
 
         if self.username is not None and self.password is not None:
             h.putheader("AUTHORIZATION", "Basic %s" % string.replace(
-                encodestring("%s:%s" % (self.username, self.password)),
+                encodebytes("%s:%s" % (self.username, self.password)),
                 "\012", ""))
         h.endheaders()
 
@@ -76,7 +82,7 @@ class BasicAuth(xmlrpclib.Transport):
         errcode, errmsg, headers = h.getreply()
 
         if errcode != 200:
-            raise xmlrpclib.ProtocolError(
+            raise xmlrpc.client.ProtocolError(
                 host + handler,
                 errcode, errmsg,
                 headers
@@ -107,16 +113,35 @@ class Urllibrpc(object):
 
     def __getattr__(self, item):
         def callable():
-            scheme, netloc, path, params, query, fragment = urlparse.urlparse(
+            scheme, netloc, path, params, query, fragment = urllib.parse.urlparse(
                 self.url)
-            if '@' not in netloc:
-                netloc = '%s:%s@%s' % (self.username, self.password, netloc)
+            #if '@' not in netloc:
+            #    netloc = '%s:%s@%s' % (self.username, self.password, netloc)
             if path.endswith("/"):
                 path = path[:-1]
             path = path + '/' + item
-            url = urlparse.urlunparse(
+            url = urllib.parse.urlunparse(
                 (scheme, netloc, path, params, query, fragment))
-            f = urllib.urlopen(url)
+            done = False
+            TRIES = 0
+            while not done:
+                try:
+                    req = urllib.request.Request(url)
+                    credentials = ('%s:%s' % (self.username, self.password))
+                    encoded_credentials = base64.b64encode(credentials.encode('ascii'))
+                    req.add_header('Authorization', 'Basic %s' % encoded_credentials.decode("ascii"))
+                    f = urllib.request.urlopen(url)
+                    done = True
+                except Exception as e:
+                    logger.info(f"Exception {e} at {url}")
+                    print()
+                    TRIES += 1
+                    if TRIES > MAX_TRIES:
+                        raise e
+                    else:
+                        logger.info("Sleeping...")
+                        time.sleep(10.0)
+                        logger.info("Trying again.")
             content = f.read()
             if f.getcode() != 200:
                 raise UrllibrpcException(f.getcode(), f.geturl())
@@ -125,6 +150,8 @@ class Urllibrpc(object):
         return callable
 
 
+@provider(ISectionBlueprint)
+@implementer(ISection)
 class RemoteSource(object):
 
     """ """
@@ -139,8 +166,6 @@ class RemoteSource(object):
         ('remote-skip-path', ''),
     ]
 
-    classProvides(ISectionBlueprint)
-    implements(ISection)
 
     def __init__(self, transmogrifier, name, options, previous):
         self.name, self.options, self.previous = name, options, previous
@@ -149,9 +174,9 @@ class RemoteSource(object):
         for option, default in self._options:
             setattr(self, option.replace('-', '_'),
                     self.get_option(option, default))
-        if type(self.remote_crawl_depth) in [str, unicode]:
+        if type(self.remote_crawl_depth) in [str, str]:
             self.remote_crawl_depth = int(self.remote_crawl_depth)
-        if type(self.remote_skip_path) in [str, unicode]:
+        if type(self.remote_skip_path) in [str, str]:
             self.remote_skip_path = self.remote_skip_path.split()
         if self.remote_path[-1] == '/':
             self.remote_path = self.remote_path[:-1]
@@ -177,7 +202,8 @@ class RemoteSource(object):
             remote_url += '/'
         if path.startswith('/'):
             path = path[1:]
-        url = urllib2.urlparse.urljoin(remote_url, urllib.quote(path))
+        url = urljoin(remote_url, urllib.parse.quote(path))
+        #url = urllib2.urlparse.urljoin(remote_url, urllib.parse.quote(path))
         # remote = xmlrpclib.Server(
         #         url,
         #         BasicAuth(self.remote_username, self.remote_password),
@@ -213,7 +239,7 @@ class RemoteSource(object):
                 logger.warn(':: Skipping -> %s. No remote data.' % path)
                 return
 
-            if item.startswith('ERROR'):
+            if item.startswith(b'ERROR'):
                 logger.error(
                     "Could not get item '%s' from remote. Got %s." %
                     (path, item))
@@ -230,7 +256,7 @@ class RemoteSource(object):
             # item['_path'] is relative to domain root. we need relative to
             # plone root
             remote_url = self.remote_url
-            _, _, remote_path, _, _, _ = urlparse.urlparse(remote_url)
+            _, _, remote_path, _, _, _ = urllib.parse.urlparse(remote_url)
             item['_path'] = item['_path'][len(remote_path):]
             if item['_path'].startswith('/'):
                 item['_path'] = item['_path'][1:]
@@ -240,7 +266,7 @@ class RemoteSource(object):
             else:
                 yield item
 
-            if subitems.startswith('ERROR'):
+            if subitems.startswith(b'ERROR'):
                 logger.error(
                     "Could not get subitems for '%s'. Got %s." %
                     (path, subitems))

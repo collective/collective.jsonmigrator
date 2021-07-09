@@ -6,16 +6,16 @@ from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import defaultKeys
 from collective.transmogrifier.utils import Matcher
 from collective.transmogrifier.utils import traverse
-from zope.interface import classProvides
-from zope.interface import implements
+from zope.interface import provider
+from zope.interface import implementer
 
 
+@provider(ISectionBlueprint)
+@implementer(ISection)
 class LocalRoles(object):
 
     """ """
 
-    classProvides(ISectionBlueprint)
-    implements(ISection)
 
     def __init__(self, transmogrifier, name, options, previous):
         self.transmogrifier = transmogrifier
@@ -41,8 +41,8 @@ class LocalRoles(object):
 
     def __iter__(self):
         for item in self.previous:
-            pathkey = self.pathkey(*item.keys())[0]
-            roleskey = self.roleskey(*item.keys())[0]
+            pathkey = self.pathkey(*list(item.keys()))[0]
+            roleskey = self.roleskey(*list(item.keys()))[0]
 
             if not pathkey or not roleskey or \
                roleskey not in item:    # not enough info
@@ -58,7 +58,7 @@ class LocalRoles(object):
                 continue
 
             if IRoleManager.providedBy(obj):
-                for principal, roles in item[roleskey].items():
+                for principal, roles in list(item[roleskey].items()):
                     if roles:
                         obj.manage_addLocalRoles(principal, roles)
                         obj.reindexObjectSecurity()

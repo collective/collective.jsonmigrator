@@ -12,10 +12,12 @@
       name="collective.jsonmigrator.local_roles"
       />
 
+  <!--  AT dependency 
   <utility
       component=".mimetype.Mimetype"
       name="collective.jsonmigrator.mimetype"
       />
+  -->
 
   <utility
       component=".order.OrderSection"
@@ -71,5 +73,5 @@
       component=".workflowhistory.WorkflowHistory"
       name="collective.jsonmigrator.workflowhistory"
       />
-
+  
 </configure>

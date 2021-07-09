@@ -2,8 +2,8 @@
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
-from zope.interface import classProvides
-from zope.interface import implements
+from zope.interface import provider
+from zope.interface import implementer
 
 import logging
 import time
@@ -11,13 +11,13 @@ import time
 STATISTICSFIELD = '_statistics_field_prefix_'
 
 
+@provider(ISectionBlueprint)
+@implementer(ISection)
 class Statistics(object):
 
     """ This has to be placed in the pipeline just after all sources
     """
 
-    classProvides(ISectionBlueprint)
-    implements(ISection)
 
     def __init__(self, transmogrifier, name, options, previous):
         self.stats = {'START_TIME': int(time.time()),
@@ -61,7 +61,7 @@ class Statistics(object):
 
             if self.stats['OBJ_COUNT'] % self.stats['STEP'] == 0:
 
-                keys = item.keys()
+                keys = list(item.keys())
                 pathkey = self.pathkey(*keys)[0]
                 path = item.get(pathkey, 'Unknown')
                 logging.warning('Migrating now: %s' % path)

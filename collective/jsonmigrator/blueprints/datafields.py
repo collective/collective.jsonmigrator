@@ -3,24 +3,21 @@ from Products.CMFPlone.utils import safe_unicode
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import traverse
-from zope.interface import classProvides
-from zope.interface import implements
+from zope.interface import provider
+from zope.interface import implementer
 
 import base64
 
-try:
-    from Products.Archetypes.interfaces import IBaseObject
-except ImportError:
-    IBaseObject = None
+IBaseObject = None
 
 
+@provider(ISectionBlueprint)
+@implementer(ISection)
 class DataFields(object):
 
     """
     """
 
-    classProvides(ISectionBlueprint)
-    implements(ISection)
 
     def __init__(self, transmogrifier, name, options, previous):
         self.previous = previous
@@ -45,7 +42,7 @@ class DataFields(object):
                 continue
 
             if IBaseObject and IBaseObject.providedBy(obj):
-                for key in item.keys():
+                for key in list(item.keys()):
 
                     if not key.startswith(self.datafield_prefix):
                         continue
