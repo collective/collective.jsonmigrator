@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
 from Acquisition import aq_base
+from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
+from collective.transmogrifier.utils import defaultKeys, Matcher, traverse
 from Products.CMFPlone.utils import safe_unicode
-from collective.transmogrifier.interfaces import ISection
-from collective.transmogrifier.interfaces import ISectionBlueprint
-from collective.transmogrifier.utils import defaultKeys
-from collective.transmogrifier.utils import Matcher
-from collective.transmogrifier.utils import traverse
 from ZODB.POSException import ConflictError
-from zope.interface import provider
-from zope.interface import implementer
+from zope.interface import implementer, provider
 
 
 @provider(ISectionBlueprint)
@@ -24,17 +20,16 @@ class Properties(object):
         self.previous = previous
         self.context = transmogrifier.context
 
-        if 'path-key' in options:
-            pathkeys = options['path-key'].splitlines()
+        if "path-key" in options:
+            pathkeys = options["path-key"].splitlines()
         else:
-            pathkeys = defaultKeys(options['blueprint'], name, 'path')
+            pathkeys = defaultKeys(options["blueprint"], name, "path")
         self.pathkey = Matcher(*pathkeys)
 
-        if 'properties-key' in options:
-            propertieskeys = options['properties-key'].splitlines()
+        if "properties-key" in options:
+            propertieskeys = options["properties-key"].splitlines()
         else:
-            propertieskeys = defaultKeys(
-                options['blueprint'], name, 'properties')
+            propertieskeys = defaultKeys(options["blueprint"], name, "properties")
         self.propertieskey = Matcher(*propertieskeys)
 
     def __iter__(self):
@@ -42,13 +37,12 @@ class Properties(object):
             pathkey = self.pathkey(*list(item.keys()))[0]
             propertieskey = self.propertieskey(*list(item.keys()))[0]
 
-            if not pathkey or not propertieskey or \
-               propertieskey not in item:
+            if not pathkey or not propertieskey or propertieskey not in item:
                 # not enough info
                 yield item
                 continue
 
-            path = safe_unicode(item[pathkey].lstrip('/')).encode('ascii')
+            path = safe_unicode(item[pathkey].lstrip("/")).encode("ascii")
             obj = traverse(self.context, path, None)
 
             if obj is None:
@@ -56,7 +50,7 @@ class Properties(object):
                 yield item
                 continue
 
-            if not getattr(aq_base(obj), '_setProperty', False):
+            if not getattr(aq_base(obj), "_setProperty", False):
                 yield item
                 continue
 
@@ -65,8 +59,8 @@ class Properties(object):
                     # if object have a attribute equal to property, do nothing
                     continue
 
-                if ptype == 'string':
-                    pvalue = safe_unicode(pvalue).encode('utf-8')
+                if ptype == "string":
+                    pvalue = safe_unicode(pvalue).encode("utf-8")
                 try:
                     if obj.hasProperty(pid):
                         obj._updateProperty(pid, pvalue)
@@ -75,8 +69,10 @@ class Properties(object):
                 except ConflictError:
                     raise
                 except Exception as e:
-                    raise Exception('Failed to set property "%s" type "%s"'
-                                    ' to "%s" at object %s. ERROR: %s' %
-                                    (pid, ptype, pvalue, str(obj), str(e)))
+                    raise Exception(
+                        'Failed to set property "%s" type "%s"'
+                        ' to "%s" at object %s. ERROR: %s'
+                        % (pid, ptype, pvalue, str(obj), str(e))
+                    )
 
             yield item

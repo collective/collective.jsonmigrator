@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
+from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
+from collective.transmogrifier.utils import defaultKeys, Matcher, traverse
 from Products.CMFPlone.utils import safe_unicode
-from collective.transmogrifier.interfaces import ISection
-from collective.transmogrifier.interfaces import ISectionBlueprint
-from collective.transmogrifier.utils import defaultKeys
-from collective.transmogrifier.utils import Matcher
-from collective.transmogrifier.utils import traverse
-from zope.interface import provider
-from zope.interface import implementer
+from zope.interface import implementer, provider
+
 
 try:
     from Products.Archetypes.interfaces import IBaseObject
@@ -17,7 +14,6 @@ except ImportError:
 @provider(ISectionBlueprint)
 @implementer(ISection)
 class Mimetype(object):
-
     def __init__(self, transmogrifier, name, options, previous):
         self.transmogrifier = transmogrifier
         self.name = name
@@ -25,17 +21,16 @@ class Mimetype(object):
         self.previous = previous
         self.context = transmogrifier.context
 
-        if 'path-key' in options:
-            pathkeys = options['path-key'].splitlines()
+        if "path-key" in options:
+            pathkeys = options["path-key"].splitlines()
         else:
-            pathkeys = defaultKeys(options['blueprint'], name, 'path')
+            pathkeys = defaultKeys(options["blueprint"], name, "path")
         self.pathkey = Matcher(*pathkeys)
 
-        if 'mimetype-key' in options:
-            mimetypekeys = options['mimetype-key'].splitlines()
+        if "mimetype-key" in options:
+            mimetypekeys = options["mimetype-key"].splitlines()
         else:
-            mimetypekeys = defaultKeys(
-                options['blueprint'], name, 'format')
+            mimetypekeys = defaultKeys(options["blueprint"], name, "format")
         self.mimetypekey = Matcher(*mimetypekeys)
 
     def __iter__(self):
@@ -43,13 +38,12 @@ class Mimetype(object):
             pathkey = self.pathkey(*list(item.keys()))[0]
             mimetypekey = self.mimetypekey(*list(item.keys()))[0]
 
-            if not pathkey or not mimetypekey or \
-               mimetypekey not in item:
+            if not pathkey or not mimetypekey or mimetypekey not in item:
                 # not enough info
                 yield item
                 continue
 
-            path = safe_unicode(item[pathkey].lstrip('/')).encode('ascii')
+            path = safe_unicode(item[pathkey].lstrip("/")).encode("ascii")
             obj = traverse(self.context, path, None)
 
             if obj is None:

@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-from plone.app.testing import PLONE_FIXTURE
-from plone.app.testing import FunctionalTesting
-from plone.app.testing import IntegrationTesting
-from plone.app.testing import PloneSandboxLayer
+from plone.app.testing import (
+    FunctionalTesting,
+    IntegrationTesting,
+    PLONE_FIXTURE,
+    PloneSandboxLayer,
+)
 
 import collective.jsonmigrator
 
@@ -23,11 +25,11 @@ COLLECTIVE_JSONMIGRATOR_FIXTURE = CollectiveJsonmigratorLayer()
 
 COLLECTIVE_JSONMIGRATOR_INTEGRATION_TESTING = IntegrationTesting(
     bases=(COLLECTIVE_JSONMIGRATOR_FIXTURE,),
-    name='CollectiveJsonmigratorLayer:IntegrationTesting',
+    name="CollectiveJsonmigratorLayer:IntegrationTesting",
 )
 
 
 COLLECTIVE_JSONMIGRATOR_FUNCTIONAL_TESTING = FunctionalTesting(
     bases=(COLLECTIVE_JSONMIGRATOR_FIXTURE,),
-    name='CollectiveJsonmigratorLayer:FunctionalTesting',
+    name="CollectiveJsonmigratorLayer:FunctionalTesting",
 )

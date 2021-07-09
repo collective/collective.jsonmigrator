@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 from collective.jsonmigrator import logger
-from collective.transmogrifier.interfaces import ISection
-from collective.transmogrifier.interfaces import ISectionBlueprint
-from zope.interface import provider
-from zope.interface import implementer
+from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
+from zope.interface import implementer, provider
 
 import base64
+import six
+import six.moves.urllib.error
+import six.moves.urllib.parse
+import six.moves.urllib.request
 import threading
 import time
-import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
-import six
+
 
 try:
     import json
@@ -23,7 +23,7 @@ except ImportError:
 class CatalogSourceSection(object):
 
     """A source section which creates items from a remote Plone site by
-       querying it's catalog.
+    querying it's catalog.
     """
 
     def __init__(self, transmogrifier, name, options, previous):
@@ -31,36 +31,35 @@ class CatalogSourceSection(object):
         self.options = options
         self.context = transmogrifier.context
 
-        self.remote_url = self.get_option('remote-url',
-                                          'http://localhost:8080')
-        remote_username = self.get_option('remote-username', 'admin')
-        remote_password = self.get_option('remote-password', 'admin')
+        self.remote_url = self.get_option("remote-url", "http://localhost:8080")
+        remote_username = self.get_option("remote-username", "admin")
+        remote_password = self.get_option("remote-password", "admin")
 
-        catalog_path = self.get_option('catalog-path', '/Plone/portal_catalog')
-        self.site_path_length = len('/'.join(catalog_path.split('/')[:-1]))
+        catalog_path = self.get_option("catalog-path", "/Plone/portal_catalog")
+        self.site_path_length = len("/".join(catalog_path.split("/")[:-1]))
 
-        catalog_query = self.get_option('catalog-query', None)
-        catalog_query = ' '.join(catalog_query.split())
+        catalog_query = self.get_option("catalog-query", None)
+        catalog_query = " ".join(catalog_query.split())
         catalog_query = base64.b64encode(catalog_query)
 
-        self.remote_skip_paths = self.get_option('remote-skip-paths',
-                                                 '').split()
-        self.queue_length = int(self.get_option('queue-size', '10'))
+        self.remote_skip_paths = self.get_option("remote-skip-paths", "").split()
+        self.queue_length = int(self.get_option("queue-size", "10"))
 
         # Install a basic auth handler
         auth_handler = six.moves.urllib.request.HTTPBasicAuthHandler()
-        auth_handler.add_password(realm='Zope',
-                                  uri=self.remote_url,
-                                  user=remote_username,
-                                  passwd=remote_password)
+        auth_handler.add_password(
+            realm="Zope",
+            uri=self.remote_url,
+            user=remote_username,
+            passwd=remote_password,
+        )
         opener = six.moves.urllib.request.build_opener(auth_handler)
         six.moves.urllib.request.install_opener(opener)
 
         req = six.moves.urllib.request.Request(
-            '%s%s/get_catalog_results' %
-            (self.remote_url, catalog_path), six.moves.urllib.parse.urlencode(
-                {
-                    'catalog_query': catalog_query}))
+            "%s%s/get_catalog_results" % (self.remote_url, catalog_path),
+            six.moves.urllib.parse.urlencode({"catalog_query": catalog_query}),
+        )
         try:
             f = six.moves.urllib.request.urlopen(req)
             resp = f.read()
@@ -73,34 +72,36 @@ class CatalogSourceSection(object):
         """Get an option from the request if available and fallback to the
         transmogrifier config.
         """
-        request = getattr(self.context, 'REQUEST', None)
+        request = getattr(self.context, "REQUEST", None)
         if request is not None:
-            value = request.form.get('form.widgets.' + name.replace('-', '_'),
-                                     self.options.get(name, default))
+            value = request.form.get(
+                "form.widgets." + name.replace("-", "_"),
+                self.options.get(name, default),
+            )
         else:
             value = self.options.get(name, default)
         if isinstance(value, six.text_type):
-            value = value.encode('utf8')
+            value = value.encode("utf8")
         return value
 
     def __iter__(self):
         for item in self.previous:
             yield item
 
-        queue = QueuedItemLoader(self.remote_url, self.item_paths,
-                                 self.remote_skip_paths, self.queue_length)
+        queue = QueuedItemLoader(
+            self.remote_url, self.item_paths, self.remote_skip_paths, self.queue_length
+        )
         queue.start()
 
         for item in queue:
             if not item:
                 continue
 
-            item['_path'] = item['_path'][self.site_path_length:]
+            item["_path"] = item["_path"][self.site_path_length :]
             yield item
 
 
 class QueuedItemLoader(threading.Thread):
-
     def __init__(self, remote_url, paths, remote_skip_paths, queue_length):
         super(QueuedItemLoader, self).__init__()
 
@@ -139,14 +140,15 @@ class QueuedItemLoader(threading.Thread):
         return False
 
     def _load_path(self, path):
-        item_url = '%s%s/get_item' % (self.remote_url, six.moves.urllib.parse.quote(path))
+        item_url = "%s%s/get_item" % (
+            self.remote_url,
+            six.moves.urllib.parse.quote(path),
+        )
         try:
             f = six.moves.urllib.request.urlopen(item_url)
             item_json = f.read()
         except six.moves.urllib.error.URLError as e:
-            logger.error(
-                "Failed reading item from %s. %s" %
-                (item_url, str(e)))
+            logger.error("Failed reading item from %s. %s" % (item_url, str(e)))
             return None
         try:
             item = json.loads(item_json)
