@@ -4,7 +4,7 @@ from collective.jsonmigrator import msgFact as _
 from collective.transmogrifier.transmogrifier import _load_config
 from collective.transmogrifier.transmogrifier import configuration_registry
 from collective.transmogrifier.transmogrifier import Transmogrifier
-from plone.z3cform.layout import wrap_form
+
 from Products.statusmessages.interfaces import IStatusMessage
 from z3c.form import button
 from z3c.form import field
@@ -20,8 +20,10 @@ from zope.schema import TextLine
 from zope.schema import URI
 from zope.schema.interfaces import IFromUnicode, IList
 from zope.schema.vocabulary import SimpleVocabulary
+from plone.z3cform.layout import wrap_form
 
 import urllib
+
 
 SOURCE_SECTIONS = ['collective.jsonmigrator.remotesource',
                    'collective.jsonmigrator.catalogsource']
