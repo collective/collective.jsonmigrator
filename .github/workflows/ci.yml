@@ -22,7 +22,9 @@ jobs:
       # python cache
       - uses: actions/cache@v1
         with:
-          path: ~/.cache/pip
+          path: |
+            ~/.cache/pip
+            ~/buildout-cache
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
