@@ -6,6 +6,8 @@ Changelog
 
 - Python 3 compatibility 
   [ksuess]
+- fix problem with base64 in Python 3.9.
+  [jensens]
 
 
 1.0.1 (2018-06-11)
