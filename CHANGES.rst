@@ -4,6 +4,9 @@ Changelog
 1.0.2 (unreleased)
 ------------------
 
+- Add support to Plone 5.1 and Plone 5.2.
+  [wesleybl]
+
 - No longer depend on zope.app.container.notifyContainerModified.
   Use from zope.container.contained import notifyContainerModified instead.
   [mathias.leimgruber]

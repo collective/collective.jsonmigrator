@@ -37,4 +37,6 @@ reports/
 venv/
 /pyvenv.cfg
 local.cfg
+/src/collective.transmogrifier*
+/src/plone.app.transmogrifier*
 
