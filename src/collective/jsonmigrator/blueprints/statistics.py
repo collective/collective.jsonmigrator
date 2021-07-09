@@ -1,35 +1,34 @@
-# -*- coding: utf-8 -*-
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
-from zope.interface import provider
 from zope.interface import implementer
+from zope.interface import provider
 
 import logging
 import time
 
-STATISTICSFIELD = '_statistics_field_prefix_'
+
+STATISTICSFIELD = "_statistics_field_prefix_"
 
 
 @provider(ISectionBlueprint)
 @implementer(ISection)
-class Statistics(object):
+class Statistics:
 
-    """ This has to be placed in the pipeline just after all sources
-    """
+    """This has to be placed in the pipeline just after all sources"""
 
     def __init__(self, transmogrifier, name, options, previous):
-        self.stats = {'START_TIME': int(time.time()),
-                      'TIME_LAST_STEP': 0,
-                      'STEP': options.get('log-step', 25),
-                      'OBJ_COUNT': 0,
-                      'EXISTED': 0,
-                      'ADDED': 0,
-                      'NOT-ADDED': 0, }
-        self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
-        self.statistics_prefix = options.get(
-            'statisticsfield-prefix',
-            STATISTICSFIELD)
+        self.stats = {
+            "START_TIME": int(time.time()),
+            "TIME_LAST_STEP": 0,
+            "STEP": options.get("log-step", 25),
+            "OBJ_COUNT": 0,
+            "EXISTED": 0,
+            "ADDED": 0,
+            "NOT-ADDED": 0,
+        }
+        self.pathkey = defaultMatcher(options, "path-key", name, "path")
+        self.statistics_prefix = options.get("statisticsfield-prefix", STATISTICSFIELD)
         self.transmogrifier = transmogrifier
         self.name = name
         self.options = options
@@ -39,7 +38,7 @@ class Statistics(object):
     def __iter__(self):
         for item in self.previous:
 
-            self.stats['OBJ_COUNT'] += 1
+            self.stats["OBJ_COUNT"] += 1
 
             yield item
 
@@ -58,21 +57,21 @@ class Statistics(object):
             #    else:
             #        self.stats['NOT-ADDED'] += 1
 
-            if self.stats['OBJ_COUNT'] % self.stats['STEP'] == 0:
+            if self.stats["OBJ_COUNT"] % self.stats["STEP"] == 0:
 
                 keys = list(item.keys())
                 pathkey = self.pathkey(*keys)[0]
-                path = item.get(pathkey, 'Unknown')
-                logging.warning('Migrating now: %s' % path)
+                path = item.get(pathkey, "Unknown")
+                logging.warning("Migrating now: %s" % path)
 
                 now = int(time.time())
-                stat = 'COUNT: %d; ' % self.stats['OBJ_COUNT']
-                stat += 'TOTAL TIME: %d; ' % (now - self.stats['START_TIME'])
-                stat += 'STEP TIME: %d; ' % (now -
-                                             self.stats['TIME_LAST_STEP'])
-                self.stats['TIME_LAST_STEP'] = now
-                stat += 'EXISTED: %d; ADDED: %d; NOT-ADDED: %d' % (
-                    self.stats['EXISTED'],
-                    self.stats['ADDED'],
-                    self.stats['NOT-ADDED'])
+                stat = "COUNT: %d; " % self.stats["OBJ_COUNT"]
+                stat += "TOTAL TIME: %d; " % (now - self.stats["START_TIME"])
+                stat += "STEP TIME: %d; " % (now - self.stats["TIME_LAST_STEP"])
+                self.stats["TIME_LAST_STEP"] = now
+                stat += "EXISTED: %d; ADDED: %d; NOT-ADDED: %d" % (
+                    self.stats["EXISTED"],
+                    self.stats["ADDED"],
+                    self.stats["NOT-ADDED"],
+                )
                 logging.warning(stat)

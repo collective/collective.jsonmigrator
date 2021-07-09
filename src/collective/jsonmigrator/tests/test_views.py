@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 """Tests for views."""
-from collective.jsonmigrator.testing import (
-    COLLECTIVE_JSONMIGRATOR_INTEGRATION_TESTING  # noqa: E501,
+from collective.jsonmigrator.testing import (  # noqa: E501,
+    COLLECTIVE_JSONMIGRATOR_INTEGRATION_TESTING,
 )
 from plone import api
 
@@ -15,8 +14,8 @@ class TestJSONMigratorView(unittest.TestCase):
 
     def setUp(self):
         """Custom shared utility setup for tests."""
-        self.portal = self.layer['portal']
-        self.request = self.layer['request']
+        self.portal = self.layer["portal"]
+        self.request = self.layer["request"]
 
     def test_jsonmigratorview_load(self):
         """Test if view is load."""

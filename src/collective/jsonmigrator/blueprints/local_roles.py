@@ -1,19 +1,17 @@
-# -*- coding: utf-8 -*-
 from AccessControl.interfaces import IRoleManager
-from Products.CMFPlone.utils import safe_unicode
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import defaultKeys
 from collective.transmogrifier.utils import Matcher
 from collective.transmogrifier.utils import traverse
-from zope.interface import provider
+from Products.CMFPlone.utils import safe_unicode
 from zope.interface import implementer
+from zope.interface import provider
 
 
 @provider(ISectionBlueprint)
 @implementer(ISection)
-class LocalRoles(object):
-
+class LocalRoles:
     def __init__(self, transmogrifier, name, options, previous):
         self.transmogrifier = transmogrifier
         self.name = name
@@ -21,19 +19,16 @@ class LocalRoles(object):
         self.previous = previous
         self.context = transmogrifier.context
 
-        if 'path-key' in options:
-            pathkeys = options['path-key'].splitlines()
+        if "path-key" in options:
+            pathkeys = options["path-key"].splitlines()
         else:
-            pathkeys = defaultKeys(options['blueprint'], name, 'path')
+            pathkeys = defaultKeys(options["blueprint"], name, "path")
         self.pathkey = Matcher(*pathkeys)
 
-        if 'local-roles-key' in options:
-            roleskeys = options['local-roles-key'].splitlines()
+        if "local-roles-key" in options:
+            roleskeys = options["local-roles-key"].splitlines()
         else:
-            roleskeys = defaultKeys(
-                options['blueprint'],
-                name,
-                'ac_local_roles')
+            roleskeys = defaultKeys(options["blueprint"], name, "ac_local_roles")
         self.roleskey = Matcher(*roleskeys)
 
     def __iter__(self):
@@ -41,12 +36,11 @@ class LocalRoles(object):
             pathkey = self.pathkey(*list(item.keys()))[0]
             roleskey = self.roleskey(*list(item.keys()))[0]
 
-            if not pathkey or not roleskey or \
-               roleskey not in item:    # not enough info
+            if not pathkey or not roleskey or roleskey not in item:  # not enough info
                 yield item
                 continue
 
-            path = safe_unicode(item[pathkey].lstrip('/')).encode('ascii')
+            path = safe_unicode(item[pathkey].lstrip("/")).encode("ascii")
             obj = traverse(self.context, path, None)
 
             # path doesn't exist
