@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from base64 import encodestring
+from base64 import encodebytes
 from collective.jsonmigrator import logger
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
@@ -72,7 +72,7 @@ class BasicAuth(xmlrpc.client.Transport):
 
         if self.username is not None and self.password is not None:
             h.putheader("AUTHORIZATION", "Basic %s" % string.replace(
-                encodestring("%s:%s" % (self.username, self.password)),
+                encodebytes("%s:%s" % (self.username, self.password)),
                 "\012", ""))
         h.endheaders()
 
