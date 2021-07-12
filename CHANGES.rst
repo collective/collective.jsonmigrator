@@ -4,6 +4,9 @@ Changelog
 1.0.2 (unreleased)
 ------------------
 
+- Don't use simplejson.
+  [wesleybl]
+
 - Add support to Plone 5.1 and Plone 5.2.
   [wesleybl]
 
@@ -11,7 +14,7 @@ Changelog
   Use from zope.container.contained import notifyContainerModified instead.
   [mathias.leimgruber]
 
-- Python 3 compatibility 
+- Python 3 compatibility
   [ksuess]
 
 

@@ -5,13 +5,9 @@ from collective.transmogrifier.utils import resolvePackageReferenceOrFile
 from zope.interface import implementer
 from zope.interface import provider
 
+import json
 import os
 
-
-try:
-    import json
-except ImportError:
-    import simplejson as json
 
 DATAFIELD = "_datafield_"
 

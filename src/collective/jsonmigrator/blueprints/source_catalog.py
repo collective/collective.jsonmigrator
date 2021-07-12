@@ -6,18 +6,13 @@ from zope.interface import implementer
 from zope.interface import provider
 
 import base64
+import json
 import six
 import six.moves.urllib.error
 import six.moves.urllib.parse
 import six.moves.urllib.request
 import threading
 import time
-
-
-try:
-    import json
-except ImportError:
-    import simplejson as json
 
 
 @provider(ISectionBlueprint)
