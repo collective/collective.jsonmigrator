@@ -4,6 +4,9 @@ Changelog
 1.0.2 (unreleased)
 ------------------
 
+- Explicitly depends on six.
+  [wesleybl]
+
 - Don't use simplejson.
   [wesleybl]
 

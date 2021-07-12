@@ -58,6 +58,7 @@ setup(
         "collective.transmogrifier",
         "plone.app.transmogrifier",
         "setuptools",
+        "six",
     ],
     extras_require={
         "test": [
