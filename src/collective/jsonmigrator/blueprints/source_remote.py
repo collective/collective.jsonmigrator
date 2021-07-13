@@ -7,6 +7,7 @@ from collective.transmogrifier.utils import resolvePackageReferenceOrFile
 from zope.interface import implementer
 from zope.interface import provider
 
+import json
 import os.path
 import pickle
 import six
@@ -17,15 +18,6 @@ import six.moves.urllib.request
 import six.moves.xmlrpc_client
 import string
 
-
-try:
-    import json
-
-    JSONDecodeError = ValueError
-except ImportError:
-    import simplejson as json
-
-    JSONDecodeError = json.JSONDecodeError
 
 _marker = object()
 MEMOIZE_PROPNAME = "_memojito_"
@@ -234,7 +226,7 @@ class RemoteSource(object):
 
             try:
                 item = json.loads(item)
-            except JSONDecodeError:
+            except json.JSONDecodeError:
                 logger.error("Could not decode item from path '%s' as JSON." % path)
                 return
             logger.info(":: Crawling %s" % item["_path"])
