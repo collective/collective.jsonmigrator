@@ -22,6 +22,12 @@ import string
 _marker = object()
 MEMOIZE_PROPNAME = "_memojito_"
 
+if six.PY2:
+    # BBB: json.JSONDecodeError doesn't exist in Python 2
+    JSONDecodeError = ValueError
+else:
+    from json import JSONDecodeError
+
 
 def memoize(func):
     """A caching decorator which stores values in an attribute on the instance.
@@ -226,7 +232,7 @@ class RemoteSource(object):
 
             try:
                 item = json.loads(item)
-            except json.JSONDecodeError:
+            except JSONDecodeError:
                 logger.error("Could not decode item from path '%s' as JSON." % path)
                 return
             logger.info(":: Crawling %s" % item["_path"])
