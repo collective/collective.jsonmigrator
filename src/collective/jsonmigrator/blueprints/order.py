@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from Acquisition import aq_base
+from collective.jsonmigrator.blueprints.utils import remove_first_bar
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
 from collective.transmogrifier.utils import traverse
-from Products.CMFPlone.utils import safe_unicode
 from zope.container.contained import notifyContainerModified
 from zope.interface import implementer
 from zope.interface import provider
@@ -51,7 +51,7 @@ class OrderSection(object):
             for pos, key in enumerate(ordered_keys):
                 normalized_positions[key] = pos
 
-            path = safe_unicode(path.lstrip("/")).encode("ascii")
+            path = remove_first_bar(path)
             parent = traverse(self.context, path, None)
 
             if not parent:

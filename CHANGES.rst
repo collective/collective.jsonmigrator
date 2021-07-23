@@ -4,6 +4,9 @@ Changelog
 1.0.2 (unreleased)
 ------------------
 
+- Don't encode path in Python 3.
+  [wesleybl]
+
 - Explicitly depends on six.
   [wesleybl]
 

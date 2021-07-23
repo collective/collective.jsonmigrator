@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
+from collective.jsonmigrator.blueprints.utils import remove_first_bar
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import defaultKeys
 from collective.transmogrifier.utils import Matcher
 from collective.transmogrifier.utils import traverse
 from Products.CMFCore.utils import getToolByName
-from Products.CMFPlone.utils import safe_unicode
 from zope.interface import implementer
 from zope.interface import provider
 
@@ -56,7 +56,7 @@ class Owner(object):
                 yield item
                 continue
 
-            path = safe_unicode(item[pathkey].lstrip("/")).encode("ascii")
+            path = remove_first_bar(item[pathkey])
             obj = traverse(self.context, path, None)
 
             if obj is None:

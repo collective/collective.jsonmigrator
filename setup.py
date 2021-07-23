@@ -57,6 +57,7 @@ setup(
     install_requires=[
         "collective.transmogrifier",
         "plone.app.transmogrifier",
+        "Products.CMFPlone",
         "setuptools",
         "six",
     ],
