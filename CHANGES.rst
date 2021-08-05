@@ -4,6 +4,9 @@ Changelog
 1.0.2 (unreleased)
 ------------------
 
+- Allows use of blueprint collective.jsonmigrator.owner in dexterity objects.
+  [wesleybl]
+
 - Don't encode path in Python 3.
   [wesleybl]
 
