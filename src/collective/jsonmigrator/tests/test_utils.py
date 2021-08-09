@@ -28,7 +28,7 @@ class TestUtils(unittest.TestCase):
         """Test exception message."""
         ex = None
         try:
-            convert_path(u"/plone/testç")
+            convert_path("/plone/testç")
         except AssertionError as e:
             ex = e
         self.assertEqual(
