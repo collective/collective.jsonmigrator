@@ -10,12 +10,6 @@ from zope.interface import implementer
 from zope.interface import provider
 
 
-try:
-    from Products.Archetypes.interfaces import IBaseObject
-except ImportError:
-    IBaseObject = None
-
-
 @provider(ISectionBlueprint)
 @implementer(ISection)
 class Owner(object):
@@ -61,9 +55,6 @@ class Owner(object):
 
             if obj is None:
                 yield item
-                continue
-
-            if not IBaseObject or not IBaseObject.providedBy(obj):
                 continue
 
             if item[ownerkey][0] and item[ownerkey][1]:
