@@ -6,10 +6,15 @@ from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import defaultKeys
 from collective.transmogrifier.utils import Matcher
 from collective.transmogrifier.utils import traverse
-from Products.CMFPlone.utils import safe_unicode
 from ZODB.POSException import ConflictError
 from zope.interface import implementer
 from zope.interface import provider
+
+try:
+    from Products.CMFPlone.utils import safe_text
+except ImportError:
+    # BBB: Plone<5.2 don't have safe_text
+    from Products.CMFPlone.utils import safe_unicode as safe_text
 
 
 @provider(ISectionBlueprint)
@@ -65,7 +70,10 @@ class Properties(object):
                     continue
 
                 if ptype == "string":
-                    pvalue = safe_unicode(pvalue).encode("utf-8")
+                    pvalue = safe_text(pvalue)
+                    if not isinstance(pvalue, str):
+                        # BBB: Python 2
+                        pvalue = pvalue.encode("utf-8")
                 try:
                     if obj.hasProperty(pid):
                         obj._updateProperty(pid, pvalue)

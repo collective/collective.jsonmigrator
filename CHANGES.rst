@@ -4,6 +4,9 @@ Changelog
 1.0.2 (unreleased)
 ------------------
 
+- Don't encode property value in Python 3.
+  [wesleybl]
+
 - Allows use of blueprint collective.jsonmigrator.owner in dexterity objects.
   [wesleybl]
 
