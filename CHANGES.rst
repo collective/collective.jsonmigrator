@@ -4,6 +4,9 @@ Changelog
 1.0.2 (unreleased)
 ------------------
 
+- Add blueprint to import translations from plone.app.multilingual.
+  [wesleybl]
+
 - Don't encode property value in Python 3.
   [wesleybl]
 

@@ -60,11 +60,15 @@ setup(
         "Products.CMFPlone",
         "setuptools",
         "six",
+        "zope.interface",
     ],
     extras_require={
         "test": [
             "plone.api",
+            "plone.app.multilingual",
             "plone.app.testing",
+            "plone.uuid",
+            "zope.component",
         ],
     },
     entry_points="""
