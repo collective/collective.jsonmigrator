@@ -1,5 +1,6 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
     i18n_domain="collective.jsonmigrator">
 
   <utility
@@ -70,6 +71,13 @@
   <utility
       component=".workflowhistory.WorkflowHistory"
       name="collective.jsonmigrator.workflowhistory"
+      />
+
+  <!-- BBB: Plone 4.3 doesn't come with plone.app.multilingual -->
+  <utility
+      zcml:condition="installed plone.app.multilingual"
+      component=".translations.Translations"
+      name="collective.jsonmigrator.translations"
       />
 
 </configure>
