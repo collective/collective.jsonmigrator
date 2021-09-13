@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Tests for views."""
-from collective.jsonmigrator.testing import (  # noqa: E501,
-    COLLECTIVE_JSONMIGRATOR_INTEGRATION_TESTING,
-)
+from collective.jsonmigrator.testing import COLLECTIVE_JSONMIGRATOR_INTEGRATION_TESTING
 from plone import api
 
 import unittest

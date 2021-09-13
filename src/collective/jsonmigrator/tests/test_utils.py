@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Tests for utils."""
-from collective.jsonmigrator.blueprints.utils import remove_first_bar
 from collective.jsonmigrator.blueprints.utils import convert_path
+from collective.jsonmigrator.blueprints.utils import remove_first_bar
 
 import unittest
 

@@ -10,6 +10,7 @@ from ZODB.POSException import ConflictError
 from zope.interface import implementer
 from zope.interface import provider
 
+
 try:
     from Products.CMFPlone.utils import safe_text
 except ImportError:
