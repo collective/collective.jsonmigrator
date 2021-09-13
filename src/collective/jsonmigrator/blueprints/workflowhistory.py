@@ -20,7 +20,7 @@ try:
     from plone.dexterity.interfaces import IDexterityContent
 
     dexterity_available = True
-except:
+except ImportError:
     dexterity_available = False
 
 
