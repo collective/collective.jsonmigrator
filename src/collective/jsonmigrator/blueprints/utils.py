@@ -17,7 +17,7 @@ def convert_path(path):
             pass
     _path = path
     if not isinstance(_path, str):
-        _path = _path.encode('utf-8')
+        _path = _path.encode("utf-8")
     raise AssertionError(
         'The path "{0}" contains non-ascii characters.'.format(
             _path,

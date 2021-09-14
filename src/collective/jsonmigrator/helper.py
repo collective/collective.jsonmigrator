@@ -23,9 +23,7 @@ from zope.schema.interfaces import IList
 from zope.schema.vocabulary import SimpleVocabulary
 
 import six
-import six.moves.urllib.error
 import six.moves.urllib.parse
-import six.moves.urllib.request
 
 
 SOURCE_SECTIONS = [

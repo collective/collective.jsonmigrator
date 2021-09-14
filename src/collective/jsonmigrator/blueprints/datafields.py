@@ -35,7 +35,7 @@ class DataFields(object):
                 yield item
                 continue
 
-            path = remove_first_bar(item[pathkey])
+            path = remove_first_bar(item["_path"])
             obj = traverse(self.context, path, None)
 
             # path doesn't exist

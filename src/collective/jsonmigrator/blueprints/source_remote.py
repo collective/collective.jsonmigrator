@@ -12,7 +12,6 @@ import os.path
 import pickle
 import six
 import six.moves.http_client
-import six.moves.urllib.error
 import six.moves.urllib.parse
 import six.moves.urllib.request
 import six.moves.xmlrpc_client
@@ -186,7 +185,9 @@ class RemoteSource(object):
             remote_url += "/"
         if path.startswith("/"):
             path = path[1:]
-        url = urllib2.urlparse.urljoin(remote_url, six.moves.urllib.parse.quote(path))
+        url = six.moves.urllib.parse.urljoin(
+            remote_url, six.moves.urllib.parse.quote(path)
+        )
         # remote = xmlrpclib.Server(
         #         url,
         #         BasicAuth(self.remote_username, self.remote_password),
