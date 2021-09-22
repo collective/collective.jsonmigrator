@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.0.2 (unreleased)
+2.0.0 (2021-09-22)
 ------------------
 
 - Add blueprint to import translations from plone.app.multilingual.
