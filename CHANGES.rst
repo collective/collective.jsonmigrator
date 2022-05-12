@@ -4,7 +4,8 @@ Changelog
 2.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add Python 3.9 base64.encodebytes() compatibility. Fix #45.
+  [shogunbr]
 
 
 2.0.0 (2021-09-22)
