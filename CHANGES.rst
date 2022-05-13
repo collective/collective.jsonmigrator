@@ -4,7 +4,7 @@ Changelog
 2.0.1 (unreleased)
 ------------------
 
-- Add Python 3.9 base64.encodebytes() compatibility. Fix #45.
+- Add Python 3.9 base64.encodebytes() compatibility. Fix `#45 <https://github.com/collective/collective.jsonmigrator/issues/45>`_
   [shogunbr]
 
 
