@@ -20,11 +20,10 @@ import string
 _marker = object()
 MEMOIZE_PROPNAME = "_memojito_"
 
-if six.PY2:
-    # BBB: base64.encodebytes doesn't exist in Python 2
-    from base64 import encodestring as encodebytes
-else:
+try:
     from base64 import encodebytes
+except ImportError:
+    from base64 import encodestring as encodebytes
 
 if six.PY2:
     # BBB: json.JSONDecodeError doesn't exist in Python 2
