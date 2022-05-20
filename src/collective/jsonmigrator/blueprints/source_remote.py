@@ -74,9 +74,9 @@ class BasicAuth(six.moves.xmlrpc_client.Transport):
             h.putheader(
                 "AUTHORIZATION",
                 "Basic %s"
-                % string.replace(
-                    encodebytes("%s:%s" % (self.username, self.password)), "\012", ""
-                ),
+                % encodebytes(
+                    ("%s:%s" % (self.username, self.password)).encode()
+                ).replace(b"\012", b"").decode()
             )
         h.endheaders()
 
