@@ -14,7 +14,6 @@ import six.moves.http_client
 import six.moves.urllib.parse
 import six.moves.urllib.request
 import six.moves.xmlrpc_client
-import string
 
 
 _marker = object()
