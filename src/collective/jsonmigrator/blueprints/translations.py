@@ -1,24 +1,17 @@
-# -*- coding: utf-8 -*-
 from collective.jsonmigrator.blueprints.utils import remove_first_bar
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import defaultKeys
 from collective.transmogrifier.utils import Matcher
 from collective.transmogrifier.utils import traverse
+from plone.app.multilingual.interfaces import ITranslationManager
 from zope.interface import implementer
 from zope.interface import provider
 
 
-try:
-    from plone.app.multilingual.interfaces import ITranslationManager
-except ImportError:
-    # BBB Plone 4.3 whit Archetypes
-    from plone.multilingual.interfaces import ITranslationManager
-
-
 @provider(ISectionBlueprint)
 @implementer(ISection)
-class Translations(object):
+class Translations:
     def __init__(self, transmogrifier, name, options, previous):
         self.transmogrifier = transmogrifier
         self.name = name

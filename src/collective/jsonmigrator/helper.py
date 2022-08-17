@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from collective.jsonmigrator import logger
 from collective.jsonmigrator import msgFact as _
 from collective.transmogrifier.transmogrifier import _load_config
@@ -6,6 +5,7 @@ from collective.transmogrifier.transmogrifier import configuration_registry
 from collective.transmogrifier.transmogrifier import Transmogrifier
 from plone.z3cform.layout import wrap_form
 from Products.statusmessages.interfaces import IStatusMessage
+from urllib import parse
 from z3c.form import button
 from z3c.form import field
 from z3c.form import form
@@ -22,9 +22,6 @@ from zope.schema.interfaces import IFromUnicode
 from zope.schema.interfaces import IList
 from zope.schema.vocabulary import SimpleVocabulary
 
-import six
-import six.moves.urllib.parse
-
 
 SOURCE_SECTIONS = [
     "collective.jsonmigrator.remotesource",
@@ -39,55 +36,55 @@ class IJSONMigratorRun(Interface):
     config = TextLine()
 
     remote_url = URI(
-        title=_(u"URL"),
+        title=_("URL"),
         description=_(
-            u"URL for the remote site that will provide the "
-            u"content to be imported and migrated "
+            "URL for the remote site that will provide the "
+            "content to be imported and migrated "
         ),
         required=True,
     )
 
     remote_username = ASCIILine(
-        title=_(u"Username"),
-        description=_(u"Username to log in to the remote site "),
+        title=_("Username"),
+        description=_("Username to log in to the remote site "),
         required=True,
     )
 
     remote_password = TextLine(
-        title=_(u"Password"),
-        description=_(u"Password to log in to the remote site "),
+        title=_("Password"),
+        description=_("Password to log in to the remote site "),
         required=True,
     )
 
     remote_path = TextLine(
-        title=_(u"Start path"),
+        title=_("Start path"),
         description=_(
-            u"Path where to start crawling and importing " u"into current location."
+            "Path where to start crawling and importing " "into current location."
         ),
         required=True,
     )
 
     remote_crawl_depth = Int(
-        title=_(u"Crawl depth"),
-        description=_(u"How deep should we crawl remote site"),
+        title=_("Crawl depth"),
+        description=_("How deep should we crawl remote site"),
         required=True,
     )
 
     remote_skip_path = List(
-        title=_(u"Paths to skip"),
-        description=_(u"Which paths to skip when crawling."),
+        title=_("Paths to skip"),
+        description=_("Which paths to skip when crawling."),
         value_type=TextLine(),
         required=False,
     )
 
     catalog_path = TextLine(
-        title=_(u"Catalog Path"),
-        description=_(u"The absolute path of the catalog tool."),
+        title=_("Catalog Path"),
+        description=_("The absolute path of the catalog tool."),
         required=True,
     )
 
     catalog_query = Text(
-        title=_(u"Catalog Query"),
+        title=_("Catalog Query"),
         description=_(
             "Specify query parameters in dict notation. If left "
             "empty, all items will be returned."
@@ -98,7 +95,7 @@ class IJSONMigratorRun(Interface):
 
 class JSONMigratorRun(form.Form):
 
-    label = _(u"Synchronize and migrate")
+    label = _("Synchronize and migrate")
     fields = field.Fields(IJSONMigratorRun)
     ignoreContext = True
 
@@ -136,17 +133,17 @@ class JSONMigratorRun(form.Form):
                         field.value_type.fromUnicode(v) for v in value.split()
                     ]
 
-        super(JSONMigratorRun, self).updateWidgets()
+        super().updateWidgets()
         self.widgets["config"].mode = interfaces.HIDDEN_MODE
 
-    @button.buttonAndHandler(u"Run")
+    @button.buttonAndHandler("Run")
     def handleRun(self, action):
         data, errors = self.extractData()
         if errors:
             return False
         self._run(data)
 
-    @button.buttonAndHandler(u"Run & Next")
+    @button.buttonAndHandler("Run & Next")
     def handleRunAndNext(self, action):
         data, errors = self.extractData()
         if errors:
@@ -163,34 +160,33 @@ class JSONMigratorRun(form.Form):
             next_config = configs[configs.index(current_config) + 1]
             self._redirect("@@jsonmigrator-run", next_config)
 
-    @button.buttonAndHandler(u"Back")
+    @button.buttonAndHandler("Back")
     def handleBack(self, action):
         data, errors = self.extractData()
-        params = six.moves.urllib.parse.urlencode(
+        params = parse.urlencode(
             {"form.widgets.config": data.get("config")}
         )
         self.request.RESPONSE.redirect(
-            "/".join((self.context.absolute_url(), "@@jsonmigrator", "?%s" % params))
+            "/".join((self.context.absolute_url(), "@@jsonmigrator", f"?{params}"))
         )
 
     def _run(self, data):
-        logger.info("Start importing profile: " + data["config"])
+        config = data["config"]
+        logger.info(f"Start importing profile: {config}")
         Transmogrifier(self.context)(data["config"])
-        logger.info("Stop importing profile: " + data["config"])
-        IStatusMessage(self.request).addStatusMessage(
-            "Migrated: %s" % data["config"], type="info"
-        )
+        logger.info(f"Stop importing profile: {config}")
+        IStatusMessage(self.request).addStatusMessage(f"Migrated: {config}", type="info")
 
     def _redirect(self, viewname, config_id):
-        if isinstance(config_id, six.text_type):
+        if isinstance(config_id, str):
             config_id = config_id.encode("utf-8")
-        params = six.moves.urllib.parse.urlencode({"form.widgets.config": config_id})
+        params = parse.urlencode({"form.widgets.config": config_id})
         return self.request.RESPONSE.redirect(
-            "/".join((self.context.absolute_url(), viewname, "?%s" % params))
+            "/".join((self.context.absolute_url(), viewname, f"?{params}"))
         )
 
 
-class JSONMigratorConfigurations(object):
+class JSONMigratorConfigurations:
     def __call__(self, context):
         terms = []
         for conf_id in configuration_registry.listConfigurationIds():
@@ -211,27 +207,27 @@ class IJSONMigrator(Interface):
     """remote source interface"""
 
     config = Choice(
-        title=_(u"Select configuration"),
-        description=_(u"Registered configurations to choose from."),
-        vocabulary=u"collective-jsonmigrator-configurations",
+        title=_("Select configuration"),
+        description=_("Registered configurations to choose from."),
+        vocabulary="collective-jsonmigrator-configurations",
     )
 
 
 class JSONMigrator(form.Form):
 
-    label = _(u"Synchronize and migrate")
+    label = _("Synchronize and migrate")
     fields = field.Fields(IJSONMigrator)
 
     ignoreContext = True
 
-    @button.buttonAndHandler(u"Select")
+    @button.buttonAndHandler("Select")
     def handleSelect(self, action):
         data, errors = self.extractData()
+        url = self.context.absolute_url()
         if errors:
             return False
         self.request.RESPONSE.redirect(
-            "%s/@@jsonmigrator-run?form.widgets.%s"
-            % (self.context.absolute_url(), six.moves.urllib.parse.urlencode(data))
+            f"{url}/@@jsonmigrator-run?form.widgets.{parse.urlencode(data)}"
         )
 
 

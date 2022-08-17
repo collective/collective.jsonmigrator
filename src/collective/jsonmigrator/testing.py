@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from plone.app.testing import applyProfile
 from plone.app.testing import FunctionalTesting
 from plone.app.testing import IntegrationTesting
@@ -11,7 +10,7 @@ import plone.app.multilingual
 
 
 version_tuple = getFSVersionTuple()
-PLONE_VERSION = float("{0}.{1}".format(version_tuple[0], version_tuple[1]))
+PLONE_VERSION = float(f"{version_tuple[0]}.{version_tuple[1]}")
 
 
 class CollectiveJsonmigratorLayer(PloneSandboxLayer):
@@ -29,12 +28,12 @@ class CollectiveJsonmigratorLayer(PloneSandboxLayer):
             applyProfile(portal, "plone.app.contenttypes:default")
 
 
-COLLECTIVE_JSONMIGRATOR_FIXTURE = CollectiveJsonmigratorLayer()
+JSONMIGRATOR_FIXTURE = CollectiveJsonmigratorLayer()
 
 
 class CollectiveJsonmigratorPAMLayer(PloneSandboxLayer):
 
-    defaultBases = (COLLECTIVE_JSONMIGRATOR_FIXTURE,)
+    defaultBases = (JSONMIGRATOR_FIXTURE,)
 
     def setUpZope(self, app, configurationContext):  # @UnusedVariable
         self.loadZCML(package=plone.app.multilingual)
@@ -43,20 +42,20 @@ class CollectiveJsonmigratorPAMLayer(PloneSandboxLayer):
         applyProfile(portal, "plone.app.multilingual:default")
 
 
-COLLECTIVE_JSONMIGRATOR_PAM_FIXTURE = CollectiveJsonmigratorPAMLayer()
+JSONMIGRATOR_PAM_FIXTURE = CollectiveJsonmigratorPAMLayer()
 
 
-COLLECTIVE_JSONMIGRATOR_INTEGRATION_TESTING = IntegrationTesting(
-    bases=(COLLECTIVE_JSONMIGRATOR_FIXTURE,),
+JSONMIGRATOR_INTEGRATION_TESTING = IntegrationTesting(
+    bases=(JSONMIGRATOR_FIXTURE,),
     name="CollectiveJsonmigratorLayer:IntegrationTesting",
 )
 
-COLLECTIVE_JSONMIGRATOR_PAM_INTEGRATION_TESTING = IntegrationTesting(
-    bases=(COLLECTIVE_JSONMIGRATOR_PAM_FIXTURE,),
+JSONMIGRATOR_PAM_INTEGRATION_TESTING = IntegrationTesting(
+    bases=(JSONMIGRATOR_PAM_FIXTURE,),
     name="CollectiveJsonmigratorPAMLayer:IntegrationTesting",
 )
 
-COLLECTIVE_JSONMIGRATOR_FUNCTIONAL_TESTING = FunctionalTesting(
-    bases=(COLLECTIVE_JSONMIGRATOR_FIXTURE,),
+JSONMIGRATOR_FUNCTIONAL_TESTING = FunctionalTesting(
+    bases=(JSONMIGRATOR_FIXTURE,),
     name="CollectiveJsonmigratorLayer:FunctionalTesting",
 )

@@ -2,32 +2,39 @@
     xmlns="http://namespaces.zope.org/zope"
     xmlns:browser="http://namespaces.zope.org/browser"
     xmlns:transmogrifier="http://namespaces.plone.org/transmogrifier"
-    i18n_domain="collective.jsonmigrator">
+    i18n_domain="collective.jsonmigrator"
+    >
 
-  <include package="collective.transmogrifier" file="meta.zcml" />
+  <include
+      package="collective.transmogrifier"
+      file="meta.zcml"
+      />
   <include package="collective.transmogrifier" />
   <include package="plone.app.transmogrifier" />
-  <include package="Products.CMFCore" file="permissions.zcml" />
+  <include
+      package="Products.CMFCore"
+      file="permissions.zcml"
+      />
 
-  <include package=".blueprints"/>
+  <include package=".blueprints" />
 
   <browser:page
       name="jsonmigrator"
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"
-      permission="cmf.ManagePortal"
       class=".helper.JSONMigratorView"
+      permission="cmf.ManagePortal"
       />
   <browser:page
       name="jsonmigrator-run"
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"
-      permission="cmf.ManagePortal"
       class=".helper.JSONMigratorRunView"
+      permission="cmf.ManagePortal"
       />
 
   <utility
       provides="zope.schema.interfaces.IVocabularyFactory"
-      component=".helper.JSONMigratorConfigurationsFactory"
       name="collective-jsonmigrator-configurations"
+      component=".helper.JSONMigratorConfigurationsFactory"
       />
 
   <transmogrifier:registerConfig

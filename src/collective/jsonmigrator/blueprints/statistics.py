@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
@@ -14,7 +13,7 @@ STATISTICSFIELD = "_statistics_field_prefix_"
 
 @provider(ISectionBlueprint)
 @implementer(ISection)
-class Statistics(object):
+class Statistics:
 
     """This has to be placed in the pipeline just after all sources"""
 
@@ -63,16 +62,14 @@ class Statistics(object):
                 keys = list(item.keys())
                 pathkey = self.pathkey(*keys)[0]
                 path = item.get(pathkey, "Unknown")
-                logging.warning("Migrating now: %s" % path)
+                logging.warning(f"Migrating now: {path}")
 
                 now = int(time.time())
-                stat = "COUNT: %d; " % self.stats["OBJ_COUNT"]
-                stat += "TOTAL TIME: %d; " % (now - self.stats["START_TIME"])
-                stat += "STEP TIME: %d; " % (now - self.stats["TIME_LAST_STEP"])
+                stat = f"COUNT: {self.stats['OBJ_COUNT']}; "
+                stat += f"TOTAL TIME: {(now - self.stats['START_TIME'])}; "
+                stat += f"STEP TIME: {(now - self.stats['TIME_LAST_STEP'])}; "
                 self.stats["TIME_LAST_STEP"] = now
-                stat += "EXISTED: %d; ADDED: %d; NOT-ADDED: %d" % (
-                    self.stats["EXISTED"],
-                    self.stats["ADDED"],
-                    self.stats["NOT-ADDED"],
-                )
+                stat += f"EXISTED: {self.stats['EXISTED']};"
+                stat += f"ADDED: {self.stats['ADDED']};"
+                stat += f"NOT-ADDED: {self.stats['NOT-ADDED']};"
                 logging.warning(stat)

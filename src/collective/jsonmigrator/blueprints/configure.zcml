@@ -1,83 +1,84 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
     xmlns:zcml="http://namespaces.zope.org/zcml"
-    i18n_domain="collective.jsonmigrator">
+    i18n_domain="collective.jsonmigrator"
+    >
 
   <utility
-      component=".datafields.DataFields"
       name="collective.jsonmigrator.datafields"
+      component=".datafields.DataFields"
       />
 
   <utility
-      component=".local_roles.LocalRoles"
       name="collective.jsonmigrator.local_roles"
+      component=".local_roles.LocalRoles"
       />
 
   <utility
-      component=".mimetype.Mimetype"
       name="collective.jsonmigrator.mimetype"
+      component=".mimetype.Mimetype"
       />
 
   <utility
-      component=".order.OrderSection"
       name="collective.jsonmigrator.order"
+      component=".order.OrderSection"
       />
 
   <utility
-      component=".owner.Owner"
       name="collective.jsonmigrator.owner"
+      component=".owner.Owner"
       />
 
   <utility
-      component=".partialcommit.PartialCommit"
       name="collective.jsonmigrator.partialcommit"
+      component=".partialcommit.PartialCommit"
       />
 
   <utility
-      component=".permissions.Permissions"
       name="collective.jsonmigrator.permissions"
+      component=".permissions.Permissions"
       />
 
   <utility
-      component=".properties.Properties"
       name="collective.jsonmigrator.properties"
+      component=".properties.Properties"
       />
 
   <utility
-      component=".skipitems.SkipItems"
       name="collective.jsonmigrator.skipitems"
+      component=".skipitems.SkipItems"
       />
 
   <utility
-      component=".source_catalog.CatalogSourceSection"
       name="collective.jsonmigrator.catalogsource"
+      component=".source_catalog.CatalogSourceSection"
       />
 
   <utility
-      component=".source_json.JSONSource"
       name="collective.jsonmigrator.jsonsource"
+      component=".source_json.JSONSource"
       />
 
   <utility
-      component=".source_remote.RemoteSource"
       name="collective.jsonmigrator.remotesource"
+      component=".source_remote.RemoteSource"
       />
 
   <utility
-      component=".statistics.Statistics"
       name="collective.jsonmigrator.statistics"
+      component=".statistics.Statistics"
       />
 
   <utility
-      component=".workflowhistory.WorkflowHistory"
       name="collective.jsonmigrator.workflowhistory"
+      component=".workflowhistory.WorkflowHistory"
       />
 
   <!-- BBB: Plone 4.3 doesn't come with plone.app.multilingual -->
   <utility
-      zcml:condition="installed plone.app.multilingual"
-      component=".translations.Translations"
       name="collective.jsonmigrator.translations"
+      component=".translations.Translations"
+      zcml:condition="installed plone.app.multilingual"
       />
 
 </configure>

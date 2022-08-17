@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 """Tests for views."""
-from collective.jsonmigrator.testing import COLLECTIVE_JSONMIGRATOR_INTEGRATION_TESTING
+from collective.jsonmigrator.testing import JSONMIGRATOR_INTEGRATION_TESTING
 from plone import api
 
 import unittest
@@ -9,7 +8,7 @@ import unittest
 class TestJSONMigratorView(unittest.TestCase):
     """Test for JSONMigratorView."""
 
-    layer = COLLECTIVE_JSONMIGRATOR_INTEGRATION_TESTING
+    layer = JSONMIGRATOR_INTEGRATION_TESTING
 
     def setUp(self):
         """Custom shared utility setup for tests."""

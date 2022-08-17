@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Tests for utils."""
 from collective.jsonmigrator.blueprints.utils import convert_path
 from collective.jsonmigrator.blueprints.utils import remove_first_bar
@@ -16,7 +15,7 @@ class TestUtils(unittest.TestCase):
     def test_convert_path_unicode(self):
         """Validates that the convert_path function convert
         unicode to string."""
-        path = convert_path(u"/plone/en")
+        path = convert_path("/plone/en")
         self.assertEqual(str, type(path))
 
     def test_convert_path_not_ascii(self):
@@ -40,7 +39,7 @@ class TestUtils(unittest.TestCase):
         """Test exception message when the path is unicode."""
         ex = None
         try:
-            convert_path(u"/plone/testç")
+            convert_path("/plone/testç")
         except AssertionError as e:
             ex = e
         self.assertEqual(
@@ -55,14 +54,14 @@ class TestUtils(unittest.TestCase):
     def test_remove_first_bar_converte(self):
         """Tests whether the remove_first_bar function
         converts unicode to string."""
-        path = remove_first_bar(u"/plone/en")
+        path = remove_first_bar("/plone/en")
         self.assertEqual(str, type(path))
 
     def test_remove_first_bar_exception_message(self):
         """Test exception message."""
         ex = None
         try:
-            remove_first_bar(u"/plone/testç")
+            remove_first_bar("/plone/testç")
         except AssertionError as e:
             ex = e
         self.assertEqual(

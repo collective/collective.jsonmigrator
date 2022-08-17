@@ -1,56 +1,28 @@
-# -*- coding: utf-8 -*-
 """Tests for blueprint Translations."""
 from collective.jsonmigrator.blueprints.translations import Translations
-from collective.jsonmigrator.testing import (
-    COLLECTIVE_JSONMIGRATOR_PAM_INTEGRATION_TESTING,
-)
+from collective.jsonmigrator.testing import JSONMIGRATOR_PAM_INTEGRATION_TESTING
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.transmogrifier import Transmogrifier
 from plone import api
+from plone.app.multilingual.interfaces import ITranslatable
+from plone.app.multilingual.interfaces import ITranslationManager
 from plone.uuid.interfaces import IMutableUUID
+from Products.CMFPlone.utils import get_installer
 from zope.component import getUtility
 
 import unittest
 
 
-try:
-    from plone.app.multilingual.interfaces import ITranslatable
-    from plone.app.multilingual.interfaces import ITranslationManager
-except ImportError:
-    # BBB Plone 4.3 whit Archetypes
-    from plone.multilingual.interfaces import ITranslatable
-    from plone.multilingual.interfaces import ITranslationManager
-
-
-try:
-    from Products.CMFPlone.utils import get_installer
-
-    HAS_INSTALLER = True
-except ImportError:
-    # BBB: Plone < 5.1
-    HAS_INSTALLER = False
-
-try:
-    from Products.Archetypes.interfaces.base import IBaseContent
-
-    HAS_AT = True
-except ImportError:
-    HAS_AT = False
-
-
 def set_uid(obj, uid):
-    if HAS_AT and IBaseContent.providedBy(obj):
-        obj._setUID(uid)
-    else:
-        mutable_uuid = IMutableUUID(obj)
-        mutable_uuid.set(uid)
+    mutable_uuid = IMutableUUID(obj)
+    mutable_uuid.set(uid)
     obj.reindexObject()
 
 
 class TestTranslationsBlueprint(unittest.TestCase):
     """Tests for blueprint Translations."""
 
-    layer = COLLECTIVE_JSONMIGRATOR_PAM_INTEGRATION_TESTING
+    layer = JSONMIGRATOR_PAM_INTEGRATION_TESTING
 
     def setUp(self):
         """Custom shared utility setup for tests."""
@@ -78,12 +50,8 @@ class TestTranslationsBlueprint(unittest.TestCase):
 
     def test_pam_installed(self):
         product = "plone.app.multilingual"
-        if HAS_INSTALLER:
-            qi = get_installer(self.portal)
-            installed = qi.is_product_installed(product)
-        else:
-            qi_tool = api.portal.get_tool("portal_quickinstaller")
-            installed = product in [p["id"] for p in qi_tool.listInstalledProducts()]
+        qi = get_installer(self.portal)
+        installed = qi.is_product_installed(product)
         self.assertTrue(installed)
 
     def test_document_is_translatable(self):
