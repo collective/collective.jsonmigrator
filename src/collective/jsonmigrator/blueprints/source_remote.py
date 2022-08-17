@@ -1,4 +1,4 @@
-from base64 import b64encode
+from base64 import encodebytes
 from collective.jsonmigrator import logger
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
@@ -59,7 +59,7 @@ class BasicAuth(xmlrpc_client.Transport):
         h.putheader("Content-Length", str(len(request_body)))
 
         if self.username is not None and self.password is not None:
-            authorization = b64encode(f"{self.username}:{self.password}".encode("utf-8"))
+            authorization = encodebytes(f"{self.username}:{self.password}".encode()).replace(b"\012", b"").decode()
             h.putheader(
                 "AUTHORIZATION",
                 f"Basic {authorization}"
