@@ -6,7 +6,7 @@ def convert_path(path):
     """Convert path to a valid ascii string.
     If it contains non-ascii characters, raises an Exception."""
     if path.isascii():
-        return safe_unicode(path)
+        return safe_text(path)
     _path = path
     if not isinstance(_path, str):
         _path = _path.encode("utf-8")
