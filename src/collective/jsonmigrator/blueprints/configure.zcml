@@ -74,7 +74,6 @@
       component=".workflowhistory.WorkflowHistory"
       />
 
-  <!-- BBB: Plone 4.3 doesn't come with plone.app.multilingual -->
   <utility
       name="collective.jsonmigrator.translations"
       component=".translations.Translations"
