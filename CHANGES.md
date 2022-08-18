@@ -1,6 +1,6 @@
 ## Changelog
 
-# 3.0.0 (unreleased)
+3.0.0 (2022-08-18)
 
 - Implement plone/code-analysis-action @ericof
 

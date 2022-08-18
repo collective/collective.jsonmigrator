@@ -12,7 +12,7 @@ long_description = f"""
 
 setup(
     name="collective.jsonmigrator",
-    version="3.0.0.dev0",
+    version="3.0.0",
     description="Tool for you to migrate from old Plone sites",
     long_description=long_description,
     # Get more from https://pypi.org/classifiers/
