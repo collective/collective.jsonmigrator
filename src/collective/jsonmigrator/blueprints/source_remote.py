@@ -145,7 +145,7 @@ class RemoteSource:
             setattr(self, option.replace("-", "_"), self.get_option(option, default))
         if isinstance(self.remote_crawl_depth, str):
             self.remote_crawl_depth = int(self.remote_crawl_depth)
-        if type(self.remote_skip_path) in [str, str]:
+        if isinstance(self.remote_skip_path, str):
             self.remote_skip_path = self.remote_skip_path.split()
         if self.remote_path[-1] == "/":
             self.remote_path = self.remote_path[:-1]
