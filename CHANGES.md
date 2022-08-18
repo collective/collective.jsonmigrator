@@ -1,6 +1,6 @@
 ## Changelog
 
-3.0.1 (unreleased)
+3.0.1 (2022-08-18)
 ------------------
 
 - Fix README rendering on pypi @ericof
