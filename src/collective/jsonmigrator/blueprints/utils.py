@@ -1,5 +1,5 @@
 """Functions utils."""
-from Products.CMFPlone.utils import safe_unicode
+from Products.CMFPlone.utils import safe_text
 
 
 def convert_path(path):
