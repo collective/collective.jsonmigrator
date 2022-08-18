@@ -12,7 +12,7 @@ long_description = f"""
 
 setup(
     name="collective.jsonmigrator",
-    version="3.0.1",
+    version="3.0.2.dev0",
     description="Tool for you to migrate from old Plone sites",
     long_description=long_description,
     long_description_content_type="text/markdown",
