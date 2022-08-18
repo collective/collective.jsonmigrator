@@ -3,7 +3,7 @@
 3.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix README rendering on pypi @ericof
 
 
 3.0.0 (2022-08-18)

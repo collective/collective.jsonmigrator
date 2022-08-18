@@ -15,6 +15,7 @@ setup(
     version="3.0.1.dev0",
     description="Tool for you to migrate from old Plone sites",
     long_description=long_description,
+    long_description_content_type="text/markdown",
     # Get more from https://pypi.org/classifiers/
     classifiers=[
         "Development Status :: 5 - Production/Stable",
