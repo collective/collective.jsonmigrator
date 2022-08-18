@@ -3,12 +3,9 @@ from plone.app.testing import FunctionalTesting
 from plone.app.testing import IntegrationTesting
 from plone.app.testing import PLONE_FIXTURE
 from plone.app.testing import PloneSandboxLayer
-from Products.CMFPlone.utils import getFSVersionTuple
 
 import collective.jsonmigrator
 import plone.app.multilingual
-
-
 
 
 class CollectiveJsonmigratorLayer(PloneSandboxLayer):
@@ -20,10 +17,6 @@ class CollectiveJsonmigratorLayer(PloneSandboxLayer):
         # The z3c.autoinclude feature is disabled in the Plone fixture base
         # layer.
         self.loadZCML(package=collective.jsonmigrator)
-
-    def setUpPloneSite(self, portal):
-        if PLONE_VERSION == 5.1:
-            applyProfile(portal, "plone.app.contenttypes:default")
 
 
 JSONMIGRATOR_FIXTURE = CollectiveJsonmigratorLayer()
