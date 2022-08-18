@@ -65,9 +65,6 @@ class Properties:
 
                 if ptype == "string":
                     pvalue = safe_text(pvalue)
-                    if not isinstance(pvalue, str):
-                        # BBB: Python 2
-                        pvalue = pvalue.encode("utf-8")
                 try:
                     if obj.hasProperty(pid):
                         obj._updateProperty(pid, pvalue)
