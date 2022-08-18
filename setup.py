@@ -61,8 +61,6 @@ setup(
     extras_require={
         "test": [
             "zope.testrunner",
-            "plone.api",
-            "plone.app.multilingual",
             "plone.app.testing",
             "plone.uuid",
             "zope.component",
