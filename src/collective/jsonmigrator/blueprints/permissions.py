@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from AccessControl.interfaces import IRoleManager
 from collective.jsonmigrator import logger
 from collective.jsonmigrator.blueprints.utils import remove_first_bar
@@ -13,7 +12,7 @@ from zope.interface import provider
 
 @provider(ISectionBlueprint)
 @implementer(ISection)
-class Permissions(object):
+class Permissions:
 
     """ """
 
@@ -59,9 +58,6 @@ class Permissions(object):
                             perm, roles=perm_dict["roles"], acquire=perm_dict["acquire"]
                         )
                     except ValueError:
-                        # raise Exception('Error setting the perm "%s"' % perm)
-                        logger.error(
-                            'Error setting the perm "%s" on %s' % (perm, item[pathkey])
-                        )
+                        logger.error(f'Error setting the perm "{perm}" on {item[pathkey]}')
 
             yield item

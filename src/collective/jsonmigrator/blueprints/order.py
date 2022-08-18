@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from Acquisition import aq_base
 from collective.jsonmigrator.blueprints.utils import remove_first_bar
 from collective.transmogrifier.interfaces import ISection
@@ -12,7 +11,7 @@ from zope.interface import provider
 
 @provider(ISectionBlueprint)
 @implementer(ISection)
-class OrderSection(object):
+class OrderSection:
     def __init__(self, transmogrifier, name, options, previous):
         self.every = int(options.get("every", 1000))
         self.previous = previous

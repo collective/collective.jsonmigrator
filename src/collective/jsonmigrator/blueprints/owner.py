@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from collective.jsonmigrator.blueprints.utils import remove_first_bar
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
@@ -12,7 +11,7 @@ from zope.interface import provider
 
 @provider(ISectionBlueprint)
 @implementer(ISection)
-class Owner(object):
+class Owner:
 
     """ """
 
@@ -56,28 +55,22 @@ class Owner(object):
             if obj is None:
                 yield item
                 continue
-
+            path_key = item.get(pathkey)
             if item[ownerkey][0] and item[ownerkey][1]:
                 try:
                     obj.changeOwnership(self.memtool.getMemberById(item[ownerkey][1]))
                 except Exception as e:
-                    raise Exception(
-                        "ERROR: %s SETTING OWNERSHIP TO %s" % (str(e), item[pathkey])
-                    )
+                    raise Exception(f"ERROR: {e} SETTING OWNERSHIP TO {path_key}")
 
                 try:
                     obj.manage_setLocalRoles(item[ownerkey][1], ["Owner"])
                 except Exception as e:
-                    raise Exception(
-                        "ERROR: %s SETTING OWNERSHIP2 TO %s" % (str(e), item[pathkey])
-                    )
+                    raise Exception(f"ERROR: {e} SETTING OWNERSHIP2 TO {path_key}")
 
             elif not item[ownerkey][0] and item[ownerkey][1]:
                 try:
                     obj._owner = item[ownerkey][1]
                 except Exception as e:
-                    raise Exception(
-                        "ERROR: %s SETTING __OWNERSHIP TO %s" % (str(e), item[pathkey])
-                    )
+                    raise Exception(f"ERROR: {e} SETTING __OWNERSHIP TO {path_key}")
 
             yield item

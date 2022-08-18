@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from Acquisition import aq_base
 from collective.jsonmigrator.blueprints.utils import remove_first_bar
 from collective.transmogrifier.interfaces import ISection
@@ -6,21 +5,15 @@ from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import defaultKeys
 from collective.transmogrifier.utils import Matcher
 from collective.transmogrifier.utils import traverse
+from Products.CMFPlone.utils import safe_text
 from ZODB.POSException import ConflictError
 from zope.interface import implementer
 from zope.interface import provider
 
 
-try:
-    from Products.CMFPlone.utils import safe_text
-except ImportError:
-    # BBB: Plone<5.2 don't have safe_text
-    from Products.CMFPlone.utils import safe_unicode as safe_text
-
-
 @provider(ISectionBlueprint)
 @implementer(ISection)
-class Properties(object):
+class Properties:
 
     """ """
 
@@ -72,9 +65,6 @@ class Properties(object):
 
                 if ptype == "string":
                     pvalue = safe_text(pvalue)
-                    if not isinstance(pvalue, str):
-                        # BBB: Python 2
-                        pvalue = pvalue.encode("utf-8")
                 try:
                     if obj.hasProperty(pid):
                         obj._updateProperty(pid, pvalue)
@@ -84,9 +74,8 @@ class Properties(object):
                     raise
                 except Exception as e:
                     raise Exception(
-                        'Failed to set property "%s" type "%s"'
-                        ' to "%s" at object %s. ERROR: %s'
-                        % (pid, ptype, pvalue, str(obj), str(e))
+                        f'Failed to set property "{pid}" type "{ptype}"'
+                        f' to "{pvalue}" at object {obj}. ERROR: {e}'
                     )
 
             yield item

@@ -1,23 +1,21 @@
-# -*- coding: utf-8 -*-
 from collective.jsonmigrator import logger
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
+from urllib import error
+from urllib import parse
+from urllib import request
 from zope.interface import implementer
 from zope.interface import provider
 
 import base64
 import json
-import six
-import six.moves.urllib.error
-import six.moves.urllib.parse
-import six.moves.urllib.request
 import threading
 import time
 
 
 @provider(ISectionBlueprint)
 @implementer(ISection)
-class CatalogSourceSection(object):
+class CatalogSourceSection:
 
     """A source section which creates items from a remote Plone site by
     querying it's catalog.
@@ -43,24 +41,24 @@ class CatalogSourceSection(object):
         self.queue_length = int(self.get_option("queue-size", "10"))
 
         # Install a basic auth handler
-        auth_handler = six.moves.urllib.request.HTTPBasicAuthHandler()
+        auth_handler = request.HTTPBasicAuthHandler()
         auth_handler.add_password(
             realm="Zope",
             uri=self.remote_url,
             user=remote_username,
             passwd=remote_password,
         )
-        opener = six.moves.urllib.request.build_opener(auth_handler)
-        six.moves.urllib.request.install_opener(opener)
+        opener = request.build_opener(auth_handler)
+        request.install_opener(opener)
 
-        req = six.moves.urllib.request.Request(
-            "%s%s/get_catalog_results" % (self.remote_url, catalog_path),
-            six.moves.urllib.parse.urlencode({"catalog_query": catalog_query}),
+        req = request.Request(
+            f"{self.remote_url}{catalog_path}/get_catalog_results",
+            parse.urlencode({"catalog_query": catalog_query}),
         )
         try:
-            f = six.moves.urllib.request.urlopen(req)
+            f = request.urlopen(req)
             resp = f.read()
-        except six.moves.urllib.error.URLError:
+        except error.URLError:
             raise
 
         self.item_paths = sorted(json.loads(resp))
@@ -77,7 +75,7 @@ class CatalogSourceSection(object):
             )
         else:
             value = self.options.get(name, default)
-        if isinstance(value, six.text_type):
+        if isinstance(value, str):
             value = value.encode("utf8")
         return value
 
@@ -93,14 +91,14 @@ class CatalogSourceSection(object):
         for item in queue:
             if not item:
                 continue
-
-            item["_path"] = item["_path"][self.site_path_length :]
+            index = self.site_path_length
+            item["_path"] = item["_path"][index:]
             yield item
 
 
 class QueuedItemLoader(threading.Thread):
     def __init__(self, remote_url, paths, remote_skip_paths, queue_length):
-        super(QueuedItemLoader, self).__init__()
+        super().__init__()
 
         self.remote_url = remote_url
         self.paths = list(paths)
@@ -137,19 +135,16 @@ class QueuedItemLoader(threading.Thread):
         return False
 
     def _load_path(self, path):
-        item_url = "%s%s/get_item" % (
-            self.remote_url,
-            six.moves.urllib.parse.quote(path),
-        )
+        item_url = f"{self.remote_url}{parse.quote(path)}/get_item"
         try:
-            f = six.moves.urllib.request.urlopen(item_url)
+            f = request.urlopen(item_url)
             item_json = f.read()
-        except six.moves.urllib.error.URLError as e:
-            logger.error("Failed reading item from %s. %s" % (item_url, str(e)))
+        except error.URLError as e:
+            logger.error(f"Failed reading item from {item_url}. {e}")
             return None
         try:
             item = json.loads(item_json)
         except json.JSONDecodeError:
-            logger.error("Could not decode item from %s." % item_url)
+            logger.error(f"Could not decode item from {item_url}.")
             return None
         return item

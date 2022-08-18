@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from zope.interface import implementer
@@ -10,7 +9,7 @@ import transaction
 
 @provider(ISectionBlueprint)
 @implementer(ISection)
-class PartialCommit(object):
+class PartialCommit:
     def __init__(self, transmogrifier, name, options, previous):
         self.previous = previous
         self.step = int(options.get("every", 100))
@@ -21,5 +20,5 @@ class PartialCommit(object):
             yield item
             if count % self.step == 0:
                 transaction.commit()
-                logging.info("Committed after %s" % count)
+                logging.info(f"Committed after {count}")
             count += 1

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from collective.jsonmigrator.blueprints.utils import remove_first_bar
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
@@ -9,15 +8,9 @@ from zope.interface import implementer
 from zope.interface import provider
 
 
-try:
-    from Products.Archetypes.interfaces import IBaseObject
-except ImportError:
-    IBaseObject = None
-
-
 @provider(ISectionBlueprint)
 @implementer(ISection)
-class Mimetype(object):
+class Mimetype:
     def __init__(self, transmogrifier, name, options, previous):
         self.transmogrifier = transmogrifier
         self.name = name
@@ -54,8 +47,5 @@ class Mimetype(object):
                 # path doesn't exist
                 yield item
                 continue
-
-            if IBaseObject and IBaseObject.providedBy(obj):
-                obj.setFormat(item[mimetypekey])
 
             yield item

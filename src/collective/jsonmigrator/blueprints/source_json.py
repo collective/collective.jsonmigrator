@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import resolvePackageReferenceOrFile
+from pathlib import Path
 from zope.interface import implementer
 from zope.interface import provider
 
@@ -14,8 +14,7 @@ DATAFIELD = "_datafield_"
 
 @provider(ISectionBlueprint)
 @implementer(ISection)
-class JSONSource(object):
-    """ """
+class JSONSource:
 
     def __init__(self, transmogrifier, name, options, previous):
         self.transmogrifier = transmogrifier
@@ -24,9 +23,9 @@ class JSONSource(object):
         self.previous = previous
         self.context = transmogrifier.context
 
-        self.path = resolvePackageReferenceOrFile(options["path"])
-        if self.path is None or not os.path.isdir(self.path):
-            raise Exception("Path (" + str(self.path) + ") does not exists.")
+        self.path = Path(resolvePackageReferenceOrFile(options["path"]))
+        if not self.path.is_dir():
+            raise Exception(f"Path ({self.path}) does not exists.")
 
         self.datafield_prefix = options.get("datafield-prefix", DATAFIELD)
 
@@ -35,17 +34,14 @@ class JSONSource(object):
             yield item
 
         for item3 in sorted(
-            [int(i) for i in os.listdir(self.path) if not i.startswith(".")]
+            int(i) for i in os.listdir(self.path) if not i.startswith(".")
         ):
             for item2 in sorted(
-                [
                     int(j[:-5])
                     for j in os.listdir(os.path.join(self.path, str(item3)))
                     if j.endswith(".json")
-                ]
             ):
-
-                f = open(os.path.join(self.path, str(item3), "%s.json" % item2))
+                f = open(os.path.join(self.path, str(item3), f"{item2}.json"))
                 item = json.loads(f.read())
                 f.close()
 

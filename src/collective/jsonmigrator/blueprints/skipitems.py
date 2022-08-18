@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from zope.interface import implementer
@@ -7,7 +6,7 @@ from zope.interface import provider
 
 @provider(ISectionBlueprint)
 @implementer(ISection)
-class SkipItems(object):
+class SkipItems:
     def __init__(self, transmogrifier, name, options, previous):
         self.previous = previous
         self.first = int(options.get("first", 0))

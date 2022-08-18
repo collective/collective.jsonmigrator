@@ -1,31 +1,23 @@
-# -*- coding: utf-8 -*-
-from base64 import encodestring
+from base64 import encodebytes
 from collective.jsonmigrator import logger
 from collective.transmogrifier.interfaces import ISection
 from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.utils import resolvePackageReferenceOrFile
+from json import JSONDecodeError
+from urllib import parse
+from urllib import request
 from zope.interface import implementer
 from zope.interface import provider
 
+import http.client as http_client
 import json
 import os.path
 import pickle
-import six
-import six.moves.http_client
-import six.moves.urllib.parse
-import six.moves.urllib.request
-import six.moves.xmlrpc_client
-import string
+import xmlrpc.client as xmlrpc_client
 
 
 _marker = object()
 MEMOIZE_PROPNAME = "_memojito_"
-
-if six.PY2:
-    # BBB: json.JSONDecodeError doesn't exist in Python 2
-    JSONDecodeError = ValueError
-else:
-    from json import JSONDecodeError
 
 
 def memoize(func):
@@ -50,7 +42,7 @@ def memoize(func):
     return memogetter
 
 
-class BasicAuth(six.moves.xmlrpc_client.Transport):
+class BasicAuth(xmlrpc_client.Transport):
     def __init__(self, username=None, password=None, verbose=False):
         self.username = username
         self.password = password
@@ -58,7 +50,7 @@ class BasicAuth(six.moves.xmlrpc_client.Transport):
         self._use_datetime = True
 
     def request(self, host, handler, request_body, verbose):
-        h = six.moves.http_client.HTTP(host)
+        h = http_client.HTTP(host)
 
         h.putrequest("POST", handler)
         h.putheader("Host", host)
@@ -67,12 +59,10 @@ class BasicAuth(six.moves.xmlrpc_client.Transport):
         h.putheader("Content-Length", str(len(request_body)))
 
         if self.username is not None and self.password is not None:
+            authorization = encodebytes(f"{self.username}:{self.password}".encode()).replace(b"\012", b"").decode()
             h.putheader(
                 "AUTHORIZATION",
-                "Basic %s"
-                % string.replace(
-                    encodestring("%s:%s" % (self.username, self.password)), "\012", ""
-                ),
+                f"Basic {authorization}"
             )
         h.endheaders()
 
@@ -82,9 +72,7 @@ class BasicAuth(six.moves.xmlrpc_client.Transport):
         errcode, errmsg, headers = h.getreply()
 
         if errcode != 200:
-            raise six.moves.xmlrpc_client.ProtocolError(
-                host + handler, errcode, errmsg, headers
-            )
+            raise xmlrpc_client.ProtocolError(host + handler, errcode, errmsg, headers)
 
         return self.parse_response(h.getfile())
 
@@ -98,10 +86,10 @@ class UrllibrpcException(Exception):
         self.url = url
 
     def __str__(self):
-        return "%s:%s" % (self.code, self.url)
+        return f"{self.code}:{self.url}"
 
 
-class Urllibrpc(object):
+class Urllibrpc:
     def __init__(self, url, username, password):
         self.url = url
         self.username = username
@@ -116,16 +104,14 @@ class Urllibrpc(object):
                 params,
                 query,
                 fragment,
-            ) = six.moves.urllib.parse.urlparse(self.url)
+            ) = parse.urlparse(self.url)
             if "@" not in netloc:
-                netloc = "%s:%s@%s" % (self.username, self.password, netloc)
+                netloc = f"{self.username}:{self.password}@{netloc}"
             if path.endswith("/"):
                 path = path[:-1]
-            path = path + "/" + item
-            url = six.moves.urllib.parse.urlunparse(
-                (scheme, netloc, path, params, query, fragment)
-            )
-            f = six.moves.urllib.request.urlopen(url)
+            path = f"{path}/{item}"
+            url = parse.urlunparse((scheme, netloc, path, params, query, fragment))
+            f = request.urlopen(url)
             content = f.read()
             if f.getcode() != 200:
                 raise UrllibrpcException(f.getcode(), f.geturl())
@@ -137,7 +123,7 @@ class Urllibrpc(object):
 
 @provider(ISectionBlueprint)
 @implementer(ISection)
-class RemoteSource(object):
+class RemoteSource:
 
     """ """
 
@@ -157,9 +143,9 @@ class RemoteSource(object):
         self.context = transmogrifier.context
         for option, default in self._options:
             setattr(self, option.replace("-", "_"), self.get_option(option, default))
-        if type(self.remote_crawl_depth) in [str, six.text_type]:
+        if isinstance(self.remote_crawl_depth, str):
             self.remote_crawl_depth = int(self.remote_crawl_depth)
-        if type(self.remote_skip_path) in [str, six.text_type]:
+        if isinstance(self.remote_skip_path, str):
             self.remote_skip_path = self.remote_skip_path.split()
         if self.remote_path[-1] == "/":
             self.remote_path = self.remote_path[:-1]
@@ -185,13 +171,9 @@ class RemoteSource(object):
             remote_url += "/"
         if path.startswith("/"):
             path = path[1:]
-        url = six.moves.urllib.parse.urljoin(
-            remote_url, six.moves.urllib.parse.quote(path)
+        url = parse.urljoin(
+            remote_url, parse.quote(path)
         )
-        # remote = xmlrpclib.Server(
-        #         url,
-        #         BasicAuth(self.remote_username, self.remote_password),
-        #         )
 
         # XMLRPC seems to be causing unexplained Faults where urllib works
         remote = Urllibrpc(url, self.remote_username, self.remote_password)
@@ -200,7 +182,7 @@ class RemoteSource(object):
             item = remote.get_item()
         except UrllibrpcException as e:
             logger.error(
-                "Failed reading url '%s' with error code %s." % (e.url, e.code)
+                f"Failed reading url '{e.url}' with error code {e.code}."
             )
             return None, []
 
@@ -208,7 +190,7 @@ class RemoteSource(object):
             subitems = remote.get_children()
         except UrllibrpcException as e:
             logger.error(
-                "Failed reading url '%s' with error code %s." % (e.url, e.code)
+                f"Failed reading url '{e.url}' with error code {e.code}."
             )
             return item, []
 
@@ -222,27 +204,26 @@ class RemoteSource(object):
             item, subitems = self.get_remote_item(path)
 
             if item is None:
-                logger.warn(":: Skipping -> %s. No remote data." % path)
+                logger.warn(f":: Skipping -> {path}. No remote data.")
                 return
 
             if item.startswith("ERROR"):
-                logger.error(
-                    "Could not get item '%s' from remote. Got %s." % (path, item)
-                )
+                logger.error(f"Could not get item '{path}' from remote. Got {item}.")
                 return
 
             try:
                 item = json.loads(item)
             except JSONDecodeError:
-                logger.error("Could not decode item from path '%s' as JSON." % path)
+                logger.error(f"Could not decode item from path '{path}' as JSON.")
                 return
-            logger.info(":: Crawling %s" % item["_path"])
+            logger.info(f":: Crawling {item['_path']}")
 
             # item['_path'] is relative to domain root. we need relative to
             # plone root
             remote_url = self.remote_url
-            _, _, remote_path, _, _, _ = six.moves.urllib.parse.urlparse(remote_url)
-            item["_path"] = item["_path"][len(remote_path) :]
+            _, _, remote_path, _, _, _ = parse.urlparse(remote_url)
+            index = len(remote_path)
+            item["_path"] = item["_path"][index:]
             if item["_path"].startswith("/"):
                 item["_path"] = item["_path"][1:]
 
@@ -252,20 +233,17 @@ class RemoteSource(object):
                 yield item
 
             if subitems.startswith("ERROR"):
-                logger.error(
-                    "Could not get subitems for '%s'. Got %s." % (path, subitems)
-                )
+                logger.error(f"Could not get subitems for '{path}'. Got {subitems}.")
                 return
-
+            remote_path_index = len(self.remote_path)
             for subitem_id in json.loads(subitems):
-                subitem_path = path + "/" + subitem_id
+                subitem_path = f"{path}/{subitem_id}"
 
-                if subitem_path[len(self.remote_path) :] in self.remote_skip_path:
-                    logger.info(":: Skipping -> " + subitem_path)
+                if subitem_path[remote_path_index:] in self.remote_skip_path:
+                    logger.info(f":: Skipping -> {subitem_path}")
                     continue
 
-                for subitem in self.get_items(subitem_path, depth + 1):
-                    yield subitem
+                yield from self.get_items(subitem_path, depth + 1)
 
     def __iter__(self):
         for item in self.previous:

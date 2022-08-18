@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from AccessControl.interfaces import IRoleManager
 from collective.jsonmigrator.blueprints.utils import remove_first_bar
 from collective.transmogrifier.interfaces import ISection
@@ -12,7 +11,7 @@ from zope.interface import provider
 
 @provider(ISectionBlueprint)
 @implementer(ISection)
-class LocalRoles(object):
+class LocalRoles:
     def __init__(self, transmogrifier, name, options, previous):
         self.transmogrifier = transmogrifier
         self.name = name
