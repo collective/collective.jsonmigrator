@@ -9,7 +9,6 @@ import collective.jsonmigrator
 import plone.app.multilingual
 
 
-version_tuple = getFSVersionTuple()
 
 
 class CollectiveJsonmigratorLayer(PloneSandboxLayer):
