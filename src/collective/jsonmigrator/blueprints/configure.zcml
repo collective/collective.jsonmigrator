@@ -78,7 +78,6 @@
   <utility
       name="collective.jsonmigrator.translations"
       component=".translations.Translations"
-      zcml:condition="installed plone.app.multilingual"
       />
 
 </configure>
