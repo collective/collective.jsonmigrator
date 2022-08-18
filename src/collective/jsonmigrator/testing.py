@@ -10,7 +10,6 @@ import plone.app.multilingual
 
 
 version_tuple = getFSVersionTuple()
-PLONE_VERSION = float(f"{version_tuple[0]}.{version_tuple[1]}")
 
 
 class CollectiveJsonmigratorLayer(PloneSandboxLayer):
