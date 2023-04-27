@@ -39,7 +39,7 @@ help: ## This help message
 
 bin/pip:
 	@echo "$(GREEN)==> Setup Virtual Env$(RESET)"
-	python3 -m venv .
+	python3.11 -m venv .
 	bin/pip install -U pip wheel
 
 .PHONY: build
@@ -47,6 +47,11 @@ build: bin/pip ## Build Plone 6.0
 	@echo "$(GREEN)==> Build with Plone 6.0$(RESET)"
 	bin/pip install Plone -c https://dist.plone.org/release/$(PLONE6)/constraints.txt
 	bin/pip install "zest.releaser[recommended]"
+	# FIXE: plone.app.transmogrifier 3.0.0 has an error in Plone 6. See:
+	# https://github.com/collective/plone.app.transmogrifier/pull/32
+	# This bug has been fixed. So, as soon as a new version is released,
+	# we must remove this installation through github.
+	bin/pip install git+https://github.com/collective/plone.app.transmogrifier.git -c https://dist.plone.org/release/$(PLONE6)/constraints.txt
 	bin/pip install -e ".[test]"
 	bin/mkwsgiinstance -d . -u admin:admin
 
