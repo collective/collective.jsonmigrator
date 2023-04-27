@@ -3,7 +3,7 @@
 3.0.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Remove ``z3c.autoinclude`` of entry_points @wesleybl
 
 
 3.0.1 (2022-08-18)
