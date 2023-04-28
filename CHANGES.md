@@ -3,7 +3,9 @@
 3.0.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add Python 3.10 and 3.11 support @wesleybl
+
+- Remove ``z3c.autoinclude`` of entry_points @wesleybl
 
 
 3.0.1 (2022-08-18)
